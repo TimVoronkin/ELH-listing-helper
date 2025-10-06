@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Extension Options</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; }
+    label { display:block; margin-top:12px }
+    textarea { width:100%; height:80px }
+  </style>
+</head>
+<body>
+  <h2>ELH helper — Options</h2>
+  <p>Set your Gemini API key here. You can also upload a <code>.env</code> file containing <code>GEMINI_API_KEY=...</code>.</p>
+
+  <label>API Key
+    <input id="apiKey" type="text" placeholder="GEMINI_API_KEY" style="width:100%" />
+  </label>
+  <button id="save">Save</button>
+  <button id="clear">Clear</button>
+
+  <hr />
+  <label>Upload .env file
+    <input id="envFile" type="file" accept=".env" />
+  </label>
+  <pre id="status"></pre>
+
+  <script src="options.js"></script>
+</body>
+</html>
