@@ -1,0 +1,32 @@
+{
+  "instruction": "Generate a natural room name based on the provided description, ensuring it matches the room's features. Use the room number from the original description. Follow the style of provided examples like 'Bright Double Room X with Balcony & Desk' or 'Cozy Single Room X with Wardrobe & Lamp'. Avoid repeating names, especially consecutively, and vary the mentioned elements (e.g., balcony, desk, window) based on what stands out most. Only include a bright or distinctive wall/floor color if explicitly mentioned in the description. Return only the new room name.",
+  "input": {
+    "description": "roomDesc"
+  },
+  "output_format": {
+    "new_room_name": "string"
+  },
+  "examples": [
+    {
+      "input": {
+        "description": "Room 7 is a small room with a single bed, a desk, and a large window."
+      },
+      "output": {
+        "new_room_name": "Bright Single Room 7 with Large Window & Desk"
+      }
+    },
+    {
+      "input": {
+        "description": "Room 12 has two beds, a blue wall, and a balcony."
+      },
+      "output": {
+        "new_room_name": "Spacious Twin Room 12 with Blue Wall & Balcony"
+      }
+    }
+  ],
+  "constraints": {
+    "use_room_number": true,
+    "avoid_repeating_names": true,
+    "include_color_only_if_mentioned": true
+  }
+}

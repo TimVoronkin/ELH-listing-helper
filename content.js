@@ -382,6 +382,7 @@ function insertGeminiBtn() {
         geminiBtn.style.pointerEvents = "auto";
         // Парсим чистый результат
         let result = "";
+        // primary: candidates -> content -> parts[0].text
         if (
           response &&
           response.candidates &&
@@ -394,10 +395,34 @@ function insertGeminiBtn() {
           result = response.candidates[0].content.parts[0].text.trim();
         } else if (response && response.text) {
           result = response.text.trim();
-        } else {
-          result = JSON.stringify(response);
+        } else if (response && typeof response === 'string') {
+          result = response.trim();
+        } else if (response && typeof response === 'object') {
+          // try common fields
+          if (response.new_room_name && typeof response.new_room_name === 'string') {
+            result = response.new_room_name.trim();
+          } else {
+            result = JSON.stringify(response);
+          }
         }
-        console.log(result);
+        // If the result is a JSON string like '{"new_room_name":"..."}', try to parse and extract
+        if (typeof result === 'string' && result.startsWith('{') && result.endsWith('}')) {
+          try {
+            const parsed = JSON.parse(result);
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.new_room_name && typeof parsed.new_room_name === 'string') {
+                result = parsed.new_room_name.trim();
+              } else {
+                // try to find any string value in the object
+                const vals = Object.values(parsed).filter(v => typeof v === 'string');
+                if (vals.length === 1) result = vals[0].trim();
+              }
+            }
+          } catch (e) {
+            // not JSON — keep as-is
+          }
+        }
+        console.log('Parsed Gemini result:', result);
         // Вставить результат в поле Room name
         const nameLabel = Array.from(document.querySelectorAll("label")).find(
           (el) => el.textContent && el.textContent.trim() === "Room name"

@@ -1,30 +1,192 @@
 <!doctype html>
 <html>
+
 <head>
-  <meta charset="utf-8" />
-  <title>Extension Options</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 16px; }
-    label { display:block; margin-top:12px }
-    textarea { width:100%; height:80px }
-  </style>
+    <meta charset="utf-8" />
+    <title>Extension Options</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        :root {
+            --bg: #f7f8fa;
+            --card: #fff;
+            --muted: #6b7280;
+            --accent: #2563eb
+        }
+
+        body {
+            font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 24px;
+            color: #111
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-weight: 600
+        }
+
+        .muted {
+            color: var(--muted);
+            margin: 0 0 16px
+        }
+
+        .row {
+            display: flex;
+            gap: 16px
+        }
+
+        .col {
+            flex: 1;
+            background: var(--card);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #111
+        }
+
+        input[type=text] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e6e9ef;
+            border-radius: 6px
+        }
+
+        input.secretinput {
+            -webkit-text-security: disc
+        }
+
+        textarea {
+            width: 100%;
+            height: 320px;
+            padding: 10px;
+            border: 1px solid #e6e9ef;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace
+        }
+        .key-row {
+            display: flex;
+            gap: 10px;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px
+        }
+        .buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px
+        }
+
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #f3f4f6;
+            cursor: pointer
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+            border: none
+        }
+
+        .status {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+
+        @media (max-width:800px) {
+            .row {
+                flex-direction: column
+            }
+
+            .col {
+                padding: 12px
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <h2>ELH helper — Options</h2>
-  <p>Set your Gemini API key here. You can also upload a <code>.env</code> file containing <code>GEMINI_API_KEY=...</code>.</p>
+    <div class="header-row">
+        <div>
+            <h2>ELH helper — Options</h2>
+            <p class="muted">Configure your Gemini API key and the full <code>promptObj</code> template used for
+                requests. Use <code>{{PROMPT}}</code> inside the JSON where the dynamic prompt text should be injected.
+            </p>
+        </div>
+        <div>
+            <button id="save" class="primary">Save</button>
+        </div>
+    </div>
 
-  <label>API Key
-    <input id="apiKey" type="text" placeholder="GEMINI_API_KEY" style="width:100%" />
-  </label>
-  <button id="save">Save</button>
-  <button id="clear">Clear</button>
 
-  <hr />
-  <label>Upload .env file
-    <input id="envFile" type="file" accept=".env" />
-  </label>
-  <pre id="status"></pre>
 
-  <script src="options.js"></script>
+    <div class="row">
+
+        <div class="col">
+
+            <label class="label">API Key of Gemini</label>
+            <div class="key-row" style="
+    display: flex;
+    gap: 10px;
+">
+                <input class="secretinput" id="apiKey" type="text" placeholder="GEMINI_API_KEY">
+                <button id="clear">Clear</button>
+            </div>
+
+
+
+
+
+
+
+
+            <label class="label">Upload .env file
+                <input id="envFile" type="file" accept=".env">
+            </label>
+            <div id="status" class="status" style="color: rgb(11, 102, 35);">Saved.</div>
+        </div>
+
+        <div class="col">
+            <label class="label">JSON prompt for AI</label>
+            <div class="json-actions">
+                <div>
+                    <button id="validate">Validate JSON</button>
+                    <button id="pretty">Pretty Print</button>
+                    <button id="defaults">Load Default</button>
+                    <button id="test" title="Send a test prompt using the saved key">Test</button>
+                </div>
+                <div>
+
+                </div>
+            </div>
+            <textarea id="promptObj" spellcheck="false"></textarea>
+            <div id="jsonStatus" class="status">Pretty printed.</div>
+            <div id="testResult" class="status" style="white-space:pre-wrap;margin-top:8px"></div>
+        </div>
+    </div>
+
+    <script src="options.js"></script>
+
+
+
+
 </body>
+
 </html>
