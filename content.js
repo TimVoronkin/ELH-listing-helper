@@ -69,9 +69,18 @@ function insertGeminiBtn() {
   geminiBtn.style.verticalAlign = "middle";
   geminiBtn.style.position = "relative";
 
+  // debounce / basic rate limiting per button
+  let geminiLastCall = 0;
+  let geminiBackoff = 0; // seconds
   geminiBtn.addEventListener("click", async (event) => {
     event.preventDefault();
     event.stopPropagation();
+    const now = Date.now();
+    if (now - geminiLastCall < 3000 + geminiBackoff * 1000) {
+      // ignore quick repeated clicks
+      return;
+    }
+    geminiLastCall = now;
     geminiBtn.disabled = true;
     geminiBtn.textContent = "Waiting for Gemini's response...";
     geminiBtn.style.background = "#b0b0b0";
@@ -102,42 +111,16 @@ function insertGeminiBtn() {
       }
     }
     if (!roomDesc) roomDesc = "Описание не найдено";
-    // Формируем JSON-промпт
+    // Формируем укороченный JSON-промпт (минимизируем токены)
     const promptObj = {
-      instruction:
-        "Generate a natural room name based on the provided description, ensuring it matches the room's features. Use the room number from the original description. Follow the style of provided examples like 'Bright Double Room X with Balcony & Desk' or 'Cozy Single Room X with Wardrobe & Lamp'. Avoid repeating names, especially consecutively, and vary the mentioned elements (e.g., balcony, desk, window) based on what stands out most. Only include a bright or distinctive wall/floor color if explicitly mentioned in the description. Return only the new room name.",
-      input: {
-        description: roomDesc,
-      },
-      output_format: {
-        new_room_name: "string",
-      },
-      examples: [
-        {
-          input: {
-            description:
-              "Room 7 is a small room with a single bed, a desk, and a large window.",
-          },
-          output: {
-            new_room_name: "Bright Single Room 7 with Large Window & Desk",
-          },
-        },
-        {
-          input: {
-            description: "Room 12 has two beds, a blue wall, and a balcony.",
-          },
-          output: {
-            new_room_name: "Spacious Twin Room 12 with Blue Wall & Balcony",
-          },
-        },
-      ],
-      constraints: {
-        use_room_number: true,
-        avoid_repeating_names: true,
-        include_color_only_if_mentioned: true,
-      },
+      instruction: "Make a concise room name from the description. Include room number if present.",
+      input: { description: roomDesc },
+      output_format: { new_room_name: "string" },
+      constraints: { use_room_number: true }
     };
     const prompt = JSON.stringify(promptObj);
+
+    // no caching: always request fresh result
 
     chrome.runtime.sendMessage(
       {
@@ -145,6 +128,16 @@ function insertGeminiBtn() {
         prompt: prompt,
       },
       function (response) {
+        // handle possible rate-limit retry info
+        if (response && response.error) {
+          try {
+            // if retryDelay provided (e.g., "39s"), parse seconds
+            if (response.retryDelay && typeof response.retryDelay === 'string') {
+              const m = response.retryDelay.match(/(\d+(?:\.\d+)?)s/);
+              if (m) geminiBackoff = Math.max(geminiBackoff, Math.ceil(parseFloat(m[1])));
+            }
+          } catch (e) {}
+        }
         geminiBtn.disabled = false;
         geminiBtn.textContent = "Generate Name via description";
         geminiBtn.style.background = "rgb(57 146 62)";
@@ -210,13 +203,230 @@ function insertGeminiBtn() {
         if (nameInput) {
           nameInput.value = result;
           nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+          // no caching: do not store the result, always generate fresh
         }
       }
     );
   });
 
-  // Вставить кнопку после <p>
+  // Создать кнопку, которая также добавляет первую картинку в промпт
+  const geminiBtnImg = document.createElement("button");
+  geminiBtnImg.textContent = "Generate Name via description+img1";
+  geminiBtnImg.className = "gemini-btn-img";
+  geminiBtnImg.style.background = "rgb(57 146 62)";
+  geminiBtnImg.style.color = "rgb(255, 255, 255)";
+  geminiBtnImg.style.border = "none";
+  geminiBtnImg.style.padding = "8px 18px";
+  geminiBtnImg.style.borderRadius = "8px";
+  geminiBtnImg.style.cursor = "pointer";
+  geminiBtnImg.style.fontSize = "16px";
+  geminiBtnImg.style.fontWeight = "bold";
+  geminiBtnImg.style.verticalAlign = "middle";
+  geminiBtnImg.style.position = "relative";
+  geminiBtnImg.style.marginLeft = "8px";
+
+  geminiBtnImg.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    geminiBtnImg.disabled = true;
+    geminiBtnImg.textContent = "Waiting for Gemini's response...";
+    geminiBtnImg.style.background = "#b0b0b0";
+    geminiBtnImg.style.color = "#eee";
+    geminiBtnImg.style.pointerEvents = "none";
+    // Получаем описание комнаты (same as other button)
+    let roomDesc = "";
+    const roomDescLabel = Array.from(
+      document.querySelectorAll("label, span")
+    ).find(
+      (el) => el.textContent && el.textContent.trim() === "Room Description"
+    );
+    let textarea = null;
+    if (roomDescLabel) {
+      if (
+        roomDescLabel.tagName.toLowerCase() === "label" &&
+        roomDescLabel.htmlFor
+      ) {
+        textarea = document.getElementById(roomDescLabel.htmlFor);
+      }
+      if (!textarea) {
+        textarea =
+          roomDescLabel.parentElement &&
+          roomDescLabel.parentElement.querySelector("textarea");
+      }
+      if (textarea && textarea.value) {
+        roomDesc = textarea.value;
+      }
+    }
+  if (!roomDesc) roomDesc = "Описание не найдено";
+
+    // Try to find first image URL using same logic as copy-img
+    let firstImgSrc = null;
+    try {
+      const imagesLabel = Array.from(document.querySelectorAll('label, span')).find(
+        (el) => el.textContent && el.textContent.trim().startsWith('Images')
+      );
+      if (imagesLabel && imagesLabel.parentElement) {
+        const container = imagesLabel.parentElement;
+        const imgs = Array.from(container.querySelectorAll('img'));
+        if (imgs && imgs.length > 0) {
+          let src = imgs[0].getAttribute('src') || imgs[0].src || '';
+          try {
+            const parsed = new URL(src, location.origin);
+            const proxied = parsed.searchParams.get('url');
+            if (proxied) src = decodeURIComponent(proxied);
+          } catch (err) {}
+          if (src) firstImgSrc = src;
+        }
+      }
+    } catch (e) {
+      console.error('find first image error', e);
+    }
+
+    // For image requests: load stored PROMPT_OBJ (if any), inject description and attach compressed image
+    let promptObj = null;
+    try {
+      const stored = await new Promise((res) => chrome.storage.local.get(['PROMPT_OBJ'], (items) => res(items)));
+      if (stored && stored.PROMPT_OBJ) {
+        try {
+          promptObj = JSON.parse(JSON.stringify(stored.PROMPT_OBJ)); // deep copy
+        } catch (e) {
+          promptObj = stored.PROMPT_OBJ;
+        }
+      }
+    } catch (e) {
+      console.warn('read PROMPT_OBJ error', e);
+    }
+    if (!promptObj) {
+      // fallback minimal spec
+      promptObj = {
+        instruction: "Make a concise room name from the description. Include room number if present.",
+        input: { description: roomDesc },
+        output_format: { new_room_name: "string" },
+        constraints: { use_room_number: true }
+      };
+    } else {
+      // ensure input exists and set description
+      if (!promptObj.input || typeof promptObj.input !== 'object') promptObj.input = {};
+      promptObj.input.description = roomDesc;
+    }
+
+    // helper to compress image to JPEG data URL
+    async function compressImageToJpegDataUrl(src, maxDim = 800, quality = 0.65) {
+      try {
+        const resp = await fetch(src);
+        if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+        const blob = await resp.blob();
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const url = URL.createObjectURL(blob);
+        await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        const cw = Math.round(w * scale);
+        const ch = Math.round(h * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, cw, ch);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        URL.revokeObjectURL(url);
+        return dataUrl;
+      } catch (e) {
+        console.warn('compressImageToJpegDataUrl failed', e);
+        return null;
+      }
+    }
+
+    if (firstImgSrc) {
+      try {
+        const compressed = await compressImageToJpegDataUrl(firstImgSrc, 800, 0.65);
+        if (compressed) promptObj.input.image = compressed;
+        else promptObj.input.image = firstImgSrc;
+      } catch (e) {
+        promptObj.input.image = firstImgSrc;
+      }
+    }
+    const prompt = JSON.stringify(promptObj);
+
+    // no caching for image requests: always send a fresh request
+
+    chrome.runtime.sendMessage(
+      {
+        action: "gemini_request",
+        prompt: prompt,
+      },
+      function (response) {
+        geminiBtnImg.disabled = false;
+        geminiBtnImg.textContent = "Generate Name via description+img1";
+        geminiBtnImg.style.background = "rgb(57 146 62)";
+        geminiBtnImg.style.color = "rgb(255, 255, 255)";
+        geminiBtnImg.style.pointerEvents = "auto";
+        // Парсим чистый результат (reuse same parsing logic)
+        let result = "";
+        if (
+          response &&
+          response.candidates &&
+          response.candidates[0] &&
+          response.candidates[0].content &&
+          response.candidates[0].content.parts &&
+          response.candidates[0].content.parts[0] &&
+          response.candidates[0].content.parts[0].text
+        ) {
+          result = response.candidates[0].content.parts[0].text.trim();
+        } else if (response && response.text) {
+          result = response.text.trim();
+        } else if (response && typeof response === 'string') {
+          result = response.trim();
+        } else if (response && typeof response === 'object') {
+          if (response.new_room_name && typeof response.new_room_name === 'string') {
+            result = response.new_room_name.trim();
+          } else {
+            result = JSON.stringify(response);
+          }
+        }
+        if (typeof result === 'string' && result.startsWith('{') && result.endsWith('}')) {
+          try {
+            const parsed = JSON.parse(result);
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.new_room_name && typeof parsed.new_room_name === 'string') {
+                result = parsed.new_room_name.trim();
+              } else {
+                const vals = Object.values(parsed).filter(v => typeof v === 'string');
+                if (vals.length === 1) result = vals[0].trim();
+              }
+            }
+          } catch (e) {
+            // not JSON — keep as-is
+          }
+        }
+        console.log('Parsed Gemini result:', result);
+        // Вставить результат в поле Room name
+        const nameLabel = Array.from(document.querySelectorAll("label")).find(
+          (el) => el.textContent && el.textContent.trim() === "Room name"
+        );
+        let nameInput = null;
+        if (nameLabel && nameLabel.htmlFor) {
+          nameInput = document.getElementById(nameLabel.htmlFor);
+        }
+        if (!nameInput) {
+          nameInput =
+            nameLabel &&
+            nameLabel.parentElement &&
+            nameLabel.parentElement.querySelector("input");
+        }
+        if (nameInput) {
+          nameInput.value = result;
+          nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+          // no caching: do not store result
+        }
+      }
+    );
+  });
+
+  // Вставить кнопки после <p>
   infoP.parentNode.insertBefore(geminiBtn, infoP.nextSibling);
+  infoP.parentNode.insertBefore(geminiBtnImg, geminiBtn.nextSibling);
 }
 
 // Вставляем кнопку при загрузке и при изменении DOM
