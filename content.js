@@ -376,7 +376,7 @@ function insertGeminiBtn() {
       },
       function (response) {
         geminiBtn.disabled = false;
-        geminiBtn.textContent = "Generate Name with Gemini AI";
+        geminiBtn.textContent = "Generate Name w AI (via description)";
         geminiBtn.style.background = "rgb(57 146 62)";
         geminiBtn.style.color = "rgb(255, 255, 255)";
         geminiBtn.style.pointerEvents = "auto";

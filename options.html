@@ -47,6 +47,13 @@
             gap: 10px;
         }
 
+        .col-split {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .label {
             display: block;
             font-size: 13px;
@@ -73,16 +80,19 @@
             border-radius: 6px;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace
         }
+
         .key-row {
             display: flex;
             gap: 10px;
         }
+
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px
         }
+
         .buttons {
             margin-top: 10px;
             display: flex;
@@ -114,7 +124,7 @@
             .row {
                 flex-direction: column
             }
-
+            
             .col {
                 padding: 12px
             }
@@ -135,58 +145,37 @@
         </div>
     </div>
 
-
-
     <div class="row">
-
-        <div class="col">
-
-            <label class="label">API Key of Gemini</label>
-            <div class="key-row" style="
-    display: flex;
-    gap: 10px;
-">
-                <input class="secretinput" id="apiKey" type="text" placeholder="GEMINI_API_KEY">
-                <button id="clear">Clear</button>
+        <div class="col-split">
+            <div class="col">
+                <label class="label">API Key of Gemini</label>
+                <div class="key-row" style="display: flex; gap: 10px;">
+                    <input class="secretinput" id="apiKey" type="text" placeholder="GEMINI_API_KEY">
+                    <button id="clear">Clear</button>
+                </div>
+                <label class="label">Upload .env file
+                    <input id="envFile" type="file" accept=".env">
+                </label>
+                <div id="status" class="status" style="color: rgb(11, 102, 35);">Saved.</div>
             </div>
-
-
-
-
-
-
-
-
-            <label class="label">Upload .env file
-                <input id="envFile" type="file" accept=".env">
-            </label>
-            <div id="status" class="status" style="color: rgb(11, 102, 35);">Saved.</div>
+            <div class="col">
+                <button id="test" title="Send a test prompt using the saved key">Test Gemini</button>
+                <div id="testResult" class="status" style="white-space:pre-wrap;margin-top:8px"></div>
+            </div>
         </div>
-
         <div class="col">
             <label class="label">JSON prompt for AI</label>
             <div class="json-actions">
                 <div>
                     <button id="validate">Validate JSON</button>
                     <button id="pretty">Pretty Print</button>
-                    <button id="defaults">Load Default</button>
-                    <button id="test" title="Send a test prompt using the saved key">Test</button>
-                </div>
-                <div>
-
                 </div>
             </div>
             <textarea id="promptObj" spellcheck="false"></textarea>
+            <button id="defaults">Load Default</button>
             <div id="jsonStatus" class="status">Pretty printed.</div>
-            <div id="testResult" class="status" style="white-space:pre-wrap;margin-top:8px"></div>
         </div>
     </div>
-
     <script src="options.js"></script>
-
-
-
-
 </body>
-
 </html>
