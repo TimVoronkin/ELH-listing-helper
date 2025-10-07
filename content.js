@@ -20,19 +20,6 @@ function checkRoomDescription() {
   if (roomDescLabel) {
     roomDescriptionHandled = true;
     console.log("[ELH-Tim] Room Description tab opened!");
-    /*
-		// --- Копирование описания комнаты (закомментировано) ---
-		let textarea = null;
-		if (roomDescLabel.tagName.toLowerCase() === 'label' && roomDescLabel.htmlFor) {
-			textarea = document.getElementById(roomDescLabel.htmlFor);
-		}
-		textarea = roomDescLabel.parentElement && roomDescLabel.parentElement.querySelector('textarea');
-		if (textarea && textarea.value) {
-			// ...existing code...
-		}
-		*/
-
-    // Removed auxiliary buttons (screenshot, copy description, paste-to-name) per user request
   }
 }
 
@@ -45,7 +32,6 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
-// --- Кнопка Gemini справа от label Room name ---
 
 function insertGeminiBtn() {
   // Найти <div class="space-y-6 pb-40" ...>
@@ -239,3 +225,175 @@ const geminiObserver = new MutationObserver(() => {
   insertGeminiBtn();
 });
 geminiObserver.observe(document.body, { childList: true, subtree: true });
+
+// --- Insert "copy img" buttons under each image and implement copy-to-clipboard ---
+function insertCopyImageButtons() {
+  try {
+    const imagesLabel = Array.from(document.querySelectorAll('label, span')).find(
+      (el) => el.textContent && el.textContent.trim().startsWith('Images')
+    );
+    if (!imagesLabel) return;
+
+    const container = imagesLabel.parentElement;
+    if (!container) return;
+
+    const imgs = Array.from(container.querySelectorAll('img'));
+    if (!imgs || imgs.length === 0) return;
+
+    imgs.forEach((img) => {
+      const tile = img.closest('.group') || img.parentElement || img;
+      if (!tile) return;
+      if (tile.querySelector('.elh-copy-img-btn')) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'elh-copy-img-btn';
+      btn.textContent = 'copy img';
+      btn.style.background = 'rgb(57 146 62)';
+      btn.style.color = 'rgb(255, 255, 255)';
+      btn.style.border = 'none';
+      btn.style.padding = '6px 12px';
+      btn.style.borderRadius = '8px';
+      btn.style.cursor = 'pointer';
+      btn.style.fontSize = '14px';
+      btn.style.fontWeight = '700';
+      btn.style.verticalAlign = 'middle';
+      btn.style.position = 'relative';
+      btn.style.margin = '8px 6px 0 6px';
+
+      const imgWrapper = img.closest('.aspect-square') || img.parentElement;
+      const insertParent = imgWrapper && imgWrapper.parentElement ? imgWrapper.parentElement : tile;
+      insertParent.appendChild(btn);
+
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'copying...';
+
+        let src = img.getAttribute('src') || img.src || '';
+        try {
+          const parsed = new URL(src, location.origin);
+          const proxied = parsed.searchParams.get('url');
+          if (proxied) src = decodeURIComponent(proxied);
+        } catch (err) {}
+
+        if (!src) {
+          btn.textContent = 'No image URL';
+          setTimeout(() => {
+            btn.textContent = origText;
+            btn.disabled = false;
+          }, 1500);
+          return;
+        }
+
+        try {
+          const resp = await fetch(src);
+          if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+          const blob = await resp.blob();
+
+          if (navigator.clipboard && window.ClipboardItem) {
+            try {
+              const item = new ClipboardItem({ [blob.type]: blob });
+              await navigator.clipboard.write([item]);
+              btn.textContent = 'img copied!';
+              setTimeout(() => {
+                btn.textContent = origText;
+                btn.disabled = false;
+              }, 1500);
+              return;
+            } catch (err) {}
+          }
+
+          try {
+            const imgBitmap = await createImageBitmap(blob);
+            const canvas = document.createElement('canvas');
+            canvas.width = imgBitmap.width;
+            canvas.height = imgBitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(imgBitmap, 0, 0);
+            const blob2 = await new Promise((res) => canvas.toBlob(res, blob.type || 'image/png'));
+            if (navigator.clipboard && window.ClipboardItem && blob2) {
+              try {
+                const item2 = new ClipboardItem({ [blob2.type]: blob2 });
+                await navigator.clipboard.write([item2]);
+                btn.textContent = 'img copied!';
+                setTimeout(() => {
+                  btn.textContent = origText;
+                  btn.disabled = false;
+                }, 1500);
+                return;
+              } catch (err) {}
+            }
+          } catch (err) {}
+
+          try {
+            const imgForCanvas = new Image();
+            imgForCanvas.crossOrigin = 'anonymous';
+            const imgLoadPromise = new Promise((resolve, reject) => {
+              imgForCanvas.onload = () => resolve();
+              imgForCanvas.onerror = () => reject(new Error('Image load error'));
+            });
+            imgForCanvas.src = src;
+            await imgLoadPromise;
+            const canvas2 = document.createElement('canvas');
+            canvas2.width = imgForCanvas.naturalWidth || imgForCanvas.width;
+            canvas2.height = imgForCanvas.naturalHeight || imgForCanvas.height;
+            const ctx2 = canvas2.getContext('2d');
+            ctx2.drawImage(imgForCanvas, 0, 0);
+            const blob3 = await new Promise((res) => canvas2.toBlob(res, 'image/png'));
+            if (blob3 && navigator.clipboard && window.ClipboardItem) {
+              try {
+                const item3 = new ClipboardItem({ [blob3.type]: blob3 });
+                await navigator.clipboard.write([item3]);
+                btn.textContent = 'img copied!';
+                setTimeout(() => {
+                  btn.textContent = origText;
+                  btn.disabled = false;
+                }, 1500);
+                return;
+              } catch (err) {}
+            }
+          } catch (err) {}
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(src);
+            btn.textContent = 'Link copied';
+            setTimeout(() => {
+              btn.textContent = origText;
+              btn.disabled = false;
+            }, 1500);
+            return;
+          } else {
+            throw new Error('No clipboard available');
+          }
+        } catch (err) {
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(src);
+              btn.textContent = 'Link copied';
+            } else {
+              btn.textContent = 'Failed';
+            }
+          } catch (err2) {
+            btn.textContent = 'Failed';
+          }
+          setTimeout(() => {
+            btn.textContent = origText;
+            btn.disabled = false;
+          }, 1500);
+        }
+      });
+    });
+  } catch (e) {
+    console.error('insertCopyImageButtons error', e);
+  }
+}
+
+// Запуск при загрузке + наблюдатель за DOM для динамической подгрузки изображений
+insertCopyImageButtons();
+const copyButtonsObserver = new MutationObserver(() => {
+  insertCopyImageButtons();
+});
+copyButtonsObserver.observe(document.body, { childList: true, subtree: true });
