@@ -17,6 +17,10 @@
     {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
       "js": ["parser_uniplaces.js"]
+    },
+    {
+      "matches": ["https://www.erasmuslifehousing.com/*"],
+      "js": ["pasteJsonFields.js"]
     }
   ],
   "icons": {

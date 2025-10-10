@@ -40,7 +40,23 @@
 
       // address: div.sc-1yx4bkn-4.cArfBY -> text
       const addressDiv = document.querySelector('div.sc-1yx4bkn-4.cArfBY');
-      result.address_0 = (addressDiv && addressDiv.textContent) ? addressDiv.textContent.trim() : '';
+      const addrRaw = (addressDiv && addressDiv.textContent) ? addressDiv.textContent.trim() : '';
+      // parse into components: expected format 'street, neighborhood, city'
+      let street = '';
+      let neighborhood = '';
+      let city = '';
+      if (addrRaw) {
+        const parts = addrRaw.split(',').map(p => p.trim());
+        street = parts[0] || '';
+        neighborhood = parts[1] || '';
+        city = parts[2] || '';
+      }
+      result.address = {
+        raw: addrRaw,
+        street,
+        neighborhood,
+        city
+      };
 
       // rent_price: div.sc-bci2fn-4.kamSUo
       const rentDiv = document.querySelector('div.sc-bci2fn-4.kamSUo');
