@@ -4,7 +4,26 @@
   console.log('[ELH-pasteJson] script loaded, location.href=', location.href);
 
   // Insert button when possible; handle SPA/dynamic DOM by observing body
+  function isAllowedPage() {
+    const url = location.href;
+    try {
+      const u = new URL(url);
+      if (u.hostname !== 'www.erasmuslifehousing.com') return false;
+      const p = u.pathname.replace(/\/+/g, '/');
+      // exact: /dashboard/admin/houses/form
+      if (p === '/dashboard/admin/houses/form') return true;
+      // /dashboard/admin/listings/{something}/rooms/form
+      if (/^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/?$/.test(p)) return true;
+      // /dashboard/admin/listings/{something}/rooms/form/{something}
+      if (/^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/[^\/]+\/?$/.test(p)) return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function createPasteButton() {
+    if (!isAllowedPage()) return; // only show on allowed pages
     if (!document.body) return;
     if (document.getElementById('elh-paste-json-btn')) return; // already inserted
 
@@ -26,6 +45,8 @@
       zIndex: 99999,
       boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
       fontSize: '14px',
+      left: '50%',
+      right: 'auto',
     });
     btn.addEventListener('click', handlePasteClick);
     document.body.appendChild(btn);
@@ -182,6 +203,69 @@
           }
         }
       }
+      // 5) StepImages: set Description textarea from apartment_description if present
+      try {
+        const stepImagesDiv = document.querySelector('div[data-sentry-component="StepImages"]');
+        if (stepImagesDiv && data && typeof data.apartment_description === 'string' && data.apartment_description.trim()) {
+          const descVal = data.apartment_description.trim();
+          // prefer textarea[name="specialObservations"] (from page snippet)
+          const descTa = stepImagesDiv.querySelector('textarea[name="specialObservations"]') || document.querySelector('textarea[name="specialObservations"]') || document.getElementById('«r14p»-form-item');
+          if (descTa) {
+            // first show loading + original text so user sees progress
+            const loadingText = `loading translation of this...\n${descVal}`;
+            setInputValue(descTa, loadingText);
+            highlightElement(descTa, 'orange');
+            console.log('[ELH-pasteJson] apartment_description (loading) inserted into Description textarea');
+
+            // build Gemini prompt: ask to return only English translation
+            const promptObj = {
+              instruction: `Answer me only with a translation of this text into English and nothing else: ${descVal}`
+            };
+
+            // send request via background script (reuse existing gemini_request flow)
+            try {
+              chrome.runtime.sendMessage({ action: 'gemini_request', prompt: JSON.stringify(promptObj) }, (response) => {
+                try {
+                  if (!response) {
+                    console.warn('[ELH-pasteJson] Gemini response empty');
+                    return;
+                  }
+                  // response may contain candidates[].content.parts[0].text or a top-level text
+                  let translated = null;
+                  if (response.candidates && response.candidates[0] && response.candidates[0].content && response.candidates[0].content.parts && response.candidates[0].content.parts[0] && response.candidates[0].content.parts[0].text) {
+                    translated = response.candidates[0].content.parts[0].text;
+                  } else if (response.output && typeof response.output === 'string') {
+                    translated = response.output;
+                  } else if (typeof response === 'string') {
+                    translated = response;
+                  } else if (response.result && response.result.output_text) {
+                    translated = response.result.output_text;
+                  }
+
+                  if (translated && typeof translated === 'string') {
+                    // trim whitespace and replace the textarea with the translation
+                    const finalText = translated.trim();
+                    setInputValue(descTa, finalText);
+                    highlightElement(descTa, 'green');
+                    console.log('[ELH-pasteJson] Gemini translation inserted into Description textarea');
+                  } else {
+                    console.warn('[ELH-pasteJson] Gemini response did not contain a translated text', response);
+                  }
+                } catch (e) {
+                  console.warn('[ELH-pasteJson] Error processing Gemini response', e, response);
+                }
+              });
+            } catch (e) {
+              console.warn('[ELH-pasteJson] Failed to call background Gemini request', e);
+            }
+
+          } else {
+            console.warn('[ELH-pasteJson] Description textarea for StepImages not found');
+          }
+        }
+      } catch (err) {
+        console.warn('[ELH-pasteJson] StepImages handling failed', err);
+      }
 
     } catch (err) {
       console.error('[ELH-pasteJson] Failed to read clipboard or insert address:', err);
@@ -257,10 +341,18 @@
     try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
   }
 
-  function highlightElement(el) {
+  // highlightElement: default green; pass color='orange' to show loading state
+  function highlightElement(el, color = 'green') {
     try {
-      el.style.border = '2px solid #28a745';
-      el.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)';
+      if (!el || !el.style) return;
+      if (color === 'orange') {
+        el.style.border = '2px solid #ff8c00';
+        el.style.boxShadow = '0 0 0 4px rgba(255,140,0,0.12)';
+      } else {
+        // default green
+        el.style.border = '2px solid #28a745';
+        el.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)';
+      }
       el.style.outline = 'none';
     } catch (e) {}
   }
