@@ -1,35 +1,110 @@
-// Uniplaces helper: inject a "copy this room data to json" button
-// Button style matches existing buttons in content.js (green background, white text, rounded)
+// parser_uniplaces.js — cleaned final implementation
 
-(function() {
+(function () {
+  "use strict";
   try {
-    const STYLE_ID = 'elh-uniplaces-style';
+    const STYLE_ID = "elh-uniplaces-style";
     if (!document.getElementById(STYLE_ID)) {
-      const s = document.createElement('style');
+      const s = document.createElement("style");
       s.id = STYLE_ID;
       s.textContent = `
-        .elh-uniplaces-btn {
-          background: rgb(57 146 62) !important;
-          color: rgb(255, 255, 255) !important;
-          border: none !important;
-          padding: 8px 14px !important;
-          border-radius: 8px !important;
-          cursor: pointer !important;
-          font-size: 14px !important;
-          font-weight: 700 !important;
-          position: fixed !important;
-          top: 12px !important;
-          left: 12px !important;
-          z-index: 2147483647 !important; /* very top */
-        }
-        .elh-uniplaces-btn:disabled {
-          opacity: 0.7;
-          cursor: default;
-        }
+.elh-uniplaces-btn {
+  background: rgb(57 146 62) !important;
+  color: rgb(255, 255, 255) !important;
+  border: none !important;
+  padding: 8px 14px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  z-index: 2147483647 !important;
+}
+.elh-uniplaces-btn:disabled { opacity: 0.7; cursor: default; }
+.elh-uniplaces-btn.inline { position: static !important; top: auto !important; left: auto !important; margin: 6px !important; z-index: auto !important; display: inline-block !important; }
       `;
       document.head && document.head.appendChild(s);
     }
 
+    // filename helpers
+    function filenameFromUrl(url) {
+      try {
+        const u = new URL(url);
+        const parts = u.pathname.split("/").filter(Boolean);
+        let last = parts.pop() || "img.jpg";
+        if (!/\.[a-zA-Z0-9]{2,6}$/.test(last)) last = last + ".jpg";
+        last = last.replace(/[^a-zA-Z0-9._-]/g, "_");
+        return `${Date.now()}-${last}`;
+      } catch (e) {
+        return `img-${Date.now()}.jpg`;
+      }
+    }
+
+    function fallbackAnchorDownload(url, filename) {
+      fetch(url, { mode: "cors" })
+        .then((r) => r.blob())
+        .then((blob) => {
+          const a = document.createElement("a");
+          const objUrl = URL.createObjectURL(blob);
+          a.href = objUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(objUrl), 5000);
+        })
+        .catch(() => {
+          const a = document.createElement("a");
+          a.href = url;
+          a.target = "_blank";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
+    }
+
+    function requestBackgroundDownload(url, filename, cb) {
+      try {
+        if (
+          typeof chrome !== "undefined" &&
+          chrome.runtime &&
+          chrome.runtime.sendMessage
+        ) {
+          chrome.runtime.sendMessage(
+            { action: "download", url, filename },
+            (resp) => {
+              if (!resp || resp.error)
+                cb &&
+                  cb(
+                    new Error(
+                      resp && resp.error ? resp.error : "no response from bg"
+                    )
+                  );
+              else cb && cb(null, resp.id);
+            }
+          );
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    function parseRoomIdFromPath() {
+      try {
+        const m = window.location.pathname.match(
+          /\/accommodation\/(?:[^\/]+)\/(\d+)(?:$|\/)/i
+        );
+        if (m && m[1]) return m[1];
+        const parts = window.location.pathname.split("/").filter(Boolean);
+        for (let i = parts.length - 1; i >= 0; i--)
+          if (/^\d+$/.test(parts[i])) return parts[i];
+      } catch (e) {}
+      return "unknown-id";
+    }
+
+    // --- full page parser (restored from previous version) ---
     function findRoomData() {
       // Keep insertion order: source_url first
       const result = { source_url: window.location.href };
@@ -214,66 +289,286 @@
       return result;
     }
 
-    function copyJsonToClipboard(obj) {
-      const txt = JSON.stringify(obj, null, 2);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        return navigator.clipboard.writeText(txt);
+    function collectImageUrlsFromRoomDiv(roomDiv) {
+      const urls = [];
+      if (!roomDiv) return urls;
+      // <img>
+      const imgs = Array.from(roomDiv.querySelectorAll("img"));
+      for (const img of imgs) {
+        const u =
+          img.src ||
+          img.getAttribute("data-src") ||
+          img.getAttribute("data-lazy") ||
+          "";
+        if (u) urls.push(u);
+        else if (img.srcset)
+          urls.push(img.srcset.split(",").pop().trim().split(" ")[0]);
       }
-      // fallback
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'absolute';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        return Promise.resolve();
-      } catch (e) {
-        document.body.removeChild(ta);
-        return Promise.reject(e);
+      // background-image style
+      const styled = Array.from(roomDiv.querySelectorAll("[style]"));
+      for (const el of styled) {
+        const s = el.getAttribute("style") || "";
+        const m = s.match(/background-image:\s*url\(([^)]+)\)/i);
+        if (m && m[1]) urls.push(m[1].replace(/(^['\"]|['\"]$)/g, ""));
       }
-    }
-
-    function insertButtonIfNeeded() {
-      if (document.querySelector('.elh-uniplaces-btn')) return;
-      const btn = document.createElement('button');
-      btn.className = 'elh-uniplaces-btn';
-      btn.textContent = 'copy this room data to json';
-      btn.title = 'Parse this entire page and copy all info about this room and apartment into structured JSON';
-
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        btn.disabled = true;
-        const data = findRoomData();
+      // <source> tags
+      const sources = Array.from(roomDiv.querySelectorAll("source"));
+      for (const src of sources) {
+        const u = src.srcset || src.src || src.getAttribute("data-src") || "";
+        if (u) urls.push(u);
+      }
+      // normalize and unique
+      const normalized = urls.map((u) => {
         try {
-          await copyJsonToClipboard(data);
-          btn.textContent = 'copied!';
-        } catch (err) {
-          console.error('copy failed', err);
-          btn.textContent = 'copy failed';
+          return new URL(u, window.location.href).href;
+        } catch (e) {
+          return u;
         }
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.textContent = 'copy this room data to json';
-        }, 1500);
       });
-
-      document.body.appendChild(btn);
+      return Array.from(new Set(normalized));
     }
 
-    insertButtonIfNeeded();
+    // UI
+    // The new createButton uses the richer parser to copy full JSON when in copy mode
+    function createButton() {
+      const btn = document.createElement("button");
+      btn.className = "elh-uniplaces-btn";
+      btn.dataset.mode = "copy";
+      btn.title = "Copy JSON or save images";
+      btn.textContent = "copy this room data to json";
 
-    // Observe mutations to re-insert button if SPA changes page
-    const obs = new MutationObserver(() => {
-      insertButtonIfNeeded();
+      const stop = (e) => {
+        e.stopPropagation();
+      };
+
+      async function copyFullData() {
+        const data = findRoomData();
+        const txt = JSON.stringify(data, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText)
+          await navigator.clipboard.writeText(txt);
+        else {
+          const ta = document.createElement("textarea");
+          ta.value = txt;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "absolute";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+      }
+
+      btn.addEventListener(
+        "click",
+        async (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          btn.disabled = true;
+          try {
+            if (btn.dataset.mode === "copy") {
+              await copyFullData();
+              btn.textContent = "copied!";
+            } else {
+              // save mode: reuse existing image-save logic
+              const modal =
+                document.querySelector(
+                  "div.sc-1t6jsoh-0.dUeFQx.photos-modal"
+                ) || document.querySelector("div.photos-modal");
+              const gallery =
+                (modal && modal.querySelector("div.sc-16mjnzn-0.cBPfVX")) ||
+                document.querySelector("div.sc-16mjnzn-0.cBPfVX");
+              if (!gallery) {
+                btn.textContent = "no gallery";
+              } else {
+                const firstDiv = Array.from(gallery.children).find(
+                  (n) => n && n.tagName && n.tagName.toLowerCase() === "div"
+                );
+                const roomLabel =
+                  firstDiv && firstDiv.id
+                    ? firstDiv.id.trim()
+                    : firstDiv
+                    ? firstDiv.getAttribute("id") || ""
+                    : "room";
+                const roomId = parseRoomIdFromPath();
+                const urls = collectImageUrlsFromRoomDiv(firstDiv);
+                if (!urls.length) {
+                  btn.textContent = "no images";
+                } else {
+                  let done = 0;
+                  btn.textContent = `saving ${done}/${urls.length}`;
+                  urls.forEach((u) => {
+                    const url = u;
+                    const orig = filenameFromUrl(url);
+                    const safeLabel = String(roomLabel || "room").replace(
+                      /[\\/]+/g,
+                      "_"
+                    );
+                    const safeOrig = String(orig).replace(/[\\/]+/g, "_");
+                    const targetName = `${safeLabel}-${safeOrig}`;
+                    const reqFilename = `${roomId}/${targetName}`; // background prefixes with ELH-helper/
+                    const onDone = () => {
+                      done++;
+                      btn.textContent = `saving ${done}/${urls.length}`;
+                      if (done === urls.length) btn.textContent = "saved";
+                    };
+                    const sent = requestBackgroundDownload(
+                      url,
+                      reqFilename,
+                      (err) => {
+                        if (err)
+                          fallbackAnchorDownload(
+                            url,
+                            `${roomId}-${targetName}`
+                          );
+                        onDone();
+                      }
+                    );
+                    if (!sent) {
+                      fallbackAnchorDownload(url, `${roomId}-${targetName}`);
+                      onDone();
+                    }
+                  });
+                }
+              }
+            }
+          } catch (err) {
+            console.error("elh action failed", err);
+            btn.textContent = "failed";
+          }
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.dataset.mode === "copy"
+              ? (btn.textContent = "copy this room data to json")
+              : (btn.textContent = "save imgs");
+          }, 1500);
+        },
+        true
+      );
+      // stop propagation of mouse events in capture so site doesn't react
+      btn.addEventListener("mousedown", stop, true);
+      btn.addEventListener("mouseup", stop, true);
+      btn.addEventListener("click", stop, true);
+      return btn;
+    }
+
+    function ensureButton() {
+      let b = document.querySelector(".elh-uniplaces-btn");
+      if (!b) {
+        b = createButton();
+        document.body.appendChild(b);
+      }
+      return b;
+    }
+
+    function updateButtonMode() {
+      const btn = ensureButton();
+      const modal =
+        document.querySelector("div.sc-1t6jsoh-0.dUeFQx.photos-modal") ||
+        document.querySelector("div.photos-modal");
+      if (modal) {
+        btn.dataset.mode = "save_imgs";
+        btn.textContent = "save imgs";
+        btn.title = "Save images into Downloads/ELH-helper/{roomId}";
+        const target =
+          modal.querySelector("div.sc-1imzkxw-3.jhsuIB") ||
+          document.querySelector("div.sc-1imzkxw-3.jhsuIB");
+        if (target) {
+          btn.classList.add("inline");
+          try {
+            target.appendChild(btn);
+          } catch (e) {
+            if (!document.body.contains(btn)) document.body.appendChild(btn);
+          }
+        } else {
+          btn.classList.remove("inline");
+          if (!document.body.contains(btn)) document.body.appendChild(btn);
+        }
+      } else {
+        btn.dataset.mode = "copy";
+        btn.textContent = "copy this room data to json";
+        btn.title = "Parse this page and copy info to JSON";
+        btn.classList.remove("inline");
+        if (!document.body.contains(btn)) document.body.appendChild(btn);
+      }
+    }
+
+    // debounce observer
+    let _sched = null;
+    let _last = 0;
+    const DB = 250;
+    function sched() {
+      if (_sched) return;
+      const run = () => {
+        _sched = null;
+        try {
+          if (typeof requestIdleCallback === "function")
+            requestIdleCallback(() => updateButtonMode(), { timeout: 1000 });
+          else updateButtonMode();
+        } catch (e) {
+          try {
+            updateButtonMode();
+          } catch (ee) {}
+        }
+        _last = Date.now();
+      };
+      const since = Date.now() - _last;
+      _sched = setTimeout(run, since > DB ? 0 : DB - since);
+    }
+
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "childList") {
+          const nodes = Array.from(m.addedNodes || []).concat(
+            Array.from(m.removedNodes || [])
+          );
+          for (const n of nodes) {
+            if (!(n instanceof Element)) continue;
+            if (
+              n.classList &&
+              (n.classList.contains("photos-modal") ||
+                n.classList.contains("sc-1t6jsoh-0") ||
+                n.classList.contains("dUeFQx"))
+            ) {
+              sched();
+              return;
+            }
+            if (
+              n.querySelector &&
+              n.querySelector(".sc-1t6jsoh-0.dUeFQx.photos-modal")
+            ) {
+              sched();
+              return;
+            }
+          }
+        } else if (m.type === "attributes" && m.attributeName === "class") {
+          const t = m.target;
+          if (t instanceof Element) {
+            if (
+              t.classList &&
+              (t.classList.contains("photos-modal") ||
+                t.classList.contains("sc-1t6jsoh-0") ||
+                t.classList.contains("dUeFQx"))
+            ) {
+              sched();
+              return;
+            }
+          }
+        }
+      }
     });
-    obs.observe(document.body, { childList: true, subtree: true });
 
-  } catch (e) {
-    console.error('parser_uniplaces error', e);
+    mo.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // init
+    ensureButton();
+    updateButtonMode();
+  } catch (err) {
+    console.error("parser_uniplaces error", err);
   }
 })();

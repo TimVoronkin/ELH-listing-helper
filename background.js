@@ -1,4 +1,21 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request && request.action === 'download') {
+    // request: { action: 'download', url: 'https://...', filename: '...' }
+    try {
+  const opt = { url: request.url, filename: `ELH-helper/${request.filename}`, conflictAction: 'uniquify', saveAs: false };
+      chrome.downloads.download(opt, (id) => {
+        if (chrome.runtime && chrome.runtime.lastError) {
+          sendResponse({ error: chrome.runtime.lastError.message });
+        } else {
+          sendResponse({ id });
+        }
+      });
+      return true; // async
+    } catch (e) {
+      sendResponse({ error: String(e) });
+      return false;
+    }
+  }
   if (request.action === 'capture_screenshot') {
     chrome.tabs.captureVisibleTab(null, {format: 'png'}, function(dataUrl) {
       sendResponse({screenshot: dataUrl});

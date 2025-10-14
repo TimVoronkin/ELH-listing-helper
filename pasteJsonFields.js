@@ -16,6 +16,8 @@
       if (/^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/?$/.test(p)) return true;
       // /dashboard/admin/listings/{something}/rooms/form/{something}
       if (/^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/[^\/]+\/?$/.test(p)) return true;
+      // /dashboard/admin/houses/form/{something}
+      if (/^\/dashboard\/admin\/houses\/form\/[^\/]+\/?$/.test(p)) return true;
       return false;
     } catch (e) {
       return false;

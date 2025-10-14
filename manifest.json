@@ -3,7 +3,7 @@
   "name": "ELH Tim's helper",
   "version": "0.4",
   "description": "Helps to work on Erasmus Life Housing platform",
-  "permissions": ["activeTab", "scripting", "tabs", "storage"],
+  "permissions": ["activeTab", "scripting", "tabs", "storage", "downloads"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
