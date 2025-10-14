@@ -4,23 +4,26 @@
   "version": "0.4",
   "description": "Helps to work on Erasmus Life Housing platform",
   "permissions": ["activeTab", "scripting", "tabs", "storage", "downloads"],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "https://www.erasmuslifehousing.com/*",
+    "https://www.uniplaces.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-    ,
+      "matches": ["https://www.erasmuslifehousing.com/*"],
+      "js": ["src/content/content.js"]
+    },
     {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
-      "js": ["parser_uniplaces.js"]
+      "js": ["src/content/parser_uniplaces.js"]
     },
     {
       "matches": ["https://www.erasmuslifehousing.com/*"],
-      "js": ["pasteJsonFields.js"]
+      "js": ["src/content/pasteJsonFields.js"]
     }
   ],
   "icons": {

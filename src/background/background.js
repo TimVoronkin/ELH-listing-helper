@@ -1,8 +1,11 @@
+// background.js (moved to src/background)
+// Minimal content: original background logic preserved
+// Note: this file is a copy of the root background.js relocated into src for better project structure
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request && request.action === 'download') {
-    // request: { action: 'download', url: 'https://...', filename: '...' }
     try {
-  const opt = { url: request.url, filename: `ELH-helper/${request.filename}`, conflictAction: 'uniquify', saveAs: false };
+      const opt = { url: request.url, filename: `ELH-helper/${request.filename}`, conflictAction: 'uniquify', saveAs: false };
       chrome.downloads.download(opt, (id) => {
         if (chrome.runtime && chrome.runtime.lastError) {
           sendResponse({ error: chrome.runtime.lastError.message });
@@ -28,19 +31,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// Gemini API запрос
+// Gemini API request
 async function fetchGemini(prompt) {
-  // If the caller passed a JSON string/object that looks like a spec, prefer it
   let promptParam = prompt;
   try {
     if (typeof prompt === 'string') {
       const maybe = JSON.parse(prompt);
       if (maybe && typeof maybe === 'object') promptParam = maybe;
     }
-  } catch (e) {
-    // ignore parse errors, keep prompt as-is
-  }
-  // Получаем ключ из chrome.storage
+  } catch (e) {}
   const stored = await new Promise((resolve) => {
     chrome.storage.local.get(['GEMINI_API_KEY'], (items) => resolve(items));
   });
@@ -49,12 +48,9 @@ async function fetchGemini(prompt) {
     console.error('GEMINI_API_KEY not set in extension options.');
     return { error: 'GEMINI_API_KEY not set in extension options.' };
   }
-  // load prompt template (PROMPT_OBJ) from storage
   const storedPrompt = await new Promise((resolve) => {
     chrome.storage.local.get(['PROMPT_OBJ'], (items) => resolve(items));
   });
-
-  // If caller passed a spec-like object, use it directly; otherwise use stored template
   let promptObj = null;
   const isSpec = (p) => p && (p.instruction || p.examples || p.constraints || p.input || p.output_format);
   if (isSpec(promptParam)) {
@@ -62,10 +58,8 @@ async function fetchGemini(prompt) {
   } else {
     promptObj = (storedPrompt && storedPrompt.PROMPT_OBJ) ? storedPrompt.PROMPT_OBJ : null;
     if (!promptObj) {
-      // default
       promptObj = { contents: [{ parts: [{ text: prompt }] }] };
     } else {
-      // deep copy and replace {{PROMPT}} placeholder in any string fields
       try {
         const copy = JSON.parse(JSON.stringify(promptObj));
         const replacer = (obj) => {
@@ -79,42 +73,32 @@ async function fetchGemini(prompt) {
         };
         promptObj = replacer(copy);
       } catch (e) {
-        // if stored promptObj is invalid, fallback to simple body
         promptObj = { contents: [{ parts: [{ text: prompt }] }] };
       }
     }
   }
   let endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  // allow overriding model via storage (GEMINI_MODEL)
   try {
     const storedModel = await new Promise((resolve) => {
       chrome.storage.local.get(['GEMINI_MODEL'], (items) => resolve(items));
     });
     if (storedModel && storedModel.GEMINI_MODEL) {
       const model = storedModel.GEMINI_MODEL;
-      // sanitize model name
       const safe = String(model).replace(/[^a-zA-Z0-9._:-]/g, '');
       if (safe) {
-        // replace model in endpoint
         const parts = endpoint.split('/models/');
         if (parts.length === 2) endpoint = parts[0] + '/models/' + safe + ':generateContent?key=' + apiKey;
       }
     }
-  } catch (e) {
-    // ignore
-  }
+  } catch (e) {}
   try {
-  // If promptObj looks like a spec (instruction/examples/input/constraints), assemble a plain text prompt
-  let finalBody;
+    let finalBody;
     if (isSpec(promptObj)) {
-      // Build a human-readable prompt text
       let assembled = '';
       if (promptObj.instruction) assembled += promptObj.instruction.trim() + '\n\n';
-      // include constraints
       if (promptObj.constraints) {
         try { assembled += 'Constraints: ' + JSON.stringify(promptObj.constraints) + '\n\n'; } catch(e){}
       }
-      // examples
       if (Array.isArray(promptObj.examples)) {
         assembled += 'Examples:\n';
         promptObj.examples.forEach((ex) => {
@@ -125,7 +109,6 @@ async function fetchGemini(prompt) {
           } catch(e){}
         });
       }
-      // input mapping: replace any placeholder values like 'roomDesc' or '{{PROMPT}}' with prompt
       if (promptObj.input && typeof promptObj.input === 'object') {
         Object.keys(promptObj.input).forEach((k) => {
           let v = promptObj.input[k];
@@ -136,20 +119,16 @@ async function fetchGemini(prompt) {
           }
         });
       }
-      // ask for output format briefly
       if (promptObj.output_format) {
         try { assembled += '\nOutput format: ' + JSON.stringify(promptObj.output_format) + '\n'; } catch(e){}
       }
-      // If an image URL was provided in input.image, append it to the assembled text
       try {
         if (promptObj.input && typeof promptObj.input.image === 'string' && promptObj.input.image.trim()) {
           assembled += '\n\nImage URL: ' + promptObj.input.image.trim() + '\n(If you can access the image, describe what you see. If you cannot access external URLs, say so.)';
         }
       } catch (e) {}
-      // send as contents/parts (text only) which the API expects in this project
       finalBody = { contents: [{ parts: [{ text: assembled }] }] };
     } else {
-      // assume promptObj is already in API shape (or a content array); send it directly
       finalBody = promptObj;
     }
     console.log('Sending Gemini request to', endpoint);
@@ -162,10 +141,8 @@ async function fetchGemini(prompt) {
     if (!response.ok) {
       const text = await response.text();
       console.error('Gemini API returned error', response.status, text);
-      // try to parse retry info
       try {
         const parsed = JSON.parse(text);
-        // look for RetryInfo in details
         let retry = null;
         if (parsed && parsed.error && parsed.error.details) {
           for (const d of parsed.error.details) {

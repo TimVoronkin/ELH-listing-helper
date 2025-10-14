@@ -1,6 +1,6 @@
-// Save and load GEMINI_API_KEY to chrome.storage.local
+// options.js (moved to src/options)
+// Copy of original options.js
 document.addEventListener('DOMContentLoaded', () => {
-  // UI elements
   const apiKeyInput = document.getElementById('apiKey');
   const saveBtn = document.getElementById('save');
   const clearBtn = document.getElementById('clear');
@@ -12,20 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const defaultsBtn = document.getElementById('defaults');
   const jsonStatus = document.getElementById('jsonStatus');
 
-  // helper: fetch defaultPrompt.json from extension resources
   async function fetchDefaultPromptFile() {
     try {
-      const resp = await fetch(chrome.runtime.getURL('defaultPrompt.json'));
+      const resp = await fetch(chrome.runtime.getURL('data/defaultPrompt.json'));
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
       return json;
     } catch (err) {
-      // fallback simple template if file not available
       return { contents: [{ parts: [{ text: '{{PROMPT}}' }] }] };
     }
   }
 
-  // load existing key and promptObj
   chrome.storage.local.get(['GEMINI_API_KEY', 'PROMPT_OBJ'], (items) => {
     if (items && items.GEMINI_API_KEY) apiKeyInput.value = items.GEMINI_API_KEY;
     if (items && items.PROMPT_OBJ) {
@@ -35,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         promptObjEl.value = String(items.PROMPT_OBJ);
       }
     } else {
-      // load default from file
       fetchDefaultPromptFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
@@ -53,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveBtn.addEventListener('click', () => {
     const key = apiKeyInput.value.trim();
-    // validate JSON
     let parsed = null;
     try {
       parsed = JSON.parse(promptObjEl.value);
@@ -70,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
   clearBtn.addEventListener('click', () => {
     chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ'], () => {
       apiKeyInput.value = '';
-      // reset to default file
       fetchDefaultPromptFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
@@ -105,65 +99,29 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   validateBtn.addEventListener('click', () => {
-    try {
-      JSON.parse(promptObjEl.value);
-      showStatus(jsonStatus, 'Valid JSON.');
-    } catch (err) {
-      showStatus(jsonStatus, 'Invalid JSON: ' + err.message, false);
-    }
+    try { JSON.parse(promptObjEl.value); showStatus(jsonStatus, 'Valid JSON.'); } catch (err) { showStatus(jsonStatus, 'Invalid JSON: ' + err.message, false); }
   });
 
   prettyBtn.addEventListener('click', () => {
-    try {
-      const p = JSON.parse(promptObjEl.value);
-      promptObjEl.value = JSON.stringify(p, null, 2);
-      showStatus(jsonStatus, 'Pretty printed.');
-    } catch (err) {
-      showStatus(jsonStatus, 'Invalid JSON: ' + err.message, false);
-    }
+    try { const p = JSON.parse(promptObjEl.value); promptObjEl.value = JSON.stringify(p, null, 2); showStatus(jsonStatus, 'Pretty printed.'); } catch (err) { showStatus(jsonStatus, 'Invalid JSON: ' + err.message, false); }
   });
 
   defaultsBtn.addEventListener('click', async () => {
     const json = await fetchDefaultPromptFile();
-    try {
-      promptObjEl.value = JSON.stringify(json, null, 2);
-      showStatus(jsonStatus, 'Default loaded.');
-    } catch (e) {
-      promptObjEl.value = String(json);
-      showStatus(jsonStatus, 'Default loaded (non-JSON fallback).');
-    }
+    try { promptObjEl.value = JSON.stringify(json, null, 2); showStatus(jsonStatus, 'Default loaded.'); } catch (e) { promptObjEl.value = String(json); showStatus(jsonStatus, 'Default loaded (non-JSON fallback).'); }
   });
 
-  // Test button: send a test prompt to background and show result
   const testBtn = document.getElementById('test');
   const testResult = document.getElementById('testResult');
   testBtn.addEventListener('click', async () => {
     showStatus(testResult, 'Running test...', true);
     let parsed;
-    try {
-      parsed = JSON.parse(promptObjEl.value);
-    } catch (err) {
-      showStatus(testResult, 'promptObj JSON invalid: ' + err.message, false);
-      return;
-    }
-    // send sample prompt to background
+    try { parsed = JSON.parse(promptObjEl.value); } catch (err) { showStatus(testResult, 'promptObj JSON invalid: ' + err.message, false); return; }
     try {
       chrome.runtime.sendMessage({ action: 'gemini_request', prompt: 'Test prompt for preview' }, (resp) => {
-        if (chrome.runtime.lastError) {
-          console.error('Runtime message error:', chrome.runtime.lastError);
-          showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false);
-          return;
-        }
-        console.log('Test result from background:', resp);
-        try {
-          testResult.textContent = JSON.stringify(resp, null, 2);
-        } catch (e) {
-          testResult.textContent = String(resp);
-        }
+        if (chrome.runtime.lastError) { console.error('Runtime message error:', chrome.runtime.lastError); showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false); return; }
+        try { testResult.textContent = JSON.stringify(resp, null, 2); } catch (e) { testResult.textContent = String(resp); }
       });
-    } catch (err) {
-      console.error('Test send error:', err);
-      showStatus(testResult, 'Error sending test: ' + err.message, false);
-    }
+    } catch (err) { console.error('Test send error:', err); showStatus(testResult, 'Error sending test: ' + err.message, false); }
   });
 });
