@@ -3,6 +3,7 @@ ELH Tim's Listing Helper
 
 One day, Tim started an internship at ELH and realized that there were too many clicks in his work... so he said:
 > "Laziness is the engine of progress"
+
 and started to develop this extension.
 
 A browser extension that adds green buttons to help with creating and editing listings on the Erasmus Life Housing platform.
