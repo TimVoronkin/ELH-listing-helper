@@ -1,5 +1,21 @@
 console.log("[ELH-Tim] Site loaded! This is a test Chrome extension.");
 
+// Ensure shared styles are injected once per page
+function loadSharedStylesOnce() {
+  try {
+    const ID = 'elh-shared-styles';
+    if (document.getElementById(ID)) return;
+    const link = document.createElement('link');
+    link.id = ID;
+    link.rel = 'stylesheet';
+    link.href = chrome.runtime.getURL('src/shared/buttons.css');
+    document.head && document.head.appendChild(link);
+  } catch (e) {
+    console.warn('Failed to inject shared styles', e);
+  }
+}
+loadSharedStylesOnce();
+
 const elhPattern =
   /^https:\/\/www\.erasmuslifehousing\.com\/dashboard\/admin\/listings\/[\w-]+\/rooms\/form\/[\w-]+$/;
 if (elhPattern.test(window.location.href)) {
@@ -57,17 +73,7 @@ function insertGeminiBtn() {
   // Создать кнопку
   const geminiBtn = document.createElement("button");
   geminiBtn.textContent = "Generate Name via description";
-  geminiBtn.className = "gemini-btn";
-  geminiBtn.style.background = "rgb(57 146 62)";
-  geminiBtn.style.color = "rgb(255, 255, 255)";
-  geminiBtn.style.border = "none";
-  geminiBtn.style.padding = "8px 18px";
-  geminiBtn.style.borderRadius = "8px";
-  geminiBtn.style.cursor = "pointer";
-  geminiBtn.style.fontSize = "16px";
-  geminiBtn.style.fontWeight = "bold";
-  geminiBtn.style.verticalAlign = "middle";
-  geminiBtn.style.position = "relative";
+  geminiBtn.className = "elh-btn gemini-btn";
 
   // debounce / basic rate limiting per button
   let geminiLastCall = 0;
@@ -212,17 +218,7 @@ function insertGeminiBtn() {
   // Создать кнопку, которая также добавляет первую картинку в промпт
   const geminiBtnImg = document.createElement("button");
   geminiBtnImg.textContent = "Generate Name via description+img1";
-  geminiBtnImg.className = "gemini-btn-img";
-  geminiBtnImg.style.background = "rgb(57 146 62)";
-  geminiBtnImg.style.color = "rgb(255, 255, 255)";
-  geminiBtnImg.style.border = "none";
-  geminiBtnImg.style.padding = "8px 18px";
-  geminiBtnImg.style.borderRadius = "8px";
-  geminiBtnImg.style.cursor = "pointer";
-  geminiBtnImg.style.fontSize = "16px";
-  geminiBtnImg.style.fontWeight = "bold";
-  geminiBtnImg.style.verticalAlign = "middle";
-  geminiBtnImg.style.position = "relative";
+  geminiBtnImg.className = "elh-btn gemini-btn-img";
   geminiBtnImg.style.marginLeft = "8px";
 
   geminiBtnImg.addEventListener("click", async (event) => {
@@ -455,21 +451,10 @@ function insertCopyImageButtons() {
       if (!tile) return;
       if (tile.querySelector('.elh-copy-img-btn')) return;
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'elh-copy-img-btn';
-      btn.textContent = 'copy img';
-      btn.style.background = 'rgb(57 146 62)';
-      btn.style.color = 'rgb(255, 255, 255)';
-      btn.style.border = 'none';
-      btn.style.padding = '6px 12px';
-      btn.style.borderRadius = '8px';
-      btn.style.cursor = 'pointer';
-      btn.style.fontSize = '14px';
-      btn.style.fontWeight = '700';
-      btn.style.verticalAlign = 'middle';
-      btn.style.position = 'relative';
-      btn.style.margin = '8px 6px 0 6px';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'elh-btn elh-copy-img-btn small';
+  btn.textContent = 'copy img';
 
       const imgWrapper = img.closest('.aspect-square') || img.parentElement;
       const insertParent = imgWrapper && imgWrapper.parentElement ? imgWrapper.parentElement : tile;

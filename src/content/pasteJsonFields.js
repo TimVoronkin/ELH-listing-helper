@@ -4,6 +4,19 @@
   console.log('[ELH-pasteJson] script loaded, location.href=', location.href);
 
   // Insert button when possible; handle SPA/dynamic DOM by observing body
+  // Ensure shared styles are present
+  function loadSharedStylesOnce() {
+    try {
+      const ID = 'elh-shared-styles';
+      if (document.getElementById(ID)) return;
+      const link = document.createElement('link');
+      link.id = ID;
+      link.rel = 'stylesheet';
+      link.href = chrome.runtime.getURL('src/shared/buttons.css');
+      document.head && document.head.appendChild(link);
+    } catch (e) { console.warn('Failed to inject shared styles', e); }
+  }
+  loadSharedStylesOnce();
   function isAllowedPage() {
     const url = location.href;
     try {
@@ -33,23 +46,8 @@
     btn.id = 'elh-paste-json-btn';
     btn.type = 'button';
     btn.textContent = 'paste json data into fields';
-    // style matches the green buttons used elsewhere
-    Object.assign(btn.style, {
-      background: '#28a745',
-      color: '#fff',
-      border: 'none',
-      padding: '8px 12px',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      position: 'fixed',
-      right: '16px',
-      bottom: '16px',
-      zIndex: 99999,
-      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-      fontSize: '14px',
-      left: '50%',
-      right: 'auto',
-    });
+    // use shared classes for consistent styling
+    btn.className = 'elh-btn fixed';
     btn.addEventListener('click', handlePasteClick);
     document.body.appendChild(btn);
     console.log('[ELH-pasteJson] paste button inserted');

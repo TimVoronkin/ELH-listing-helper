@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ELH Tim's helper",
-  "version": "0.4",
-  "description": "Helps to work on Erasmus Life Housing platform",
+  "version": "0.5",
+  "description": "Adds some buttons to help working with Erasmus Life Housing platform",
   "permissions": ["activeTab", "scripting", "tabs", "storage", "downloads"],
   "host_permissions": [
     "https://www.erasmuslifehousing.com/*",
@@ -20,9 +20,9 @@
     {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
       "js": [
-        "src/content/parser_uniplaces.common.js",
-        "src/content/parser_uniplaces.copy.js",
-        "src/content/parser_uniplaces.images.js"
+        "src/content/parser/parser_uniplaces.common.js",
+        "src/content/parser/parser_uniplaces.copy.js",
+        "src/content/parser/parser_uniplaces.images.js"
       ]
     },
     {
@@ -33,6 +33,12 @@
   "icons": {
     "128": "icon/icon.png"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/shared/buttons.css"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true

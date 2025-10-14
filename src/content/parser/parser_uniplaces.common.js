@@ -1,30 +1,18 @@
 (function () {
   "use strict";
   try {
-    const STYLE_ID = "elh-uniplaces-style";
-    if (!document.getElementById(STYLE_ID)) {
-      const s = document.createElement("style");
-      s.id = STYLE_ID;
-      s.textContent = `
-.elh-uniplaces-btn {
-  background: rgb(57 146 62) !important;
-  color: rgb(255, 255, 255) !important;
-  border: none !important;
-  padding: 8px 14px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  position: fixed !important;
-  top: 12px !important;
-  left: 12px !important;
-  z-index: 2147483647 !important;
-}
-.elh-uniplaces-btn:disabled { opacity: 0.7; cursor: default; }
-.elh-uniplaces-btn.inline { position: static !important; top: auto !important; left: auto !important; margin: 6px !important; z-index: auto !important; display: inline-block !important; }
-      `;
-      document.head && document.head.appendChild(s);
-    }
+    // inject shared stylesheet if not present (parser already injects some inline styles as fallback)
+    try {
+      const ID = 'elh-shared-styles';
+      if (!document.getElementById(ID)) {
+        const link = document.createElement('link');
+        link.id = ID;
+        link.rel = 'stylesheet';
+        link.href = chrome.runtime.getURL('src/shared/buttons.css');
+        document.head && document.head.appendChild(link);
+      }
+    } catch (e) { console.warn('parser: failed to inject shared styles', e); }
+    // (inline fallback styles removed; using shared CSS from src/shared/buttons.css)
 
     // --- shared helpers ---
     function filenameFromUrl(url) {
