@@ -19,7 +19,11 @@
     },
     {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
-      "js": ["src/content/parser_uniplaces.js"]
+      "js": [
+        "src/content/parser_uniplaces.common.js",
+        "src/content/parser_uniplaces.copy.js",
+        "src/content/parser_uniplaces.images.js"
+      ]
     },
     {
       "matches": ["https://www.erasmuslifehousing.com/*"],
