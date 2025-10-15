@@ -1,4 +1,4 @@
-ELH Tim's Listing Helper
+![Extension Icon](icon/icon.svg) ELH Tim's Listing Helper
 ========================
 
 One day, Tim started an internship at ELH and realized that there were too many clicks in his work... so he said:
