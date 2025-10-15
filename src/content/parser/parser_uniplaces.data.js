@@ -167,6 +167,6 @@
       }
     };
   } catch (err) {
-    console.error('parser_uniplaces.copy error', err);
+    console.error('parser_uniplaces.data error', err);
   }
 })();

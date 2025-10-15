@@ -1,6 +1,6 @@
 {
-  "source_url": "https://www.uniplaces.com/accommodation/porto/54789",
-  "room_name": "Spacious twin bedroom close to ISCET Instituto Superior de Ciências Empresariais e do Turismo",
+  "source_url": "https://www.uniplaces.com/accommodation/porto/54790",
+  "room_name": "Homely double bedroom in Cedofeita, close to Universidade do Porto",
   "address": {
     "raw": "Rua do Breiner, Cedofeita, Porto",
     "street": "Rua do Breiner",
@@ -11,11 +11,11 @@
   "gender": "Mixed gender",
   "apartment_description": "Bem-vindo ao Porto! Esta é uma cidade perfeita para estudantes e certamente vais apaixonar-te pela atmosfera desta cidade tão animada. Com o objetivo de tornar toda a tua experiência ainda melhor, que tal viver numa residência de estudantes bem localizada em Cedofeita, onde poderás aprender e partilhar experiências com outros jovens? Ao escolheres ficar aqui, estarás a morar numa área bem conectada, perto de vários transportes públicos, bem como de muitos cafés, restaurantes e lojas, e mais importante, não estarás muito longe da Universidade do Porto. Também terás ao teu alcance alguns sítios interessantes, como os Jardins do Palácio de Cristal e várias outras áreas verdes encantadoras! Esta casa tem vinte e dois quartos, uma sala de estar comum, uma cozinha comum e oito casas de banho. Vais passar os próximos dois meses num lugar encantador que está bem localizado e pronto para te proporcionar uma estadia memorável! Não percas mais tempo e tem uma ótima experiência na cidade dos estudantes!",
   "room_furniture": [
-    "Single bed",
-    "Single bed",
+    "Double bed",
     "Wardrobe",
     "Desk",
-    "Chairs"
+    "Chairs",
+    "Window"
   ],
   "security_deposit": 940,
   "included_monthly_bills": {

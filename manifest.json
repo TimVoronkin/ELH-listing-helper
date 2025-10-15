@@ -21,7 +21,7 @@
       "matches": ["https://www.uniplaces.com/accommodation/*"],
       "js": [
         "src/content/parser/parser_uniplaces.common.js",
-        "src/content/parser/parser_uniplaces.copy.js",
+        "src/content/parser/parser_uniplaces.data.js",
         "src/content/parser/parser_uniplaces.images.js"
       ]
     },
