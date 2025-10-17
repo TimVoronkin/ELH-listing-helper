@@ -1,4 +1,4 @@
-// pasteJsonFields.js
+// pasteFlatJsonFields.js
 (function () {
   // Debug: script loaded
   console.log("[ELH-pasteJson] script loaded, location.href=", location.href);
@@ -27,14 +27,7 @@
       const p = u.pathname.replace(/\/+/g, "/");
       // exact: /dashboard/admin/houses/form
       if (p === "/dashboard/admin/houses/form") return true;
-      // /dashboard/admin/listings/{something}/rooms/form
-      if (/^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/?$/.test(p))
-        return true;
-      // /dashboard/admin/listings/{something}/rooms/form/{something}
-      if (
-        /^\/dashboard\/admin\/listings\/[^\/]+\/rooms\/form\/[^\/]+\/?$/.test(p)
-      )
-        return true;
+
       // /dashboard/admin/houses/form/{something}
       if (/^\/dashboard\/admin\/houses\/form\/[^\/]+\/?$/.test(p)) return true;
       return false;

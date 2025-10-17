@@ -27,7 +27,7 @@
     },
     {
       "matches": ["https://www.erasmuslifehousing.com/*"],
-      "js": ["src/content/pasteJsonFields.js"]
+      "js": ["src/content/pasteJson/pasteFlatJsonFields.js", "src/content/pasteJson/pasteRoomJsonFields.js"]
     }
   ],
   "icons": {

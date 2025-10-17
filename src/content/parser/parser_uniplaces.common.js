@@ -132,6 +132,12 @@
               } else {
                 btn.textContent = "no copy action";
               }
+            } else if (btn.dataset.mode === 'save_flat_imgs') {
+              if (typeof window.elh_saveFlatImgsAction === "function") {
+                await window.elh_saveFlatImgsAction({ button: btn });
+              } else {
+                btn.textContent = "no save flat action";
+              }
             } else {
               if (typeof window.elh_saveImgsAction === "function") {
                 await window.elh_saveImgsAction({ button: btn });
@@ -159,6 +165,50 @@
       return btn;
     }
 
+    // create second button (save flat images)
+    function createFlatButton() {
+      const btn = document.createElement("button");
+      btn.className = "elh-uniplaces-btn elh-flat-btn";
+      btn.dataset.mode = "save_flat_imgs";
+      btn.title = "Save flat images (all except first section)";
+      btn.textContent = "save flat images";
+
+      const stop = (e) => {
+        e.stopPropagation();
+      };
+
+      btn.addEventListener(
+        "click",
+        async (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          if (btn.disabled) return;
+          btn.disabled = true;
+          try {
+            if (typeof window.elh_saveFlatImgsAction === "function") {
+              await window.elh_saveFlatImgsAction({ button: btn });
+              btn.textContent = "saved flat!";
+            } else {
+              btn.textContent = "no save flat action";
+            }
+          } catch (err) {
+            console.error("elh flat action failed", err);
+            btn.textContent = "failed";
+          }
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = "save flat images";
+          }, 1500);
+        },
+        true
+      );
+
+      btn.addEventListener("mousedown", stop, true);
+      btn.addEventListener("mouseup", stop, true);
+      btn.addEventListener("click", stop, true);
+      return btn;
+    }
+
     function ensureButton() {
       let b = document.querySelector(".elh-uniplaces-btn");
       if (!b) {
@@ -168,8 +218,27 @@
       return b;
     }
 
+    function ensureButtonGroup() {
+      let g = document.querySelector('.elh-btn-group');
+      if (!g) {
+        g = document.createElement('div');
+        g.className = 'elh-btn-group';
+        // basic inline flex styling as fallback; project stylesheet may override
+        g.style.display = 'flex';
+        g.style.flexDirection = 'row';
+        g.style.alignItems = 'center';
+        g.style.gap = '8px';
+      }
+      return g;
+    }
+
     function updateButtonMode() {
       const btn = ensureButton();
+      // ensure flat button exists too (do not attach to body yet)
+      let flatBtn = document.querySelector('.elh-flat-btn');
+      if (!flatBtn) {
+        flatBtn = createFlatButton();
+      }
       const modal =
         document.querySelector("div.sc-1t6jsoh-0.dUeFQx.photos-modal") ||
         document.querySelector("div.photos-modal");
@@ -178,18 +247,29 @@
         btn.textContent = "save room images";
         btn.title = "Save images into Downloads/ELH-helper/{roomId}/";
         const target = modal.querySelector("div.sc-1imzkxw-3.jhsuIB") || document.querySelector("div.sc-1imzkxw-3.jhsuIB");
-        if (target) {
-          btn.classList.add("inline");
-          try {
-            target.appendChild(btn);
-          } catch (e) {
-            if (!document.body.contains(btn)) document.body.appendChild(btn);
+        // create a group container and append both buttons into it; show the group only while modal is open
+        const group = ensureButtonGroup();
+        group.classList.add('inline');
+        btn.classList.add("inline");
+        flatBtn.classList.add('inline');
+        // ensure children order
+        if (group.firstChild !== btn) group.appendChild(btn);
+        if (group.lastChild !== flatBtn) group.appendChild(flatBtn);
+        try {
+          if (target) {
+            target.appendChild(group);
+          } else {
+            // fallback to body
+            if (!document.body.contains(group)) document.body.appendChild(group);
           }
-        } else {
-          btn.classList.remove("inline");
-          if (!document.body.contains(btn)) document.body.appendChild(btn);
+        } catch (e) {
+          if (!document.body.contains(group)) document.body.appendChild(group);
         }
       } else {
+        // hide/remove the group if present (we only show the group when modal is open)
+        const group = document.querySelector('.elh-btn-group');
+        if (group && group.parentNode) group.parentNode.removeChild(group);
+
         btn.dataset.mode = "copy";
         btn.textContent = "copy this room data to json";
         btn.title = "Parse this page and copy info to JSON";

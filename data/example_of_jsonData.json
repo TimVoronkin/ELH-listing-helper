@@ -1,35 +1,29 @@
 {
-  "source_url": "https://www.uniplaces.com/accommodation/porto/54790",
-  "room_name": "Homely double bedroom in Cedofeita, close to Universidade do Porto",
+  "source_url": "https://www.uniplaces.com/accommodation/porto/22875",
+  "room_name": "Cool single bedroom in Massarelos",
   "address": {
-    "raw": "Rua do Breiner, Cedofeita, Porto",
-    "street": "Rua do Breiner",
-    "neighborhood": "Cedofeita",
+    "raw": "Rua da Maternidade, Massarelos, Porto",
+    "street": "Rua da Maternidade",
+    "neighborhood": "Massarelos",
     "city": "Porto"
   },
-  "rent_price": "€370/month",
+  "rent_price": "€390/month",
   "gender": "Mixed gender",
-  "apartment_description": "Bem-vindo ao Porto! Esta é uma cidade perfeita para estudantes e certamente vais apaixonar-te pela atmosfera desta cidade tão animada. Com o objetivo de tornar toda a tua experiência ainda melhor, que tal viver numa residência de estudantes bem localizada em Cedofeita, onde poderás aprender e partilhar experiências com outros jovens? Ao escolheres ficar aqui, estarás a morar numa área bem conectada, perto de vários transportes públicos, bem como de muitos cafés, restaurantes e lojas, e mais importante, não estarás muito longe da Universidade do Porto. Também terás ao teu alcance alguns sítios interessantes, como os Jardins do Palácio de Cristal e várias outras áreas verdes encantadoras! Esta casa tem vinte e dois quartos, uma sala de estar comum, uma cozinha comum e oito casas de banho. Vais passar os próximos dois meses num lugar encantador que está bem localizado e pronto para te proporcionar uma estadia memorável! Não percas mais tempo e tem uma ótima experiência na cidade dos estudantes!",
+  "apartment_description": "If you decided to come to the big city of Porto to continue your studies, then we have a great place to settle, here in Massarelos! The apartment consists of four charming rooms decorated to meet the students' lifestyle and one of them has a private bathroom. It also has a living room with fireplace, an equipped kitchen where you can prepare your daily meals, and a bathroom. You will be located in a privileged area, close to some shops and restaurants, but more importantly, close to public transport that connects you to the rest of the city as well as to several nearby colleges, such as the Faculty of Sciences of the University of Porto, the Faculty of Pharmacy of the University of Porto and the Faculty of Arts of the University of Porto!",
   "room_furniture": [
-    "Double bed",
+    "Single bed",
     "Wardrobe",
     "Desk",
     "Chairs",
     "Window"
   ],
-  "security_deposit": 940,
+  "security_deposit": 780,
   "included_monthly_bills": {
     "Water": false,
     "Electricity": false,
     "Internet": true
   },
-  "other_fees": [
-    {
-      "label": "Cleaning fee",
-      "raw": "Included",
-      "description": "Weekly cleaning of the common areas."
-    }
-  ],
+  "other_fees": [],
   "rental_conditions": {
     "Minimum stay": true,
     "Minimum stay value": "28 nights",
@@ -38,8 +32,6 @@
     "Couples allowed": true,
     "Overnight guests allowed": false,
     "Pets allowed": false,
-    "Smoking allowed": false,
-    "Professionals allowed": false,
-    "Postgraduate students allowed": false
+    "Smoking allowed": false
   }
 }
