@@ -37,19 +37,35 @@
   }
 
   function createPasteButton() {
-    if (!isAllowedPage()) return; // only show on allowed pages
-    if (!document.body) return;
-    if (document.getElementById("elh-paste-json-btn")) return; // already inserted
+    // manage a shared floating container for paste buttons
+    const containerId = 'elh-paste-container';
+    // if page not allowed, remove button if exists and possibly remove container
+    if (!isAllowedPage() || !document.body) {
+      const existing = document.getElementById('elh-paste-json-btn');
+      if (existing && existing.parentElement) existing.parentElement.removeChild(existing);
+      const container = document.getElementById(containerId);
+      if (container && container.children.length === 0) container.remove();
+      return;
+    }
 
+    // ensure container
+    let container = document.getElementById(containerId);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = containerId;
+      container.className = 'elh-paste-container';
+      document.body.appendChild(container);
+    }
+
+    if (document.getElementById("elh-paste-json-btn")) return; // already inserted
     const btn = document.createElement("button");
     btn.id = "elh-paste-json-btn";
     btn.type = "button";
-    btn.textContent = "paste json data into fields";
-    // use shared classes for consistent styling
-    btn.className = "elh-btn fixed";
+    btn.textContent = "paste json data into listing fields";
+    btn.className = "elh-btn elh-paste-btn";
     btn.addEventListener("click", handlePasteClick);
-    document.body.appendChild(btn);
-    console.log("[ELH-pasteJson] paste button inserted");
+    container.appendChild(btn);
+    console.log("[ELH-pasteJson] paste button inserted into container");
   }
 
   // Try to create immediately
@@ -58,6 +74,32 @@
   } catch (e) {
     console.warn("[ELH-pasteJson] createPasteButton immediate failed", e);
   }
+
+  // Listen for SPA navigation: patch history methods and listen to popstate
+  (function setupLocationWatcher() {
+    try {
+      const dispatchLocationChange = () => {
+        window.dispatchEvent(new Event('locationchange'));
+      };
+      const _push = history.pushState;
+      history.pushState = function () {
+        _push.apply(this, arguments);
+        dispatchLocationChange();
+      };
+      const _replace = history.replaceState;
+      history.replaceState = function () {
+        _replace.apply(this, arguments);
+        dispatchLocationChange();
+      };
+      window.addEventListener('popstate', dispatchLocationChange);
+      window.addEventListener('locationchange', () => {
+        // run create/remove logic on navigation
+        try { createPasteButton(); } catch (e) {}
+      });
+    } catch (e) {
+      console.warn('[ELH-pasteJson] location watcher failed', e);
+    }
+  })();
 
   // Observe DOM for dynamic changes (SPA) and insert button when body becomes available or when form renders
   const insObserver = new MutationObserver((mutations) => {createPasteButton();});

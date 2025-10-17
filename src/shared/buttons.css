@@ -24,7 +24,7 @@
 
 .elh-btn.small {
     padding: 6px 10px !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     font-weight: 600
 }
 
@@ -81,6 +81,30 @@
 /* Container for Gemini controls (name + name+img1 + description) */
 .elh-gemini-controls {
     display: flex !important;
-    gap: 10px !important; /* no spacing between buttons */
+    gap: 10px !important; /* default gap between gemini buttons */
+}
+
+/* Shared floating container for paste buttons */
+.elh-paste-container {
+    position: fixed !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    z-index: 2147483646 !important;
+    align-items: center !important;
+}
+
+.elh-paste-btn {
+    background: var(--elh-green) !important;
+    color: var(--elh-white) !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
 }
 

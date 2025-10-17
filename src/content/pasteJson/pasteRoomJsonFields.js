@@ -30,20 +30,31 @@
   }
 
   function createButton() {
-    if (!isRoomEditPage()) return;
-    if (!document.body) return;
-    if (document.getElementById("elh-paste-room-json-btn")) return;
-
-    const btn = document.createElement("button");
-    btn.id = "elh-paste-room-json-btn";
-    btn.type = "button";
-    btn.textContent = "paste room rent from json";
-    btn.className = "elh-btn fixed";
-    btn.style.right = "12px";
-    btn.style.bottom = "72px";
-    btn.addEventListener("click", handleClick);
-    document.body.appendChild(btn);
-    console.log("[ELH-pasteRoomJson] button inserted");
+    const containerId = 'elh-paste-container';
+    if (!isRoomEditPage() || !document.body) {
+      const existing = document.getElementById('elh-paste-room-json-btn');
+      if (existing && existing.parentElement) existing.parentElement.removeChild(existing);
+      const container = document.getElementById(containerId);
+      if (container && container.children.length === 0) container.remove();
+      return;
+    }
+    // ensure shared container
+    let container = document.getElementById(containerId);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = containerId;
+      container.className = 'elh-paste-container';
+      document.body.appendChild(container);
+    }
+    if (document.getElementById('elh-paste-room-json-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'elh-paste-room-json-btn';
+    btn.type = 'button';
+    btn.textContent = 'paste json data into room fields';
+    btn.className = 'elh-btn elh-paste-btn';
+    btn.addEventListener('click', handleClick);
+    container.appendChild(btn);
+    console.log('[ELH-pasteRoomJson] button inserted into container');
   }
 
   try {
@@ -54,6 +65,21 @@
 
   const obs = new MutationObserver(() => createButton());
   obs.observe(document.documentElement || document, { childList: true, subtree: true });
+
+  // SPA navigation watcher: patch history methods and listen to popstate
+  (function setupLocationWatcher() {
+    try {
+      const dispatchLocationChange = () => { window.dispatchEvent(new Event('locationchange')); };
+      const _push = history.pushState;
+      history.pushState = function () { _push.apply(this, arguments); dispatchLocationChange(); };
+      const _replace = history.replaceState;
+      history.replaceState = function () { _replace.apply(this, arguments); dispatchLocationChange(); };
+      window.addEventListener('popstate', dispatchLocationChange);
+      window.addEventListener('locationchange', () => { try { createButton(); } catch (e) {} });
+    } catch (e) {
+      console.warn('[ELH-pasteRoomJson] location watcher failed', e);
+    }
+  })();
 
   async function readClipboardJson() {
     try {

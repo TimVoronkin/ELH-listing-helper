@@ -9,9 +9,9 @@ and started to develop this extension.
 A browser extension that adds green buttons to help with creating and editing listings on the Erasmus Life Housing platform.
 
 Features:
-- Generate room name with Gemini AI based on room description or description+image
+- Generate room name and description with Gemini AI based on room name/description/image
 - Parse data from Uniplaces room page to JSON
-- Paste JSON data into ELH forms
+- Paste JSON data into ELH forms of listings and rooms
 - Options page to customize prompts and settings
 - Button to copy image from room page to clipboard
 and more...
