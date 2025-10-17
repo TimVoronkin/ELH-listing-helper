@@ -165,7 +165,7 @@
             </div>
         </div>
         <div class="col">
-            <label class="label">JSON prompt for AI</label>
+            <label class="label">JSON prompt for AI to make <b>Room Name</b></label>
             <div class="json-actions">
                 <div>
                     <button id="validate">Validate JSON</button>
@@ -175,6 +175,18 @@
             <textarea id="promptObj" spellcheck="false"></textarea>
             <button id="defaults">Load Default</button>
             <div id="jsonStatus" class="status">Pretty printed.</div>
+        </div>
+        <div class="col">
+            <label class="label">JSON prompt for AI to make <b>Room Description</b></label>
+            <div class="json-actions">
+                <div>
+                    <button id="validateDesc">Validate JSON</button>
+                    <button id="prettyDesc">Pretty Print</button>
+                </div>
+            </div>
+            <textarea id="promptDescObj" spellcheck="false"></textarea>
+            <button id="defaultsDesc">Load Default</button>
+            <div id="jsonDescStatus" class="status">Pretty printed.</div>
         </div>
     </div>
     <script src="src/options/options.js"></script>

@@ -1,0 +1,27 @@
+{
+    "instruction": "Write a short, general description in English (1-2 short sentences) based on the room name and an optional image. The description must always begin with \"Room {number from room name}\". Keep the description general and avoid focusing on minor details; mention only prominent visible features. Return only the description text.",
+    "input": {
+        "room_name": "roomName",
+        "image": "optionalImageBase64OrUrl"
+    },
+    "output_format": {
+        "description": "string"
+    },
+    "examples": [
+        {
+            "input": { "room_name": "Bright Single Room 7 with Large Window & Desk" },
+            "output": { "description": "Room 7 is a bright single room with a large window and a simple desk, offering a comfortable, well-lit space ideal for studying or relaxing." }
+        },
+        {
+            "input": { "room_name": "Spacious Twin Room 12 with Blue Wall & Balcony" },
+            "output": { "description": "Room 12 is a spacious twin room with a pleasant balcony and a subtle blue accent, providing a relaxed and airy atmosphere." }
+        }
+    ],
+    "constraints": {
+        "max_sentences": 2,
+        "language": "en",
+        "start_with_room_number": true,
+        "avoid_personal_pronouns": true,
+        "avoid_minor_details": true
+    }
+}

@@ -48,11 +48,11 @@
 
 .gemini-btn {
     padding: 8px 18px !important;
-    font-size: 16px !important
+    font-size: 14px !important;
 }
 
 .gemini-btn-img {
-    margin-left: 8px !important
+    margin-left: 8px !important;
 }
 
 .elh-copy-img-btn {
@@ -77,3 +77,10 @@
     position: static !important;
     margin: 6px !important
 }
+
+/* Container for Gemini controls (name + name+img1 + description) */
+.elh-gemini-controls {
+    display: flex !important;
+    gap: 10px !important; /* no spacing between buttons */
+}
+

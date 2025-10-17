@@ -11,15 +11,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const prettyBtn = document.getElementById('pretty');
   const defaultsBtn = document.getElementById('defaults');
   const jsonStatus = document.getElementById('jsonStatus');
+  const promptDescEl = document.getElementById('promptDescObj');
+  const validateDescBtn = document.getElementById('validateDesc');
+  const prettyDescBtn = document.getElementById('prettyDesc');
+  const defaultsDescBtn = document.getElementById('defaultsDesc');
+  const jsonDescStatus = document.getElementById('jsonDescStatus');
 
-  async function fetchDefaultPromptFile() {
+  async function fetchdefaultPromptForNameFile() {
     try {
-      const resp = await fetch(chrome.runtime.getURL('data/defaultPrompt.json'));
+      const resp = await fetch(chrome.runtime.getURL('data/defaultPromptForName.json'));
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
       return json;
     } catch (err) {
       return { contents: [{ parts: [{ text: '{{PROMPT}}' }] }] };
+    }
+  }
+
+  async function fetchdefaultPromptForDescriptionFile() {
+    try {
+      const resp = await fetch(chrome.runtime.getURL('data/defaultPromptForDescription.json'));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+      return json;
+    } catch (err) {
+      return { instruction: 'Write a short description', input: { room_name: 'roomName' }, output_format: { description: 'string' } };
     }
   }
 
@@ -32,11 +48,30 @@ document.addEventListener('DOMContentLoaded', () => {
         promptObjEl.value = String(items.PROMPT_OBJ);
       }
     } else {
-      fetchDefaultPromptFile().then((json) => {
+      fetchdefaultPromptForNameFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
         } catch (e) {
           promptObjEl.value = String(json);
+        }
+      });
+    }
+  });
+
+  // load description prompt (separate storage key PROMPT_DESC_OBJ)
+  chrome.storage.local.get(['PROMPT_DESC_OBJ'], (items) => {
+    if (items && items.PROMPT_DESC_OBJ) {
+      try {
+        promptDescEl.value = JSON.stringify(items.PROMPT_DESC_OBJ, null, 2);
+      } catch (e) {
+        promptDescEl.value = String(items.PROMPT_DESC_OBJ);
+      }
+    } else {
+      fetchdefaultPromptForDescriptionFile().then((json) => {
+        try {
+          promptDescEl.value = JSON.stringify(json, null, 2);
+        } catch (e) {
+          promptDescEl.value = String(json);
         }
       });
     }
@@ -56,20 +91,38 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus(jsonStatus, 'promptObj is not valid JSON: ' + err.message, false);
       return;
     }
+    let parsedDesc = null;
+    try {
+      parsedDesc = JSON.parse(promptDescEl.value);
+    } catch (err) {
+      showStatus(jsonDescStatus, 'promptDesc is not valid JSON: ' + err.message, false);
+      return;
+    }
     chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed }, () => {
-      showStatus(status, 'Saved.');
-      showStatus(jsonStatus, 'promptObj saved.');
+      // save description prompt as well
+      chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
+        showStatus(status, 'Saved.');
+        showStatus(jsonStatus, 'promptObj saved.');
+        showStatus(jsonDescStatus, 'promptDesc saved.');
+      });
     });
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ'], () => {
       apiKeyInput.value = '';
-      fetchDefaultPromptFile().then((json) => {
+      fetchdefaultPromptForNameFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
         } catch (e) {
           promptObjEl.value = String(json);
+        }
+      });
+      fetchdefaultPromptForDescriptionFile().then((json) => {
+        try {
+          promptDescEl.value = JSON.stringify(json, null, 2);
+        } catch (e) {
+          promptDescEl.value = String(json);
         }
       });
       showStatus(status, 'Cleared.');
@@ -107,8 +160,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   defaultsBtn.addEventListener('click', async () => {
-    const json = await fetchDefaultPromptFile();
+    const json = await fetchdefaultPromptForNameFile();
     try { promptObjEl.value = JSON.stringify(json, null, 2); showStatus(jsonStatus, 'Default loaded.'); } catch (e) { promptObjEl.value = String(json); showStatus(jsonStatus, 'Default loaded (non-JSON fallback).'); }
+  });
+
+  // Description prompt controls
+  validateDescBtn.addEventListener('click', () => {
+    try { JSON.parse(promptDescEl.value); showStatus(jsonDescStatus, 'Valid JSON.'); } catch (err) { showStatus(jsonDescStatus, 'Invalid JSON: ' + err.message, false); }
+  });
+
+  prettyDescBtn.addEventListener('click', () => {
+    try { const p = JSON.parse(promptDescEl.value); promptDescEl.value = JSON.stringify(p, null, 2); showStatus(jsonDescStatus, 'Pretty printed.'); } catch (err) { showStatus(jsonDescStatus, 'Invalid JSON: ' + err.message, false); }
+  });
+
+  defaultsDescBtn.addEventListener('click', async () => {
+    const json = await fetchdefaultPromptForDescriptionFile();
+    try { promptDescEl.value = JSON.stringify(json, null, 2); showStatus(jsonDescStatus, 'Default loaded.'); } catch (e) { promptDescEl.value = String(json); showStatus(jsonDescStatus, 'Default loaded (non-JSON fallback).'); }
   });
 
   const testBtn = document.getElementById('test');
