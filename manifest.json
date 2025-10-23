@@ -3,7 +3,13 @@
   "name": "ELH Tim's helper",
   "version": "0.5",
   "description": "Adds some buttons to help working with Erasmus Life Housing platform",
-  "permissions": ["activeTab", "scripting", "tabs", "storage", "downloads"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage",
+    "downloads"
+  ],
   "host_permissions": [
     "https://www.erasmuslifehousing.com/*",
     "https://www.uniplaces.com/*",
@@ -15,7 +21,15 @@
   "content_scripts": [
     {
       "matches": ["https://www.erasmuslifehousing.com/*"],
-      "js": ["src/content/content.js"]
+      "js": [
+        "src/content/content.js"
+      ]
+    },
+    {
+      "matches": ["https://www.erasmuslifehousing.com/dashboard/admin/houses"],
+      "js": [
+        "src/content/openTabs.js"
+      ]
     },
     {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
@@ -27,7 +41,10 @@
     },
     {
       "matches": ["https://www.erasmuslifehousing.com/*"],
-      "js": ["src/content/pasteJson/pasteFlatJsonFields.js", "src/content/pasteJson/pasteRoomJsonFields.js"]
+      "js": [
+        "src/content/pasteJson/pasteFlatJsonFields.js",
+        "src/content/pasteJson/pasteRoomJsonFields.js"
+      ]
     }
   ],
   "icons": {
@@ -35,8 +52,12 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["src/shared/buttons.css"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "src/shared/buttons.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "options_ui": {
