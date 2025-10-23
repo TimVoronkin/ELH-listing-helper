@@ -127,6 +127,7 @@ function insertGeminiBtn() {
     const prompt = JSON.stringify(promptObj);
 
     // no caching: always request fresh result
+    console.debug('[ELH-Tim] geminiBtn prompt:', promptObj);
 
     chrome.runtime.sendMessage(
       {
@@ -336,8 +337,18 @@ function insertGeminiBtn() {
     if (firstImgSrc) {
       try {
         const compressed = await compressImageToJpegDataUrl(firstImgSrc, 800, 0.65);
-        if (compressed) promptObj.input.image = compressed;
-        else promptObj.input.image = firstImgSrc;
+        if (compressed) {
+          promptObj.input.image = compressed;
+        } else {
+          // fallback: try to get a screenshot from the background (may capture the image if visible)
+          try {
+            const ss = await new Promise((res) => chrome.runtime.sendMessage({ action: 'capture_screenshot' }, (r) => res(r)));
+            if (ss && ss.screenshot) promptObj.input.image = ss.screenshot;
+            else promptObj.input.image = firstImgSrc;
+          } catch (e) {
+            promptObj.input.image = firstImgSrc;
+          }
+        }
       } catch (e) {
         promptObj.input.image = firstImgSrc;
       }
@@ -345,6 +356,15 @@ function insertGeminiBtn() {
     const prompt = JSON.stringify(promptObj);
 
     // no caching for image requests: always send a fresh request
+    console.debug('[ELH-Tim] geminiBtnImg prompt object (before send):', promptObj);
+    try {
+      if (promptObj && promptObj.input && promptObj.input.image) {
+        const imgInfo = String(promptObj.input.image).slice(0, 200);
+        console.debug('[ELH-Tim] geminiBtnImg image summary:', promptObj.input.image && promptObj.input.image.startsWith('data:') ? ('dataURI, len=' + String(promptObj.input.image.length)) : ('url: ' + imgInfo));
+      } else {
+        console.debug('[ELH-Tim] geminiBtnImg: no image attached to promptObj');
+      }
+    } catch (e) { console.debug('image debug error', e); }
 
     chrome.runtime.sendMessage(
       {
@@ -395,7 +415,8 @@ function insertGeminiBtn() {
             // not JSON — keep as-is
           }
         }
-        console.log('Parsed Gemini result:', result);
+  console.log('Parsed Gemini result:', result);
+  console.debug('[ELH-Tim] geminiBtnImg response summary:', (response && response.candidates) ? (response.candidates[0] && response.candidates[0].content ? response.candidates[0].content.parts && response.candidates[0].content.parts[0] && response.candidates[0].content.parts[0].text : '') : (response && response.text ? response.text : JSON.stringify(response)));
         // Вставить результат в поле Room name
         const nameLabel = Array.from(document.querySelectorAll("label")).find(
           (el) => el.textContent && el.textContent.trim() === "Room name"
@@ -521,14 +542,33 @@ function insertGeminiBtn() {
     if (firstImgSrc) {
       try {
         const compressed = await compressImageToJpegDataUrl(firstImgSrc, 800, 0.65);
-        if (compressed) promptObj.input.image = compressed;
-        else promptObj.input.image = firstImgSrc;
+        if (compressed) {
+          promptObj.input.image = compressed;
+        } else {
+          // fallback: request a visible-tab screenshot from background to include instead
+          try {
+            const ss = await new Promise((res) => chrome.runtime.sendMessage({ action: 'capture_screenshot' }, (r) => res(r)));
+            if (ss && ss.screenshot) promptObj.input.image = ss.screenshot;
+            else promptObj.input.image = firstImgSrc;
+          } catch (e) {
+            promptObj.input.image = firstImgSrc;
+          }
+        }
       } catch (e) {
         promptObj.input.image = firstImgSrc;
       }
     }
 
     const prompt = JSON.stringify(promptObj);
+
+    console.debug('[ELH-Tim] geminiDescBtn prompt object (before send):', promptObj);
+    try {
+      if (promptObj && promptObj.input && promptObj.input.image) {
+        console.debug('[ELH-Tim] geminiDescBtn image summary:', promptObj.input.image && promptObj.input.image.startsWith('data:') ? ('dataURI, len=' + String(promptObj.input.image.length)) : ('url: ' + String(promptObj.input.image).slice(0,200)));
+      } else {
+        console.debug('[ELH-Tim] geminiDescBtn: no image attached to promptObj');
+      }
+    } catch (e) { console.debug('image debug error', e); }
 
     chrome.runtime.sendMessage({ action: 'gemini_request', prompt: prompt }, function(response) {
       geminiDescBtn.disabled = false;

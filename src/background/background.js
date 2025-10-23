@@ -123,16 +123,80 @@ async function fetchGemini(prompt) {
         try { assembled += '\nOutput format: ' + JSON.stringify(promptObj.output_format) + '\n'; } catch(e){}
       }
       try {
+        // Build parts array: main text first, then optionally an image part or image URL text
+        const parts = [{ text: assembled }];
+        const modelName = (storedModel && storedModel.GEMINI_MODEL) ? String(storedModel.GEMINI_MODEL) : '';
+        const supportsImage = /vision|image|multimodal|vision-/.test(modelName.toLowerCase());
         if (promptObj.input && typeof promptObj.input.image === 'string' && promptObj.input.image.trim()) {
-          assembled += '\n\nImage URL: ' + promptObj.input.image.trim() + '\n(If you can access the image, describe what you see. If you cannot access external URLs, say so.)';
+          const imgVal = promptObj.input.image.trim();
+          if (supportsImage) {
+            // If the selected model appears to support images, try to attach binary imageBytes
+            if (imgVal.startsWith('data:')) {
+              try {
+                const m = imgVal.match(/^data:([^;]+);base64,(.*)$/s);
+                if (m && m[2]) {
+                  const base64 = m[2];
+                  parts.push({ image: { imageBytes: base64 } });
+                } else {
+                  // couldn't parse base64, fall back to embedding the full data URL as text
+                  parts.push({ text: '\n\nImage data (unable to attach binary): ' + imgVal.slice(0,200) });
+                }
+              } catch (e) {
+                parts.push({ text: '\n\nImage data (error parsing): ' + String(e) });
+              }
+            } else {
+              // non-data URL (assume external URL) - include as imageUri if supported
+              parts.push({ image: { imageUri: imgVal } });
+            }
+          } else {
+            // Selected model likely doesn't support images — include a textual hint instead to avoid API errors
+            console.warn('GEMINI_MODEL does not appear to support images, sending image as text hint. Model:', modelName);
+            if (imgVal.startsWith('data:')) {
+              parts.push({ text: '\n\nImage (data omitted) — base64 length: ' + String(imgVal.length) });
+            } else {
+              parts.push({ text: '\n\nImage URL: ' + imgVal + '\n(If you can access the image, describe what you see. If you cannot access external URLs, say so.)' });
+            }
+          }
         }
-      } catch (e) {}
-      finalBody = { contents: [{ parts: [{ text: assembled }] }] };
+        finalBody = { contents: [{ parts: parts }] };
+      } catch (e) {
+        finalBody = { contents: [{ parts: [{ text: assembled }] }] };
+      }
     } else {
       finalBody = promptObj;
     }
     console.log('Sending Gemini request to', endpoint);
-    console.log('Final request body:', finalBody);
+    // Prepare a redacted copy for debugging (don't log full base64 blobs)
+    try {
+      const redacted = JSON.parse(JSON.stringify(finalBody));
+      if (redacted && redacted.contents && Array.isArray(redacted.contents)) {
+        redacted.contents.forEach(c => {
+          if (c.parts && Array.isArray(c.parts)) {
+            c.parts = c.parts.map(p => {
+              if (p && p.image && p.image.imageBytes) {
+                const b = String(p.image.imageBytes || '');
+                // try to guess mime from original promptObj? not available here; show length
+                return { image: { imageBytes: `BASE64_LEN:${b.length}` } };
+              }
+              if (p && p.image && p.image.imageUri) {
+                return { image: { imageUri: String(p.image.imageUri).slice(0,200) } };
+              }
+              if (p && p.text && typeof p.text === 'string' && p.text.length > 1000) {
+                return { text: p.text.slice(0,1000) + '... (truncated)' };
+              }
+              return p;
+            });
+          }
+        });
+      }
+      console.log('Final request body (redacted):', redacted);
+      // store for inspection from extension devtools / console
+      try {
+        chrome.storage.local.set({ LAST_GEMINI_PAYLOAD: redacted });
+      } catch (e) {}
+    } catch (e) {
+      console.log('Failed to redact finalBody for logging', e);
+    }
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
