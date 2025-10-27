@@ -1,10 +1,10 @@
 {
-  "instruction": "Generate a natural room name based on the provided description, ensuring it matches the room's features. Use the room number from the original description. Follow the style of provided examples like 'Bright Double Room X with Balcony & Desk' or 'Cozy Single Room X with Wardrobe & Lamp'. Avoid repeating names, especially consecutively, and vary the mentioned elements (e.g., balcony, desk, window) based on what stands out most. Only include a bright or distinctive wall/floor color if explicitly mentioned in the description. Return only the new room name.",
+  "instruction": "Generate exactly 3 distinct, concise room title suggestions (3-7 words each) based on the provided description. Use synonyms, vary word order, and emphasize different features (light, workspace, storage, view). Avoid repeating the same leading adjective across suggestions and prefer not to always use the same adjective (e.g., 'Bright'). If a room number appears in the description, include it in the titles. Return valid JSON only in the form {\"names\":[\"...\",\"...\",\"...\"]}. Do not include any explanatory text. Never mention the address of the apartment or things near it. The name should be read as a whole, do not use special characters for the name except & and sometimes -",
   "input": {
     "description": "roomDesc"
   },
   "output_format": {
-    "new_room_name": "string"
+    "names": ["string"]
   },
   "examples": [
     {
@@ -12,7 +12,11 @@
         "description": "Room 7 is a small room with a single bed, a desk, and a large window."
       },
       "output": {
-        "new_room_name": "Bright Single Room 7 with Large Window & Desk"
+        "names": [
+          "Bright Single Room 7 with Large Window & Desk",
+          "Cosy Single Room 7 with Desk & Window",
+          "Single Room 7 - Sunny Study Area & Bed"
+        ]
       }
     },
     {
@@ -20,7 +24,11 @@
         "description": "Room 12 has two beds, a blue wall, and a balcony."
       },
       "output": {
-        "new_room_name": "Spacious Twin Room 12 with Blue Wall & Balcony"
+        "names": [
+          "Spacious Twin Room 12 with Blue Wall & Balcony",
+          "Twin Room 12 - Balcony & Ample Storage",
+          "Room 12 with Twin Beds, Balcony & Blue Accent"
+        ]
       }
     }
   ],
