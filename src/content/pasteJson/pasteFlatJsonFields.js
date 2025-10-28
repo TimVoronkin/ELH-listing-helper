@@ -926,15 +926,42 @@
     } catch (e) {}
   }
 
-  // highlightElement: default green; pass color='orange' to show loading state
+  // highlightElement: delegate to shared module if available; default green; pass color='orange' to show loading state
   function highlightElement(el, color = "green") {
     try {
+      if (!el) return;
+      // If shared module not present, try to inject it (best-effort)
+      if (!window.ELH || typeof window.ELH.highlightElement !== 'function') {
+        try {
+          const id = 'elh-highlight-module';
+          if (!document.getElementById(id)) {
+            const s = document.createElement('script');
+            s.id = id;
+            s.src = chrome.runtime.getURL('src/content/shared/highlight.js');
+            // after load, try to call the shared implementation once
+            s.onload = function () {
+              try {
+                if (window.ELH && typeof window.ELH.highlightElement === 'function') {
+                  window.ELH.highlightElement(el, color);
+                }
+              } catch (e) {}
+            };
+            document.head && document.head.appendChild(s);
+            // don't return: apply local fallback immediately so highlight shows while shared module loads
+          }
+        } catch (e) {}
+      }
+
+      if (window.ELH && typeof window.ELH.highlightElement === 'function') {
+        try { window.ELH.highlightElement(el, color); return; } catch (e) {}
+      }
+
+      // fallback local behavior
       if (!el || !el.style) return;
       if (color === "orange") {
         el.style.border = "2px solid #ff8c00";
         el.style.boxShadow = "0 0 0 4px rgba(255,140,0,0.12)";
       } else {
-        // default green
         el.style.border = "2px solid #28a745";
         el.style.boxShadow = "0 0 0 4px rgba(40,167,69,0.12)";
       }

@@ -125,6 +125,40 @@ function getInputForLabel(labelEl) {
   return labelEl.parentElement && labelEl.parentElement.querySelector('input, textarea');
 }
 
+// highlight helper: prefer shared module, otherwise fallback
+function highlightElement(el, color = 'green') {
+  try {
+    if (!el) return;
+    if (!window.ELH || typeof window.ELH.highlightElement !== 'function') {
+      try {
+        const id = 'elh-highlight-module';
+        if (!document.getElementById(id)) {
+          const s = document.createElement('script');
+          s.id = id;
+          s.src = chrome.runtime.getURL('src/content/shared/highlight.js');
+          s.onload = function () {
+            try { if (window.ELH && typeof window.ELH.highlightElement === 'function') window.ELH.highlightElement(el, color); } catch (e) {}
+          };
+          document.head && document.head.appendChild(s);
+          // don't return: continue to apply local fallback immediately so UI shows highlighted state
+        }
+      } catch (e) {}
+    }
+    if (window.ELH && typeof window.ELH.highlightElement === 'function') { window.ELH.highlightElement(el, color); return; }
+
+    // fallback
+    if (!el || !el.style) return;
+    if (color === 'orange') {
+      el.style.border = '2px solid #ff8c00';
+      el.style.boxShadow = '0 0 0 4px rgba(255,140,0,0.12)';
+    } else {
+      el.style.border = '2px solid #28a745';
+      el.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)';
+    }
+    el.style.outline = 'none';
+  } catch (e) {}
+}
+
 function parseGeminiResponse(response, possibleKeys = ['new_room_name', 'description']) {
   let result = '';
   if (!response) return '';
@@ -233,15 +267,15 @@ function insertGeminiBtn() {
 
   // buttons
   const geminiBtn = document.createElement('button');
-  geminiBtn.textContent = 'Generate Name via description';
+  geminiBtn.textContent = '✦︎ Generate Name via description';
   geminiBtn.className = 'elh-btn gemini-btn';
 
   const geminiBtnImg = document.createElement('button');
-  geminiBtnImg.textContent = 'Generate Name via description+img1';
+  geminiBtnImg.textContent = '✦︎ Generate Name via description+img1';
   geminiBtnImg.className = 'elh-btn gemini-btn';
 
   const geminiDescBtn = document.createElement('button');
-  geminiDescBtn.textContent = 'Generate Description via name+img1';
+  geminiDescBtn.textContent = '✦︎ Generate Description via name+img1';
   geminiDescBtn.className = 'elh-btn gemini-btn';
 
   // Rate-limiting state for simple debounce/backoff
@@ -259,6 +293,13 @@ function insertGeminiBtn() {
       btn.style.background = '#b0b0b0';
       btn.style.color = '#eee';
       btn.style.pointerEvents = 'none';
+
+      // highlight target name input while Gemini is thinking
+      let nameLabel = findLabelOrSpan('Room name');
+      let nameInput = getInputForLabel(nameLabel);
+      if (nameInput) {
+        try { highlightElement(nameInput, 'orange'); } catch (e) {}
+      }
 
       // get room description
       const roomDescLabel = findLabelOrSpan('Room Description');
@@ -331,17 +372,26 @@ function insertGeminiBtn() {
         console.log('[ELH-Tim] Chosen room name:', chosen);
 
         // Insert chosen plain string into Room name field
-        const nameLabel = findLabelOrSpan('Room name');
-        let nameInput = getInputForLabel(nameLabel);
-        if (nameInput) {
-          nameInput.value = chosen;
-          nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
+        try {
+          if (nameInput) {
+            nameInput.value = chosen;
+            nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+            try { highlightElement(nameInput, 'green'); } catch (e) {}
+          } else {
+            const nameLabel2 = findLabelOrSpan('Room name');
+            const nameInput2 = getInputForLabel(nameLabel2);
+            if (nameInput2) {
+              nameInput2.value = chosen;
+              nameInput2.dispatchEvent(new Event('input', { bubbles: true }));
+              try { highlightElement(nameInput2, 'green'); } catch (e) {}
+            }
+          }
+        } catch (e) { console.warn('[ELH-Tim] inserting name failed', e); }
       });
 
     } catch (e) {
       console.error('[ELH-Tim] handleNameGeneration error', e);
-      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = 'Generate Name'; } catch (er) {}
+      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Name'; } catch (er) {}
     }
   }
 
@@ -390,6 +440,13 @@ function insertGeminiBtn() {
       const prompt = JSON.stringify(promptObj);
       console.debug('[ELH-Tim] description prompt', promptObj);
 
+      // highlight description textarea while Gemini is thinking
+      const roomDescLabelPending = findLabelOrSpan('Room Description');
+      const textareaPending = getInputForLabel(roomDescLabelPending);
+      if (textareaPending) {
+        try { highlightElement(textareaPending, 'orange'); } catch (e) {}
+      }
+
       chrome.runtime.sendMessage({ action: 'gemini_request', prompt }, (response) => {
         btn.disabled = false;
         btn.textContent = orig;
@@ -405,12 +462,13 @@ function insertGeminiBtn() {
         if (textarea) {
           textarea.value = parsed;
           textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          try { highlightElement(textarea, 'green'); } catch (e) {}
         }
       });
 
     } catch (e) {
       console.error('[ELH-Tim] handleDescriptionGeneration error', e);
-      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = 'Generate Description'; } catch (er) {}
+      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Description'; } catch (er) {}
     }
   }
 
