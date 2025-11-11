@@ -34,7 +34,8 @@
 
         .row {
             display: flex;
-            gap: 16px
+            gap: 16px;
+            padding-bottom: 16px;
         }
 
         .col {
@@ -125,7 +126,7 @@
             .row {
                 flex-direction: column
             }
-            
+
             .col {
                 padding: 12px
             }
@@ -189,6 +190,22 @@
             <div id="jsonDescStatus" class="status">Pretty printed.</div>
         </div>
     </div>
+    <div class="row">
+
+        <div class="col">
+            <label class="label"><b>Open rooms tabs</b> settings</label>
+            <div>
+                <input type="checkbox" id="openListingRoomsInBG">
+                <label for="openListingRoomsInBG">Stay in same page after opening all tabs</label>
+            </div>
+            <div>
+                <input type="checkbox" id="openInSameTabGroup">
+                <label for="openInSameTabGroup">Open all tabs in the same tab group</label>
+            </div>
+        </div>
+
+    </div>
     <script src="src/options/options.js"></script>
 </body>
+
 </html>

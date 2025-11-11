@@ -84,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveBtn.addEventListener('click', () => {
     const key = apiKeyInput.value.trim();
+    const openListingRoomsInBG = openListingRoomsInBGCheckbox ? openListingRoomsInBGCheckbox.checked : false;
+    const openInSameTabGroup = openInSameTabGroupCheckbox ? openInSameTabGroupCheckbox.checked : false;
     let parsed = null;
     try {
       parsed = JSON.parse(promptObjEl.value);
@@ -98,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus(jsonDescStatus, 'promptDesc is not valid JSON: ' + err.message, false);
       return;
     }
-    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed }, () => {
+  chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup }, () => {
       // save description prompt as well
       chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
         showStatus(status, 'Saved.');
@@ -109,8 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup'], () => {
       apiKeyInput.value = '';
+      if (openListingRoomsInBGCheckbox) openListingRoomsInBGCheckbox.checked = false;
+      if (openInSameTabGroupCheckbox) openInSameTabGroupCheckbox.checked = false;
       fetchdefaultPromptForNameFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
@@ -177,6 +181,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const json = await fetchdefaultPromptForDescriptionFile();
     try { promptDescEl.value = JSON.stringify(json, null, 2); showStatus(jsonDescStatus, 'Default loaded.'); } catch (e) { promptDescEl.value = String(json); showStatus(jsonDescStatus, 'Default loaded (non-JSON fallback).'); }
   });
+
+  // Load checkbox state for openListingRoomsInBG and openInSameTabGroup
+  const openListingRoomsInBGCheckbox = document.getElementById('openListingRoomsInBG');
+  const openInSameTabGroupCheckbox = document.getElementById('openInSameTabGroup');
+  if (openListingRoomsInBGCheckbox || openInSameTabGroupCheckbox) {
+    chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup'], (items) => {
+      if (openListingRoomsInBGCheckbox && items && items.openListingRoomsInBG !== undefined) {
+        openListingRoomsInBGCheckbox.checked = items.openListingRoomsInBG;
+      }
+      if (openInSameTabGroupCheckbox && items && items.openInSameTabGroup !== undefined) {
+        openInSameTabGroupCheckbox.checked = items.openInSameTabGroup;
+      }
+    });
+  }
 
   const testBtn = document.getElementById('test');
   const testResult = document.getElementById('testResult');

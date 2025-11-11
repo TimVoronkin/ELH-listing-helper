@@ -3,6 +3,55 @@
 // Note: this file is a copy of the root background.js relocated into src for better project structure
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // handle opening tabs in background
+  if (request && request.action === 'openTabsInBackground' && Array.isArray(request.urls)) {
+    const urls = request.urls;
+    // Determine whether we should place opened tabs into the same group.
+    // If request.useGroup is true, prefer explicit request.groupId or infer from sender.tab.
+    let groupId = null;
+    if (request.useGroup === true) {
+      if (request.groupId !== undefined && request.groupId !== null) {
+        groupId = request.groupId;
+      } else if (sender && sender.tab && typeof sender.tab.groupId === 'number') {
+        // Chrome uses -1 or chrome.tabs.TAB_ID_NONE for no group; treat negative as no group
+        groupId = sender.tab.groupId >= 0 ? sender.tab.groupId : null;
+      }
+    } else {
+      groupId = null; // explicit: do not group
+    }
+    console.log('[ELH-Tim] background handler: opening', urls.length, 'tabs in background', groupId !== null ? 'in group ' + groupId : '');
+    
+    // Open each URL with a small delay to avoid focus/throttling issues
+    let delay = 0;
+    const openedTabIds = [];
+    for (const url of urls) {
+      setTimeout(() => {
+        const createOptions = { url: url, active: false };
+        chrome.tabs.create(createOptions, (tab) => {
+          if (chrome.runtime.lastError) {
+            console.warn('[ELH-Tim] Failed to create tab for', url, chrome.runtime.lastError);
+          } else {
+            console.log('[ELH-Tim] opened tab in background:', url, 'tabId:', tab.id);
+            openedTabIds.push(tab.id);
+            
+            // if we have a groupId, move the tab to that group
+            if (groupId && tab.id) {
+              chrome.tabs.group({ tabIds: [tab.id], groupId: groupId }, (resultGroupId) => {
+                if (chrome.runtime.lastError) {
+                  console.warn('[ELH-Tim] Failed to move tab to group:', chrome.runtime.lastError);
+                } else {
+                  console.log('[ELH-Tim] moved tab', tab.id, 'to group', resultGroupId);
+                }
+              });
+            }
+          }
+        });
+      }, delay);
+      delay += 150; // 150ms between tab creations
+    }
+    sendResponse({ success: true, count: urls.length, groupId: groupId });
+    return false;
+  }
   if (request && request.action === 'download') {
     try {
       const opt = { url: request.url, filename: `ELH-helper/${request.filename}`, conflictAction: 'uniquify', saveAs: false };

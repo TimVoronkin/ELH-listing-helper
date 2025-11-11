@@ -14,5 +14,6 @@ Features:
 - Paste JSON data into ELH forms of listings and rooms
 - Options page to customize prompts and settings
 - Button to copy image from room page to clipboard
+- Button to open all rooms of listing
 and more...
 extension still in development

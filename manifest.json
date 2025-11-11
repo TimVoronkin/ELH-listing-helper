@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "ELH Tim's helper",
-  "version": "0.5",
+  "version": "0.6",
   "description": "Adds some buttons to help working with Erasmus Life Housing platform",
   "permissions": [
     "activeTab",
     "scripting",
     "tabs",
+    "tabGroups",
     "storage",
     "downloads"
   ],
@@ -28,7 +29,7 @@
     {
       "matches": ["https://www.erasmuslifehousing.com/dashboard/admin/houses"],
       "js": [
-        "src/content/openTabs.js"
+        "src/content/openTabs/openTabsOfListing.js"
       ]
     },
     {
