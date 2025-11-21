@@ -33,6 +33,12 @@
       ]
     },
     {
+      "matches": ["https://www.erasmuslifehousing.com/dashboard/admin/listings"],
+      "js": [
+        "src/content/openTabs/openTabsFromAllListings.js"
+      ]
+    },
+    {
       "matches": ["https://www.uniplaces.com/accommodation/*"],
       "js": [
         "src/content/parser/parser_uniplaces.common.js",
