@@ -28,6 +28,242 @@ function loadSharedStylesOnce() {
 }
 loadSharedStylesOnce();
 
+// --- Helper Functions (Global Scope) ---
+
+function getRoomUrlsForCard(card) {
+  const urlsSet = new Set();
+  let discoveredListingId = null;
+
+  try {
+    const anchors = Array.from(card.querySelectorAll('a[href*="/rooms/form/"]'));
+    anchors.forEach((a) => {
+      try {
+        const rawHref = a.getAttribute('href') || a.href || '';
+        const absolute = rawHref.startsWith('http') ? rawHref : new URL(rawHref, location.origin).href;
+        const fullMatch = absolute.match(/\/dashboard\/admin\/listings\/([^\/]+)\/rooms\/form\/([^\/\?#]+)/i);
+        if (fullMatch) {
+          discoveredListingId = discoveredListingId || fullMatch[1];
+          urlsSet.add(absolute.split('?')[0]);
+          return;
+        }
+        const shortMatch = absolute.match(/\/rooms\/form\/([^\/\?#]+)/i);
+        if (shortMatch) {
+          urlsSet.add(absolute.split('?')[0]);
+          return;
+        }
+      } catch (errA) {
+        if (__elh_openTabs_debug) console.warn('[ELH-Tim] error processing anchor href', errA, a);
+      }
+    });
+
+    // fallback: if anchors not present, try to parse room IDs from text spans
+    // but first: if the card explicitly shows "0 rooms" (a badge), bail out
+    let roomIds = [];
+    if (urlsSet.size === 0) {
+      try {
+        const zeroRoomsEl = Array.from(card.querySelectorAll('span,div,button'))
+          .find(el => {
+            const t = (el.textContent || '').trim().toLowerCase();
+            return /^0\s+rooms$/.test(t) || t === '0 rooms';
+          });
+        if (zeroRoomsEl) {
+          if (__elh_openTabs_debug) console.log('[ELH-Tim] card shows 0 rooms badge; skipping room URL parsing');
+          return [];
+        }
+
+        const spans = Array.from(card.querySelectorAll('span'));
+        spans.forEach(s => {
+          const txt = (s.textContent || '').trim();
+          const m = txt.match(/\bID:\s*#([A-Za-z0-9_-]+)/);
+          if (m) roomIds.push(m[1]);
+        });
+        if (__elh_openTabs_debug) console.log('[ELH-Tim] parsed roomIds from text spans', roomIds);
+      } catch (errS) {
+        if (__elh_openTabs_debug) console.warn('[ELH-Tim] error parsing ID spans', errS);
+      }
+    }
+
+    if (roomIds.length > 0 && !discoveredListingId) {
+      try {
+        const listingAnchor = card.querySelector('a[href*="/dashboard/admin/listings/"]');
+        if (listingAnchor) {
+          const href = listingAnchor.getAttribute('href') || listingAnchor.href || '';
+          const m = href.match(/\/dashboard\/admin\/listings\/([^\/\?#]+)/i);
+          if (m) discoveredListingId = m[1];
+          if (__elh_openTabs_debug) console.log('[ELH-Tim] discovered listingId from listingAnchor', discoveredListingId);
+        }
+      } catch (errL) {
+        if (__elh_openTabs_debug) console.warn('[ELH-Tim] error finding listing anchor', errL);
+      }
+    }
+
+    if (roomIds.length > 0) {
+      const base = 'https://www.erasmuslifehousing.com';
+      if (discoveredListingId) {
+        roomIds.forEach(rid => urlsSet.add(`${base}/dashboard/admin/listings/${discoveredListingId}/rooms/form/${rid}`));
+      } else {
+        if (__elh_openTabs_debug) console.warn('[ELH-Tim] no listingId found; cannot construct full room URLs from IDs');
+      }
+    }
+  } catch (e) {
+    if (__elh_openTabs_debug) console.error('[ELH-Tim] getRoomUrlsForCard error', e);
+  }
+
+  return Array.from(urlsSet);
+}
+
+function updateButtonState(btn, count) {
+  if (!btn) return;
+  if (count === 0) {
+    btn.textContent = 'no rooms here';
+    btn.disabled = true;
+    btn.classList && btn.classList.add('elh-disabled');
+    btn.setAttribute('aria-disabled', 'true');
+  } else if (count === 1) {
+    btn.textContent = 'open 1 tab';
+    btn.disabled = false;
+    btn.classList && btn.classList.remove('elh-disabled');
+    btn.removeAttribute('aria-disabled');
+  } else {
+    btn.textContent = `open ${count} tabs`;
+    btn.disabled = false;
+    btn.classList && btn.classList.remove('elh-disabled');
+    btn.removeAttribute('aria-disabled');
+  }
+}
+
+function openUrls(urls) {
+  if (!urls || urls.length === 0) {
+    if (__elh_openTabs_debug) console.log('[ELH-Tim] no URLs to open');
+    return;
+  }
+
+  // check if background tab opening is enabled and whether to open in same tab group
+  chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup'], (items) => {
+    const useBackground = items && items.openListingRoomsInBG === true;
+    const useSameGroup = items && items.openInSameTabGroup === true;
+
+    if (useBackground) {
+      // use background tab opening via service worker and optionally keep in same group
+      if (__elh_openTabs_debug) console.log('[ELH-Tim] using background tab opening (useSameGroup=' + useSameGroup + ')');
+      chrome.runtime.sendMessage(
+        { action: 'openTabsInBackground', urls: urls, useGroup: useSameGroup },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.warn('[ELH-Tim] sendMessage error:', chrome.runtime.lastError);
+            // fallback to direct opening on error
+            openTabsDirectly(urls);
+          } else if (response && response.success) {
+            if (__elh_openTabs_debug) console.log('[ELH-Tim] background tabs opened:', response.count);
+          }
+        }
+      );
+    } else {
+      // use direct anchor/window.open approach
+      if (__elh_openTabs_debug) console.log('[ELH-Tim] using direct tab opening');
+      openTabsDirectly(urls);
+    }
+  });
+}
+
+function openTabsDirectly(urls) {
+  urls.forEach(u => {
+    try {
+      const a = document.createElement('a');
+      a.href = u;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      // keep the anchor out of layout
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      // create a trusted MouseEvent if possible
+      const ev = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+      a.dispatchEvent(ev);
+      // cleanup
+      setTimeout(() => a.remove(), 0);
+      if (__elh_openTabs_debug) console.log('[ELH-Tim] opened (anchor click) ', u);
+    } catch (errOpen) {
+      // fallback to window.open if anchor approach fails
+      try {
+        window.open(u, '_blank', 'noopener');
+        if (__elh_openTabs_debug) console.log('[ELH-Tim] opened (fallback) ', u);
+      } catch (err2) {
+        console.warn('[ELH-Tim] Failed to open', u, errOpen, err2);
+      }
+    }
+  });
+}
+
+// --- Main Logic ---
+
+function insertOpenAllListingsButton() {
+  try {
+    // Find the target div
+    // "text-muted-foreground text-sm mb-4 px-1"
+    const selector = 'div.text-muted-foreground.text-sm.mb-4.px-1';
+    const targetDiv = document.querySelector(selector);
+    
+    if (!targetDiv) {
+      // It might be that the user meant "first div with these classes"
+      // The querySelector returns the first match.
+      if (__elh_openTabs_debug) console.log('[ELH-Tim] target div for "open all" button not found');
+      return;
+    }
+
+    // Apply styles
+    if (targetDiv.style.display !== 'flex') {
+        targetDiv.style.display = 'flex';
+        targetDiv.style.justifyContent = 'space-between';
+        targetDiv.style.alignItems = 'flex-start';
+    }
+
+    // Calculate total rooms
+    const cards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
+    let allUrls = [];
+    cards.forEach(card => {
+        const urls = getRoomUrlsForCard(card);
+        allUrls = allUrls.concat(urls);
+    });
+    const totalCount = allUrls.length;
+
+    // Check for existing button
+    let btn = targetDiv.querySelector('.elh-open-all-btn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'elh-btn elh-uniplaces-btn inline elh-open-all-btn';
+        btn.style.marginLeft = '10px'; // Add some spacing if needed
+        
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (__elh_openTabs_debug) console.log('[ELH-Tim] "open all" button clicked');
+            
+            // Re-calculate URLs on click to be safe
+            const currentCards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
+            let currentAllUrls = [];
+            currentCards.forEach(card => {
+                const urls = getRoomUrlsForCard(card);
+                currentAllUrls = currentAllUrls.concat(urls);
+            });
+            
+            openUrls(currentAllUrls);
+        });
+
+        targetDiv.appendChild(btn);
+    }
+
+    // Update button text
+    const newText = `open all rooms of all results (${totalCount} tabs)`;
+    if (btn.textContent !== newText) {
+        btn.textContent = newText;
+    }
+    
+  } catch (e) {
+    console.error('[ELH-Tim] insertOpenAllListingsButton error', e);
+  }
+}
+
 function insertOpenTabsButtons() {
   try {
     const cards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
@@ -36,110 +272,6 @@ function insertOpenTabsButtons() {
       return;
     }
     if (__elh_openTabs_debug) console.log('[ELH-Tim] found HouseListingCard count =', cards.length);
-
-    // helper: determine room URLs for a given card (kept local to avoid global pollution)
-    function getRoomUrlsForCard(card) {
-      const urlsSet = new Set();
-      let discoveredListingId = null;
-
-      try {
-        const anchors = Array.from(card.querySelectorAll('a[href*="/rooms/form/"]'));
-        anchors.forEach((a) => {
-          try {
-            const rawHref = a.getAttribute('href') || a.href || '';
-            const absolute = rawHref.startsWith('http') ? rawHref : new URL(rawHref, location.origin).href;
-            const fullMatch = absolute.match(/\/dashboard\/admin\/listings\/([^\/]+)\/rooms\/form\/([^\/\?#]+)/i);
-            if (fullMatch) {
-              discoveredListingId = discoveredListingId || fullMatch[1];
-              urlsSet.add(absolute.split('?')[0]);
-              return;
-            }
-            const shortMatch = absolute.match(/\/rooms\/form\/([^\/\?#]+)/i);
-            if (shortMatch) {
-              urlsSet.add(absolute.split('?')[0]);
-              return;
-            }
-          } catch (errA) {
-            if (__elh_openTabs_debug) console.warn('[ELH-Tim] error processing anchor href', errA, a);
-          }
-        });
-
-        // fallback: if anchors not present, try to parse room IDs from text spans
-        // but first: if the card explicitly shows "0 rooms" (a badge), bail out
-        let roomIds = [];
-        if (urlsSet.size === 0) {
-          try {
-            const zeroRoomsEl = Array.from(card.querySelectorAll('span,div,button'))
-              .find(el => {
-                const t = (el.textContent || '').trim().toLowerCase();
-                return /^0\s+rooms$/.test(t) || t === '0 rooms';
-              });
-            if (zeroRoomsEl) {
-              if (__elh_openTabs_debug) console.log('[ELH-Tim] card shows 0 rooms badge; skipping room URL parsing');
-              return [];
-            }
-
-            const spans = Array.from(card.querySelectorAll('span'));
-            spans.forEach(s => {
-              const txt = (s.textContent || '').trim();
-              const m = txt.match(/\bID:\s*#([A-Za-z0-9_-]+)/);
-              if (m) roomIds.push(m[1]);
-            });
-            if (__elh_openTabs_debug) console.log('[ELH-Tim] parsed roomIds from text spans', roomIds);
-          } catch (errS) {
-            if (__elh_openTabs_debug) console.warn('[ELH-Tim] error parsing ID spans', errS);
-          }
-        }
-
-        if (roomIds.length > 0 && !discoveredListingId) {
-          try {
-            const listingAnchor = card.querySelector('a[href*="/dashboard/admin/listings/"]');
-            if (listingAnchor) {
-              const href = listingAnchor.getAttribute('href') || listingAnchor.href || '';
-              const m = href.match(/\/dashboard\/admin\/listings\/([^\/\?#]+)/i);
-              if (m) discoveredListingId = m[1];
-              if (__elh_openTabs_debug) console.log('[ELH-Tim] discovered listingId from listingAnchor', discoveredListingId);
-            }
-          } catch (errL) {
-            if (__elh_openTabs_debug) console.warn('[ELH-Tim] error finding listing anchor', errL);
-          }
-        }
-
-        if (roomIds.length > 0) {
-          const base = 'https://www.erasmuslifehousing.com';
-          if (discoveredListingId) {
-            roomIds.forEach(rid => urlsSet.add(`${base}/dashboard/admin/listings/${discoveredListingId}/rooms/form/${rid}`));
-          } else {
-            if (__elh_openTabs_debug) console.warn('[ELH-Tim] no listingId found; cannot construct full room URLs from IDs');
-          }
-        }
-      } catch (e) {
-        if (__elh_openTabs_debug) console.error('[ELH-Tim] getRoomUrlsForCard error', e);
-      }
-
-      return Array.from(urlsSet);
-    }
-
-    // helper: set button label and disabled state based on count
-    function updateButtonState(btn, count) {
-      if (!btn) return;
-      if (count === 0) {
-        btn.textContent = 'no rooms here';
-        btn.disabled = true;
-        btn.classList && btn.classList.add('elh-disabled');
-        btn.setAttribute('aria-disabled', 'true');
-      } else if (count === 1) {
-        btn.textContent = 'open 1 tab';
-        btn.disabled = false;
-        btn.classList && btn.classList.remove('elh-disabled');
-        btn.removeAttribute('aria-disabled');
-      } else {
-        btn.textContent = `open ${count} tabs`;
-        btn.disabled = false;
-        btn.classList && btn.classList.remove('elh-disabled');
-        btn.removeAttribute('aria-disabled');
-      }
-    }
 
     cards.forEach((card) => {
       if (!card) return;
@@ -196,39 +328,7 @@ function insertOpenTabsButtons() {
         try {
           const urls = getRoomUrlsForCard(card);
           if (__elh_openTabs_debug) console.log('[ELH-Tim] room URLs to open:', urls);
-          if (!urls || urls.length === 0) {
-            if (__elh_openTabs_debug) console.log('[ELH-Tim] no room URLs found for this card');
-            // update button state to reflect current situation
-            updateButtonState(btn, 0);
-            return;
-          }
-          
-          // check if background tab opening is enabled and whether to open in same tab group
-          chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup'], (items) => {
-            const useBackground = items && items.openListingRoomsInBG === true;
-            const useSameGroup = items && items.openInSameTabGroup === true;
-
-            if (useBackground) {
-              // use background tab opening via service worker and optionally keep in same group
-              if (__elh_openTabs_debug) console.log('[ELH-Tim] using background tab opening (useSameGroup=' + useSameGroup + ')');
-              chrome.runtime.sendMessage(
-                { action: 'openTabsInBackground', urls: urls, useGroup: useSameGroup },
-                (response) => {
-                  if (chrome.runtime.lastError) {
-                    console.warn('[ELH-Tim] sendMessage error:', chrome.runtime.lastError);
-                    // fallback to direct opening on error
-                    openTabsDirectly(urls);
-                  } else if (response && response.success) {
-                    if (__elh_openTabs_debug) console.log('[ELH-Tim] background tabs opened:', response.count);
-                  }
-                }
-              );
-            } else {
-              // use direct anchor/window.open approach
-              if (__elh_openTabs_debug) console.log('[ELH-Tim] using direct tab opening');
-              openTabsDirectly(urls);
-            }
-          });
+          openUrls(urls);
           
           // after opening, update button (in case links changed)
           updateButtonState(btn, urls.length);
@@ -237,35 +337,6 @@ function insertOpenTabsButtons() {
         }
       });
       
-      // helper: open tabs directly via anchor or window.open
-      function openTabsDirectly(urls) {
-        urls.forEach(u => {
-          try {
-            const a = document.createElement('a');
-            a.href = u;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            // keep the anchor out of layout
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            // create a trusted MouseEvent if possible
-            const ev = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
-            a.dispatchEvent(ev);
-            // cleanup
-            setTimeout(() => a.remove(), 0);
-            if (__elh_openTabs_debug) console.log('[ELH-Tim] opened (anchor click) ', u);
-          } catch (errOpen) {
-            // fallback to window.open if anchor approach fails
-            try {
-              window.open(u, '_blank', 'noopener');
-              if (__elh_openTabs_debug) console.log('[ELH-Tim] opened (fallback) ', u);
-            } catch (err2) {
-              console.warn('[ELH-Tim] Failed to open', u, errOpen, err2);
-            }
-          }
-        });
-      }
-
       // Prefer placing button inside an existing controls area. If none found, create
       // an `.elh-open-tabs-controls` container (styled like other control groups) and
       // insert it into a sensible place inside the card.
@@ -344,6 +415,10 @@ function insertOpenTabsButtons() {
         }
       }
     });
+    
+    // Also insert/update the "Open All" button
+    insertOpenAllListingsButton();
+
   } catch (e) {
     console.error('[ELH-Tim] insertOpenTabsButtons error', e);
   }

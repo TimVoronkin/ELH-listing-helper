@@ -14,11 +14,16 @@ Features:
 - Paste JSON data into ELH forms of listings and rooms
 - Options page to customize prompts and settings
 - Button to copy image from room page to clipboard
-- Button to open all rooms of listing in new tabs from houses page
+- Button to open all rooms of one listing in new tabs from houses page
+- Button to open all rooms of all searched listings in new tabs from houses page
 - Button to open all selected rooms in new tabs from listing page
 and more...
 extension still in development
 
 
-<!-- Disclamer for Developers:
-I vibe-coded a lot.. like entire project is like that. So please dont be surprise if you see some weird code. It was the fastest solution. -->
+<!--
+Disclamer for Developers:
+
+I vibe-coded a lot.. like entire project made with help of GitHub Copilot and later I swithed to Google Antigravity.
+So please dont be surprise if u see some weird code. It was the fastest solution.
+-->
