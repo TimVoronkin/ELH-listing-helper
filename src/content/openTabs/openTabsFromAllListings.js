@@ -378,10 +378,25 @@ async function handleBulkOpen() {
       // Find our button in this row to update its state visually
       const rowBtn = row.querySelector('.elh-open-tabs-btn');
       await processRowForOpenTab(row, rowBtn);
-      // Small delay between actions to be safe
       await new Promise(r => setTimeout(r, 500));
     }
   }
+}
+
+async function handleSelectAll() {
+  const allCheckboxes = document.querySelectorAll('tbody tr td:first-child button[role="checkbox"]');
+  console.log('__elh_openTabsFromAllListings: Select All clicked, found', allCheckboxes.length, 'checkboxes');
+  
+  let clickedCount = 0;
+  for (const cb of allCheckboxes) {
+    if (cb.getAttribute('data-state') !== 'checked') {
+      cb.click();
+      clickedCount++;
+      // Small delay to prevent race conditions in app state updates
+      await new Promise(r => setTimeout(r, 20));
+    }
+  }
+  console.log('__elh_openTabsFromAllListings: Clicked', clickedCount, 'checkboxes to select them');
 }
 
 function insertBulkOpenButton() {
@@ -392,18 +407,32 @@ function insertBulkOpenButton() {
   const container = document.querySelector('div.flex.justify-end.items-center.mb-4.gap-4');
   
   if (container) {
-      console.log('[ELH-helper] openTabsFromAllListings: Found container for bulk button');
+      console.log('__elh_openTabsFromAllListings: Found container for bulk button');
       
       __elh_bulk_btn = document.createElement('button');
       __elh_bulk_btn.type = 'button';
       __elh_bulk_btn.className = 'elh-btn elh-uniplaces-btn inline';
-      __elh_bulk_btn.style.marginRight = 'auto'; // Push to the left if flex container allows, or just spacing
-      __elh_bulk_btn.style.marginLeft = '0px'; // Reset margin
+      __elh_bulk_btn.style.marginRight = '0px'; 
+      __elh_bulk_btn.style.marginLeft = '0px';
       __elh_bulk_btn.innerHTML = '<span>no rooms selected</span>';
       __elh_bulk_btn.addEventListener('click', handleBulkOpen);
       
-      // Insert as FIRST child to be on the left
+      // Create Select All Button
+      const selectAllBtn = document.createElement('button');
+      selectAllBtn.type = 'button';
+      selectAllBtn.className = 'elh-btn elh-uniplaces-btn inline';
+      selectAllBtn.style.marginRight = 'auto'; // Push subsequent buttons to the right
+      selectAllBtn.style.marginLeft = '10px';
+      selectAllBtn.style.backgroundColor = '#e2e8f0';
+      selectAllBtn.style.color = '#1e293b';
+      selectAllBtn.innerHTML = '<span>select all</span>';
+      selectAllBtn.addEventListener('click', handleSelectAll);
+
+      // Insert Bulk Open first
       container.insertBefore(__elh_bulk_btn, container.firstChild);
+      
+      // Insert Select All after Bulk Open
+      container.insertBefore(selectAllBtn, __elh_bulk_btn.nextSibling);
       
       // Initial state update
       updateBulkButtonState();
@@ -417,15 +446,12 @@ function insertBulkOpenButton() {
         }
       });
       
-      console.log('[ELH-helper] openTabsFromAllListings: Bulk button inserted at start of container');
+      console.log('__elh_openTabsFromAllListings: Bulk buttons inserted');
     } else {
-    console.warn('[ELH-helper] openTabsFromAllListings: Could not find container to place bulk button');
+    console.warn('__elh_openTabsFromAllListings: Could not find container to place bulk button');
   }
 }
 
-/**
- * Setup MutationObserver to watch for new rows
- */
 function setupObserver() {
   if (__elh_observer) {
     __elh_observer.disconnect();
