@@ -1,4 +1,4 @@
-console.log('[ELH-Tim] Site loaded!');
+console.log('[ELH-helper] [content] Site loaded!');
 
 // Inject shared styles once
 function loadSharedStylesOnce() {
@@ -10,8 +10,8 @@ function loadSharedStylesOnce() {
     link.rel = 'stylesheet';
     link.href = chrome.runtime.getURL('src/shared/buttons.css');
     document.head && document.head.appendChild(link);
-  } catch (err) {
-    console.warn('[ELH-Tim] Failed to inject shared styles', err);
+    } catch (err) {
+    console.warn('[ELH-helper] [content] Failed to inject shared styles', err);
   }
 }
 loadSharedStylesOnce();
@@ -110,8 +110,8 @@ function extractNamesFromResponse(response) {
       if (quoteMatches && quoteMatches.length >= 1) return quoteMatches.map(cleanName).filter(Boolean);
     }
 
-  } catch (e) {
-    console.warn('[ELH-Tim] extractNamesFromResponse error', e);
+    } catch (e) {
+    console.warn('[ELH-helper] [content] extractNamesFromResponse error', e);
   }
   return null;
 }
@@ -191,7 +191,7 @@ function parseGeminiResponse(response, possibleKeys = ['new_room_name', 'descrip
       } catch (e) { /* ignore */ }
     }
   } catch (e) {
-    console.warn('[ELH-Tim] parseGeminiResponse error', e);
+    console.warn('[ELH-helper] [content] parseGeminiResponse error', e);
   }
   return result;
 }
@@ -201,7 +201,7 @@ async function fetchStoredPrompt(key) {
     const res = await new Promise((resolve) => chrome.storage.local.get([key], (items) => resolve(items)));
     if (res && res[key]) return res[key];
   } catch (e) {
-    console.warn('[ELH-Tim] fetchStoredPrompt error', e);
+    console.warn('[ELH-helper] [content] fetchStoredPrompt error', e);
   }
   return null;
 }
@@ -228,7 +228,7 @@ async function compressImageToJpegDataUrl(src, maxDim = 800, quality = 0.65) {
     URL.revokeObjectURL(url);
     return dataUrl;
   } catch (e) {
-    console.warn('[ELH-Tim] compressImageToJpegDataUrl failed', e);
+    console.warn('[ELH-helper] [content] compressImageToJpegDataUrl failed', e);
     return null;
   }
 }
@@ -250,7 +250,7 @@ function findFirstImageUrl() {
       }
     }
   } catch (e) {
-    console.error('[ELH-Tim] findFirstImageUrl error', e);
+    console.error('[ELH-helper] [content] findFirstImageUrl error', e);
   }
   return null;
 }
@@ -344,7 +344,7 @@ function insertGeminiBtn() {
       }
 
       const prompt = JSON.stringify(promptObj);
-      console.debug('[ELH-Tim] name generation prompt', promptObj);
+      console.debug('[ELH-helper] [content] name generation prompt', promptObj);
 
       chrome.runtime.sendMessage({ action: 'gemini_request', prompt }, (response) => {
         // handle retry hint
@@ -369,7 +369,7 @@ function insertGeminiBtn() {
           const parsed = parseGeminiResponse(response, ['new_room_name']);
           chosen = parsed || '';
         }
-        console.log('[ELH-Tim] Chosen room name:', chosen);
+        console.log('[ELH-helper] [content] Chosen room name:', chosen);
 
         // Insert chosen plain string into Room name field
         try {
@@ -386,11 +386,11 @@ function insertGeminiBtn() {
               try { highlightElement(nameInput2, 'green'); } catch (e) {}
             }
           }
-        } catch (e) { console.warn('[ELH-Tim] inserting name failed', e); }
+        } catch (e) { console.warn('[ELH-helper] [content] inserting name failed', e); }
       });
 
     } catch (e) {
-      console.error('[ELH-Tim] handleNameGeneration error', e);
+      console.error('[ELH-helper] [content] handleNameGeneration error', e);
       try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Name'; } catch (er) {}
     }
   }
@@ -438,7 +438,7 @@ function insertGeminiBtn() {
       }
 
       const prompt = JSON.stringify(promptObj);
-      console.debug('[ELH-Tim] description prompt', promptObj);
+      console.debug('[ELH-helper] [content] description prompt', promptObj);
 
       // highlight description textarea while Gemini is thinking
       const roomDescLabelPending = findLabelOrSpan('Room Description');
@@ -455,7 +455,7 @@ function insertGeminiBtn() {
         btn.style.pointerEvents = 'auto';
 
         const parsed = parseGeminiResponse(response, ['description']);
-        console.log('[ELH-Tim] Parsed Gemini description result:', parsed);
+        console.log('[ELH-helper] [content] Parsed Gemini description result:', parsed);
 
         const roomDescLabel = findLabelOrSpan('Room Description');
         const textarea = getInputForLabel(roomDescLabel);
@@ -467,7 +467,7 @@ function insertGeminiBtn() {
       });
 
     } catch (e) {
-      console.error('[ELH-Tim] handleDescriptionGeneration error', e);
+      console.error('[ELH-helper] [content] handleDescriptionGeneration error', e);
       try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Description'; } catch (er) {}
     }
   }
@@ -617,7 +617,7 @@ function insertCopyImageButtons() {
     });
 
   } catch (e) {
-    console.error('[ELH-Tim] insertCopyImageButtons error', e);
+    console.error('[ELH-helper] [content] insertCopyImageButtons error', e);
   }
 }
 

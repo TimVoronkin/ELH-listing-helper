@@ -1,7 +1,7 @@
 // pasteFlatJsonFields.js
 (function () {
   // Debug: script loaded
-  console.log("[ELH-pasteJson] script loaded, location.href=", location.href);
+  console.log('[ELH-helper] [pasteFlatJsonFields] script loaded, location.href=', location.href);
 
   // Insert button when possible; handle SPA/dynamic DOM by observing body
   // Ensure shared styles are present
@@ -15,7 +15,7 @@
       link.href = chrome.runtime.getURL("src/shared/buttons.css");
       document.head && document.head.appendChild(link);
     } catch (e) {
-      console.warn("Failed to inject shared styles", e);
+      console.warn('[ELH-helper] [pasteFlatJsonFields] Failed to inject shared styles', e);
     }
   }
   loadSharedStylesOnce();
@@ -65,14 +65,14 @@
     btn.className = "elh-btn elh-paste-btn";
     btn.addEventListener("click", handlePasteClick);
     container.appendChild(btn);
-    console.log("[ELH-pasteJson] paste button inserted into container");
+    console.log('[ELH-helper] [pasteFlatJsonFields] paste button inserted into container');
   }
 
   // Try to create immediately
   try {
     createPasteButton();
   } catch (e) {
-    console.warn("[ELH-pasteJson] createPasteButton immediate failed", e);
+    console.warn('[ELH-helper] [pasteFlatJsonFields] createPasteButton immediate failed', e);
   }
 
   // Listen for SPA navigation: patch history methods and listen to popstate
@@ -97,7 +97,7 @@
         try { createPasteButton(); } catch (e) {}
       });
     } catch (e) {
-      console.warn('[ELH-pasteJson] location watcher failed', e);
+      console.warn('[ELH-helper] [pasteFlatJsonFields] location watcher failed', e);
     }
   })();
 
@@ -112,30 +112,21 @@
   async function readClipboardJson() {
     try {
       const clipboardText = await navigator.clipboard.readText();
-      console.log(
-        "[ELH-pasteJson] clipboard text length:",
-        clipboardText ? clipboardText.length : 0
-      );
+      console.log('[ELH-helper] [pasteFlatJsonFields] clipboard text length:', clipboardText ? clipboardText.length : 0);
       if (!clipboardText) {
-        console.warn("[ELH-pasteJson] clipboard empty");
+        console.warn('[ELH-helper] [pasteFlatJsonFields] clipboard empty');
         return null;
       }
       try {
         const jsonData = JSON.parse(clipboardText);
-        console.log(
-          "[ELH-pasteJson] parsed clipboard JSON keys:",
-          jsonData && Object.keys(jsonData)
-        );
+        console.log('[ELH-helper] [pasteFlatJsonFields] parsed clipboard JSON keys:', jsonData && Object.keys(jsonData));
         return jsonData;
       } catch (e) {
-        console.error(
-          "[ELH-pasteJson] Clipboard does not contain valid JSON.",
-          e
-        );
+        console.error('[ELH-helper] [pasteFlatJsonFields] Clipboard does not contain valid JSON.', e);
         return null;
       }
     } catch (err) {
-      console.error("[ELH-pasteJson] Failed to read clipboard:", err);
+      console.error('[ELH-helper] [pasteFlatJsonFields] Failed to read clipboard:', err);
       return null;
     }
   }
@@ -188,7 +179,7 @@
           cityVal = addrObj.city || "";
         }
       }
-      console.log("[ELH-pasteJson] parsed address parts (StepLocation)", {
+      console.log('[ELH-helper] [pasteFlatJsonFields] parsed address parts (StepLocation)', {
         streetVal,
         neighborhoodVal,
         cityVal,
@@ -199,9 +190,9 @@
         if (streetField) {
           setInputValue(streetField, streetVal);
           highlightElement(streetField);
-          console.log("[ELH-pasteJson] street set to", streetVal);
+          console.log('[ELH-helper] [pasteFlatJsonFields] street set to', streetVal);
         } else {
-          console.warn("[ELH-pasteJson] street input not found (StepLocation)");
+          console.warn('[ELH-helper] [pasteFlatJsonFields] street input not found (StepLocation)');
         }
       }
 
@@ -210,11 +201,9 @@
         if (neighField) {
           setInputValue(neighField, neighborhoodVal);
           highlightElement(neighField);
-          console.log("[ELH-pasteJson] neighborhood set to", neighborhoodVal);
+          console.log('[ELH-helper] [pasteFlatJsonFields] neighborhood set to', neighborhoodVal);
         } else {
-          console.warn(
-            "[ELH-pasteJson] neighborhood input not found (StepLocation)"
-          );
+          console.warn('[ELH-helper] [pasteFlatJsonFields] neighborhood input not found (StepLocation)');
         }
       }
 
@@ -241,11 +230,7 @@
               cityControl.select.dispatchEvent(
                 new Event("change", { bubbles: true })
               );
-              console.log(
-                "[ELH-pasteJson] city selected (select updated)",
-                matchedOption.value,
-                matchedOption.text
-              );
+              console.log('[ELH-helper] [pasteFlatJsonFields] city selected (select updated)', matchedOption.value, matchedOption.text);
               try {
                 highlightElement(cityControl.select);
               } catch (e) {}
@@ -255,22 +240,17 @@
                 } catch (e) {}
               }
             } catch (e) {
-              console.warn(
-                "[ELH-pasteJson] failed to set select value safely",
-                e
-              );
+              console.warn('[ELH-helper] [pasteFlatJsonFields] failed to set select value safely', e);
             }
           } else {
-            console.warn("[ELH-pasteJson] city option not found for", cityVal);
+            console.warn('[ELH-helper] [pasteFlatJsonFields] city option not found for', cityVal);
           }
         } else {
-          console.warn(
-            "[ELH-pasteJson] city select control not found (StepLocation)"
-          );
+          console.warn('[ELH-helper] [pasteFlatJsonFields] city select control not found (StepLocation)');
         }
       }
     } catch (err) {
-      console.warn("[ELH-pasteJson] handleStepLocation failed", err);
+      console.warn('[ELH-helper] [pasteFlatJsonFields] handleStepLocation failed', err);
     }
   }
   // Handle StepType: set Furnished -> Yes if at least 3 items in room_furniture (ignoring 'window') and at least one contains 'bed'
@@ -294,16 +274,13 @@
             try {
               yesBtn.click();
             } catch (e) {
-              console.warn(
-                "[ELH-pasteJson] failed to click furnished yesBtn",
-                e
-              );
+              console.warn('[ELH-helper] [pasteFlatJsonFields] failed to click furnished yesBtn', e);
             }
           }
           highlightElement(yesBtn, "green");
-          console.log("[ELH-pasteJson] set Furnished -> Yes");
+          console.log('[ELH-helper] [pasteFlatJsonFields] set Furnished -> Yes');
         } else {
-          console.warn("[ELH-pasteJson] Furnished Yes radio not found");
+          console.warn('[ELH-helper] [pasteFlatJsonFields] Furnished Yes radio not found');
         }
       }
     } catch (err) {
@@ -374,8 +351,8 @@
           }
         }
       }
-    } catch (err) {
-      console.warn("[ELH-pasteJson] handleStepComodation failed", err);
+      } catch (err) {
+      console.warn('[ELH-helper] [pasteFlatJsonFields] handleStepComodation failed', err);
     }
   }
   // Handle StepRules: set checkboxes for Smoking allowed and Pets allowed

@@ -204,9 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try { parsed = JSON.parse(promptObjEl.value); } catch (err) { showStatus(testResult, 'promptObj JSON invalid: ' + err.message, false); return; }
     try {
       chrome.runtime.sendMessage({ action: 'gemini_request', prompt: 'Test prompt for preview' }, (resp) => {
-        if (chrome.runtime.lastError) { console.error('Runtime message error:', chrome.runtime.lastError); showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false); return; }
+        if (chrome.runtime.lastError) { console.error('[ELH-helper] [options] Runtime message error:', chrome.runtime.lastError); showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false); return; }
         try { testResult.textContent = JSON.stringify(resp, null, 2); } catch (e) { testResult.textContent = String(resp); }
       });
-    } catch (err) { console.error('Test send error:', err); showStatus(testResult, 'Error sending test: ' + err.message, false); }
+    } catch (err) { console.error('[ELH-helper] [options] Test send error:', err); showStatus(testResult, 'Error sending test: ' + err.message, false); }
   });
 });

@@ -1,6 +1,6 @@
 // pasteRoomJsonFields.js
 (function () {
-  console.log("[ELH-pasteRoomJson] script loaded, location=", location.href);
+  console.log('[ELH-helper] [pasteRoomJsonFields] script loaded, location=', location.href);
 
   function loadSharedStylesOnce() {
     try {
@@ -12,7 +12,7 @@
       link.href = chrome.runtime.getURL("src/shared/buttons.css");
       document.head && document.head.appendChild(link);
     } catch (e) {
-      console.warn("[ELH-pasteRoomJson] Failed to inject shared styles", e);
+      console.warn('[ELH-helper] [pasteRoomJsonFields] Failed to inject shared styles', e);
     }
   }
   loadSharedStylesOnce();
@@ -54,13 +54,13 @@
     btn.className = 'elh-btn elh-paste-btn';
     btn.addEventListener('click', handleClick);
     container.appendChild(btn);
-    console.log('[ELH-pasteRoomJson] button inserted into container');
+    console.log('[ELH-helper] [pasteRoomJsonFields] button inserted into container');
   }
 
   try {
     createButton();
   } catch (e) {
-    console.warn("[ELH-pasteRoomJson] createButton immediate failed", e);
+    console.warn('[ELH-helper] [pasteRoomJsonFields] createButton immediate failed', e);
   }
 
   const obs = new MutationObserver(() => createButton());
@@ -77,7 +77,7 @@
       window.addEventListener('popstate', dispatchLocationChange);
       window.addEventListener('locationchange', () => { try { createButton(); } catch (e) {} });
     } catch (e) {
-      console.warn('[ELH-pasteRoomJson] location watcher failed', e);
+      console.warn('[ELH-helper] [pasteRoomJsonFields] location watcher failed', e);
     }
   })();
 
@@ -88,11 +88,11 @@
       try {
         return JSON.parse(text);
       } catch (e) {
-        console.warn("[ELH-pasteRoomJson] clipboard JSON parse failed", e);
+        console.warn('[ELH-helper] [pasteRoomJsonFields] clipboard JSON parse failed', e);
         return null;
       }
     } catch (err) {
-      console.error("[ELH-pasteRoomJson] Failed to read clipboard", err);
+      console.error('[ELH-helper] [pasteRoomJsonFields] Failed to read clipboard', err);
       return null;
     }
   }
@@ -320,14 +320,14 @@
       const desiredBed = bedCount >= 2 ? 'Yes' : 'No';
       let btn = findRadioInFeatures('Second Bed', desiredBed) || findRadioByGroupLabelOption('Second Bed', desiredBed);
       if (!btn) {
-        console.warn('[ELH-pasteRoomJson] Second Bed radio button not found');
+        console.warn('[ELH-helper] [pasteRoomJsonFields] Second Bed radio button not found');
       } else {
         const isChecked = btn.getAttribute('data-state') === 'checked' || btn.getAttribute('aria-checked') === 'true';
         if (!isChecked) {
-          try { btn.click(); } catch (e) { console.warn('[ELH-pasteRoomJson] failed to click Second Bed', e); }
+          try { btn.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click Second Bed', e); }
         }
         try { btn.style.border = '2px solid #28a745'; btn.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ btn.style.border=''; btn.style.boxShadow=''; },1500);}catch(e){}
-        console.log('[ELH-pasteRoomJson] Second Bed set ->', desiredBed, '(bedCount=', bedCount, ')');
+        console.log('[ELH-helper] [pasteRoomJsonFields] Second Bed set ->', desiredBed, '(bedCount=', bedCount, ')');
       }
 
       // Additional mappings: room_furniture -> site label
@@ -343,17 +343,17 @@
           const want = present ? 'Yes' : 'No';
           const rb = findRadioInFeatures(siteLabel, want) || findRadioByGroupLabelOption(siteLabel, want);
           if (!rb) {
-            console.warn('[ELH-pasteRoomJson] radio for', siteLabel, 'not found');
+            console.warn('[ELH-helper] [pasteRoomJsonFields] radio for', siteLabel, 'not found');
             continue;
           }
           const checked = rb.getAttribute('data-state') === 'checked' || rb.getAttribute('aria-checked') === 'true';
           if (!checked) {
-            try { rb.click(); } catch (e) { console.warn('[ELH-pasteRoomJson] failed to click', siteLabel, e); }
+            try { rb.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click', siteLabel, e); }
           }
           try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ rb.style.border=''; rb.style.boxShadow=''; },1200);}catch(e){}
-          console.log('[ELH-pasteRoomJson] set', siteLabel, '->', want, '(found=', present, ')');
+          console.log('[ELH-helper] [pasteRoomJsonFields] set', siteLabel, '->', want, '(found=', present, ')');
         } catch (e) {
-          console.warn('[ELH-pasteRoomJson] mapping handling failed for', siteLabel, e);
+          console.warn('[ELH-helper] [pasteRoomJsonFields] mapping handling failed for', siteLabel, e);
         }
       }
 
@@ -369,18 +369,18 @@
             if (areaInput) {
               setInputValue(areaInput, areaVal);
               try { areaInput.style.border = '2px solid #28a745'; areaInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ areaInput.style.border=''; areaInput.style.boxShadow=''; },1500);}catch(e){}
-              console.log('[ELH-pasteRoomJson] Total area set to', areaVal);
+              console.log('[ELH-helper] [pasteRoomJsonFields] Total area set to', areaVal);
             } else {
-              console.warn('[ELH-pasteRoomJson] Total area input not found');
+              console.warn('[ELH-helper] [pasteRoomJsonFields] Total area input not found');
             }
           }
         }
       } catch (e) {
-        console.warn('[ELH-pasteRoomJson] Total area handling failed', e);
+        console.warn('[ELH-helper] [pasteRoomJsonFields] Total area handling failed', e);
       }
 
     } catch (e) {
-      console.warn('[ELH-pasteRoomJson] handleFeatures failed', e);
+      console.warn('[ELH-helper] [pasteRoomJsonFields] handleFeatures failed', e);
     }
   }
 
@@ -392,7 +392,7 @@
   }
 
   async function handleClick() {
-    console.log('[ELH-pasteRoomJson] button clicked');
+    console.log('[ELH-helper] [pasteRoomJsonFields] button clicked');
     const jsonData = await readClipboardJson();
     if (!jsonData) {
       alert('Clipboard does not contain valid JSON');
@@ -402,7 +402,7 @@
     // If FeaturesSteps present, handle that first
     const featuresEl = document.querySelector('div[data-sentry-component="FeaturesSteps"]');
     if (featuresEl) {
-      console.log('[ELH-pasteRoomJson] Detected FeaturesSteps - applying features handler');
+      console.log('[ELH-helper] [pasteRoomJsonFields] Detected FeaturesSteps - applying features handler');
       await handleFeatures(jsonData);
       return;
     }
@@ -437,7 +437,7 @@
         input.style.boxShadow = '';
       }, 2500);
     } catch (e) {}
-    console.log('[ELH-pasteRoomJson] Monthly rent set to', rentStr);
+    console.log('[ELH-helper] [pasteRoomJsonFields] Monthly rent set to', rentStr);
     // --- Extra Person handling ---
     try {
       // JSON keys: 'Extra per tenant' (boolean) and 'Extra per tenant value' (number)
@@ -451,17 +451,17 @@
         if (rb) {
           const checked = rb.getAttribute('data-state') === 'checked' || rb.getAttribute('aria-checked') === 'true';
           if (!checked) {
-            try { rb.click(); } catch (e) { console.warn('[ELH-pasteRoomJson] failed to click Extra Person', e); }
+            try { rb.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click Extra Person', e); }
           }
           try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ rb.style.border=''; rb.style.boxShadow=''; },1200);}catch(e){}
-          console.log('[ELH-pasteRoomJson] Extra Person set ->', want);
+          console.log('[ELH-helper] [pasteRoomJsonFields] Extra Person set ->', want);
         } else {
           // sometimes PaymentSteps uses the same radiogroup structure but outside FeaturesSteps
           const rb2 = findRadioByGroupLabelOption('Extra Person', want) || findRadioInFeatures('Extra Person', want);
           if (rb2) {
-            try { rb2.click(); } catch (e) { console.warn('[ELH-pasteRoomJson] failed to click Extra Person fallback', e); }
+            try { rb2.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click Extra Person fallback', e); }
           } else {
-            console.warn('[ELH-pasteRoomJson] Extra Person radio not found');
+            console.warn('[ELH-helper] [pasteRoomJsonFields] Extra Person radio not found');
           }
         }
       }
@@ -475,13 +475,13 @@
           const cleaned = val.replace(',', '.').replace(/[^0-9.\-]/g, '');
           setInputValue(extraInput, cleaned);
           try { extraInput.style.border = '2px solid #28a745'; extraInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ extraInput.style.border=''; extraInput.style.boxShadow=''; },1500);}catch(e){}
-          console.log('[ELH-pasteRoomJson] Extra person value set to', cleaned);
+          console.log('[ELH-helper] [pasteRoomJsonFields] Extra person value set to', cleaned);
         } else {
-          console.warn('[ELH-pasteRoomJson] Extra person value input not found');
+          console.warn('[ELH-helper] [pasteRoomJsonFields] Extra person value input not found');
         }
       }
     } catch (e) {
-      console.warn('[ELH-pasteRoomJson] Extra Person handling failed', e);
+      console.warn('[ELH-helper] [pasteRoomJsonFields] Extra Person handling failed', e);
     }
   }
 

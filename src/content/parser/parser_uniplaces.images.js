@@ -102,6 +102,6 @@
     // expose save flat images action
     window.elh_saveFlatImgsAction = saveFlatImagesAction;
   } catch (err) {
-    console.error('parser_uniplaces.images error', err);
+    console.error('[ELH-helper] [parser_uniplaces.images] parser_uniplaces.images error', err);
   }
 })();

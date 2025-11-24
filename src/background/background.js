@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       groupId = null; // explicit: do not group
     }
     console.log('[ELH-Tim] background handler: opening', urls.length, 'tabs in background', groupId !== null ? 'in group ' + groupId : '');
-    
+
     // Open each URL with a small delay to avoid focus/throttling issues
     let delay = 0;
     const openedTabIds = [];
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           } else {
             console.log('[ELH-Tim] opened tab in background:', url, 'tabId:', tab.id);
             openedTabIds.push(tab.id);
-            
+
             // if we have a groupId, move the tab to that group
             if (groupId && tab.id) {
               chrome.tabs.group({ tabIds: [tab.id], groupId: groupId }, (resultGroupId) => {
@@ -69,8 +69,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   }
   if (request.action === 'capture_screenshot') {
-    chrome.tabs.captureVisibleTab(null, {format: 'png'}, function(dataUrl) {
-      sendResponse({screenshot: dataUrl});
+    chrome.tabs.captureVisibleTab(null, { format: 'png' }, function (dataUrl) {
+      sendResponse({ screenshot: dataUrl });
     });
     return true; // keep the message channel open for sendResponse
   }
@@ -88,7 +88,7 @@ async function fetchGemini(prompt) {
       const maybe = JSON.parse(prompt);
       if (maybe && typeof maybe === 'object') promptParam = maybe;
     }
-  } catch (e) {}
+  } catch (e) { }
   const stored = await new Promise((resolve) => {
     chrome.storage.local.get(['GEMINI_API_KEY'], (items) => resolve(items));
   });
@@ -139,14 +139,14 @@ async function fetchGemini(prompt) {
         if (parts.length === 2) endpoint = parts[0] + '/models/' + safe + ':generateContent?key=' + apiKey;
       }
     }
-  } catch (e) {}
+  } catch (e) { }
   try {
     let finalBody;
     if (isSpec(promptObj)) {
       let assembled = '';
       if (promptObj.instruction) assembled += promptObj.instruction.trim() + '\n\n';
       if (promptObj.constraints) {
-        try { assembled += 'Constraints: ' + JSON.stringify(promptObj.constraints) + '\n\n'; } catch(e){}
+        try { assembled += 'Constraints: ' + JSON.stringify(promptObj.constraints) + '\n\n'; } catch (e) { }
       }
       if (Array.isArray(promptObj.examples)) {
         assembled += 'Examples:\n';
@@ -155,7 +155,7 @@ async function fetchGemini(prompt) {
             if (ex.input) assembled += 'Input: ' + JSON.stringify(ex.input) + '\n';
             if (ex.output) assembled += 'Output: ' + JSON.stringify(ex.output) + '\n';
             assembled += '\n';
-          } catch(e){}
+          } catch (e) { }
         });
       }
       if (promptObj.input && typeof promptObj.input === 'object') {
@@ -169,7 +169,7 @@ async function fetchGemini(prompt) {
         });
       }
       if (promptObj.output_format) {
-        try { assembled += '\nOutput format: ' + JSON.stringify(promptObj.output_format) + '\n'; } catch(e){}
+        try { assembled += '\nOutput format: ' + JSON.stringify(promptObj.output_format) + '\n'; } catch (e) { }
       }
       try {
         // Build parts array: main text first, then optionally an image part or image URL text
@@ -188,7 +188,7 @@ async function fetchGemini(prompt) {
                   parts.push({ image: { imageBytes: base64 } });
                 } else {
                   // couldn't parse base64, fall back to embedding the full data URL as text
-                  parts.push({ text: '\n\nImage data (unable to attach binary): ' + imgVal.slice(0,200) });
+                  parts.push({ text: '\n\nImage data (unable to attach binary): ' + imgVal.slice(0, 200) });
                 }
               } catch (e) {
                 parts.push({ text: '\n\nImage data (error parsing): ' + String(e) });
@@ -228,10 +228,10 @@ async function fetchGemini(prompt) {
                 return { image: { imageBytes: `BASE64_LEN:${b.length}` } };
               }
               if (p && p.image && p.image.imageUri) {
-                return { image: { imageUri: String(p.image.imageUri).slice(0,200) } };
+                return { image: { imageUri: String(p.image.imageUri).slice(0, 200) } };
               }
               if (p && p.text && typeof p.text === 'string' && p.text.length > 1000) {
-                return { text: p.text.slice(0,1000) + '... (truncated)' };
+                return { text: p.text.slice(0, 1000) + '... (truncated)' };
               }
               return p;
             });
@@ -242,7 +242,7 @@ async function fetchGemini(prompt) {
       // store for inspection from extension devtools / console
       try {
         chrome.storage.local.set({ LAST_GEMINI_PAYLOAD: redacted });
-      } catch (e) {}
+      } catch (e) { }
     } catch (e) {
       console.log('Failed to redact finalBody for logging', e);
     }

@@ -114,7 +114,7 @@
           }
 
         } catch (e) {
-          console.warn('services parsing error', e);
+          console.warn('[ELH-helper] [parser_uniplaces.data] services parsing error', e);
         }
       }
 
@@ -167,6 +167,6 @@
       }
     };
   } catch (err) {
-    console.error('parser_uniplaces.data error', err);
+    console.error('[ELH-helper] [parser_uniplaces.data] parser_uniplaces.data error', err);
   }
 })();

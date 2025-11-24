@@ -1,5 +1,5 @@
 // openTabsHandler.js - background service worker handler for opening tabs in background
-console.log('[ELH-Tim] openTabsHandler service worker loaded');
+console.log('[ELH-helper] [openTabsHandler] service worker loaded');
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || message.action !== 'openTabsInBackground' || !Array.isArray(message.urls)) {
@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   const urls = message.urls;
-  console.log('[ELH-Tim] background handler: opening', urls.length, 'tabs in background');
+  console.log('[ELH-helper] [openTabsHandler] background handler: opening', urls.length, 'tabs in background');
 
   // Open each URL with a small delay to avoid focus/throttling issues
   let delay = 0;
@@ -15,9 +15,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     setTimeout(() => {
       chrome.tabs.create({ url: url, active: false }, (tab) => {
         if (chrome.runtime.lastError) {
-          console.warn('[ELH-Tim] Failed to create tab for', url, chrome.runtime.lastError);
+          console.warn('[ELH-helper] [openTabsHandler] Failed to create tab for', url, chrome.runtime.lastError);
         } else {
-          console.log('[ELH-Tim] opened tab in background:', url, 'tabId:', tab.id);
+          console.log('[ELH-helper] [openTabsHandler] opened tab in background:', url, 'tabId:', tab.id);
         }
       });
     }, delay);

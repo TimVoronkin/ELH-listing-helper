@@ -11,7 +11,7 @@
         link.href = chrome.runtime.getURL('src/shared/buttons.css');
         document.head && document.head.appendChild(link);
       }
-    } catch (e) { console.warn('parser: failed to inject shared styles', e); }
+    } catch (e) { console.warn('[ELH-helper] [parser_uniplaces.common] failed to inject shared styles', e); }
     // (inline fallback styles removed; using shared CSS from src/shared/buttons.css)
 
     // --- shared helpers ---
@@ -145,8 +145,8 @@
                 btn.textContent = "no save action";
               }
             }
-          } catch (err) {
-            console.error("elh action failed", err);
+            } catch (err) {
+            console.error('[ELH-helper] [parser_uniplaces.common] elh action failed', err);
             btn.textContent = "failed";
           }
           setTimeout(() => {
@@ -191,8 +191,8 @@
             } else {
               btn.textContent = "no save flat action";
             }
-          } catch (err) {
-            console.error("elh flat action failed", err);
+            } catch (err) {
+            console.error('[ELH-helper] [parser_uniplaces.common] elh flat action failed', err);
             btn.textContent = "failed";
           }
           setTimeout(() => {
@@ -364,7 +364,7 @@
       parseRoomIdFromPath,
       collectImageUrlsFromRoomDiv,
     });
-  } catch (err) {
-    console.error("parser_uniplaces.common error", err);
+    } catch (err) {
+    console.error('[ELH-helper] [parser_uniplaces.common] parser_uniplaces.common error', err);
   }
 })();
