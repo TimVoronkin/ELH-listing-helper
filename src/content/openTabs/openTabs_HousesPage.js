@@ -1,6 +1,4 @@
-// openTabsOfListing.js
-// Adds an "open tabs" button to each HouseListingCard and opens two sites in new tabs when clicked
-console.log('[ELH-Tim] openTabs script loaded');
+// openTabs_HousesPage.js
 
 // Diagnostic flags
 let __elh_openTabs_debug = true;
@@ -29,6 +27,38 @@ function loadSharedStylesOnce() {
 loadSharedStylesOnce();
 
 // --- Helper Functions (Global Scope) ---
+
+function getListingIdForCard(card) {
+  try {
+    // 1. Try to find it in the "dashboard/admin/listings/..." link
+    const listingAnchor = card.querySelector('a[href*="/dashboard/admin/listings/"]');
+    if (listingAnchor) {
+      const href = listingAnchor.getAttribute('href') || listingAnchor.href || '';
+      const m = href.match(/\/dashboard\/admin\/listings\/([^\/\?#]+)/i);
+      if (m) return m[1];
+    }
+    
+    // 2. Try to find it in the "rooms/form" links if they have the full path
+    const roomAnchors = Array.from(card.querySelectorAll('a[href*="/rooms/form/"]'));
+    for (const a of roomAnchors) {
+      const rawHref = a.getAttribute('href') || a.href || '';
+      const fullMatch = rawHref.match(/\/dashboard\/admin\/listings\/([^\/]+)\/rooms\/form\//i);
+      if (fullMatch) return fullMatch[1];
+    }
+
+  } catch (e) {
+    if (__elh_openTabs_debug) console.warn('[ELH-Tim] getListingIdForCard error', e);
+  }
+  return null;
+}
+
+function getListingEditUrlForCard(card) {
+  const listingId = getListingIdForCard(card);
+  if (listingId) {
+    return `https://www.erasmuslifehousing.com/dashboard/admin/houses/form/${listingId}`;
+  }
+  return null;
+}
 
 function getRoomUrlsForCard(card) {
   const urlsSet = new Set();
@@ -210,53 +240,107 @@ function insertOpenAllListingsButton() {
       return;
     }
 
-    // Apply styles
+    // Apply styles to targetDiv
     if (targetDiv.style.display !== 'flex') {
         targetDiv.style.display = 'flex';
         targetDiv.style.justifyContent = 'space-between';
         targetDiv.style.alignItems = 'flex-start';
     }
 
-    // Calculate total rooms
-    const cards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
-    let allUrls = [];
-    cards.forEach(card => {
-        const urls = getRoomUrlsForCard(card);
-        allUrls = allUrls.concat(urls);
-    });
-    const totalCount = allUrls.length;
+    // Create or find the button container
+    let btnContainer = targetDiv.querySelector('.elh-open-all-container');
+    if (!btnContainer) {
+        btnContainer = document.createElement('div');
+        btnContainer.className = 'elh-open-all-container';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.gap = '10px';
+        targetDiv.appendChild(btnContainer);
+    }
 
-    // Check for existing button
-    let btn = targetDiv.querySelector('.elh-open-all-btn');
-    if (!btn) {
-        btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'elh-btn elh-uniplaces-btn inline elh-open-all-btn';
-        btn.style.marginLeft = '10px'; // Add some spacing if needed
+    // --- 1. New "Open All Listings" Button Logic ---
+    const cards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
+    // Calculate listing URLs
+    const listingUrlsSet = new Set();
+    cards.forEach(card => {
+        const url = getListingEditUrlForCard(card);
+        if (url) listingUrlsSet.add(url);
+    });
+    const totalListingCount = listingUrlsSet.size;
+
+    // Check for existing listing button
+    let listingBtn = btnContainer.querySelector('.elh-open-all-listings-btn');
+    if (!listingBtn) {
+        listingBtn = document.createElement('button');
+        listingBtn.type = 'button';
+        listingBtn.className = 'elh-btn elh-uniplaces-btn inline elh-open-all-listings-btn';
+        // Remove margin-left as gap is handled by container
+        listingBtn.style.marginLeft = '0px';
         
-        btn.addEventListener('click', (e) => {
+        listingBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (__elh_openTabs_debug) console.log('[ELH-Tim] "open all" button clicked');
+            if (__elh_openTabs_debug) console.log('[ELH-Tim] "open all listings" button clicked');
+            
+            // Re-calculate URLs on click
+            const currentCards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
+            const currentListingUrlsSet = new Set();
+            currentCards.forEach(card => {
+                const url = getListingEditUrlForCard(card);
+                if (url) currentListingUrlsSet.add(url);
+            });
+            
+            openUrls(Array.from(currentListingUrlsSet));
+        });
+
+        btnContainer.appendChild(listingBtn);
+    }
+
+    // Update listing button text
+    const newListingText = `open all listings (${totalListingCount} tabs)`;
+    if (listingBtn.textContent !== newListingText) {
+        listingBtn.textContent = newListingText;
+    }
+
+    // --- 2. Existing "Open All Rooms" Button Logic ---
+    let allRoomUrls = [];
+    cards.forEach(card => {
+        const urls = getRoomUrlsForCard(card);
+        allRoomUrls = allRoomUrls.concat(urls);
+    });
+    const totalRoomCount = allRoomUrls.length;
+
+    // Check for existing room button
+    let roomBtn = btnContainer.querySelector('.elh-open-all-btn');
+    if (!roomBtn) {
+        roomBtn = document.createElement('button');
+        roomBtn.type = 'button';
+        roomBtn.className = 'elh-btn elh-uniplaces-btn inline elh-open-all-btn';
+        // Remove margin-left as gap is handled by container
+        roomBtn.style.marginLeft = '0px'; 
+        
+        roomBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (__elh_openTabs_debug) console.log('[ELH-Tim] "open all rooms" button clicked');
             
             // Re-calculate URLs on click to be safe
             const currentCards = Array.from(document.querySelectorAll('div[data-sentry-component="HouseListingCard"]'));
-            let currentAllUrls = [];
+            let currentAllRoomUrls = [];
             currentCards.forEach(card => {
                 const urls = getRoomUrlsForCard(card);
-                currentAllUrls = currentAllUrls.concat(urls);
+                currentAllRoomUrls = currentAllRoomUrls.concat(urls);
             });
             
-            openUrls(currentAllUrls);
+            openUrls(currentAllRoomUrls);
         });
 
-        targetDiv.appendChild(btn);
+        btnContainer.appendChild(roomBtn);
     }
 
-    // Update button text
-    const newText = `open all rooms of all results (${totalCount} tabs)`;
-    if (btn.textContent !== newText) {
-        btn.textContent = newText;
+    // Update room button text
+    const newRoomText = `open all rooms (${totalRoomCount} tabs)`;
+    if (roomBtn.textContent !== newRoomText) {
+        roomBtn.textContent = newRoomText;
     }
     
   } catch (e) {

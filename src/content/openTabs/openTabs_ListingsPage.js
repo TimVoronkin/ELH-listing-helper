@@ -1,10 +1,5 @@
-/**
- * Opens listing rooms in new tabs from the admin listings page
- * URL: https://www.erasmuslifehousing.com/dashboard/admin/listings
- * 
- * Adds "open tab" buttons to each table row, allowing users to open
- * room edit pages in new tabs or the same tab group
- */
+// openTabs_ListingsPage.js
+
 
 let __elh_observer = null;
 let __elh_styles_loaded = false;
@@ -22,7 +17,7 @@ function loadSharedStylesOnce() {
   link.href = chrome.runtime.getURL('src/shared/buttons.css');
   document.head.appendChild(link);
 
-  console.log('[ELH-helper] openTabsFromAllListings: Shared styles loaded');
+  console.log('[ELH-helper] openTabs_ListingsPage: Shared styles loaded');
 }
 
 /**
@@ -167,25 +162,25 @@ async function getRoomUrlFromMenu(menuButton) {
  */
 async function processRowForOpenTab(row, btnToUpdate = null) {
   const rowTitle = row.querySelector('td:nth-child(2)')?.textContent?.trim() || 'unknown';
-  console.log('[ELH-helper] openTabsFromAllListings: Processing row:', rowTitle);
+  console.log('[ELH-helper] openTabs_ListingsPage: Processing row:', rowTitle);
 
   // Find the menu button in the same row
   const menuButton = row.querySelector('button[aria-haspopup="menu"]');
   if (!menuButton) {
-    console.error('[ELH-helper] openTabsFromAllListings: Menu button not found in row:', rowTitle);
+    console.error('[ELH-helper] openTabs_ListingsPage: Menu button not found in row:', rowTitle);
     return;
   }
 
-  console.log('[ELH-helper] openTabsFromAllListings: Found menu button:', menuButton.id);
+  console.log('[ELH-helper] openTabs_ListingsPage: Found menu button:', menuButton.id);
 
   // Get the room URL from the menu
   const roomUrl = await getRoomUrlFromMenu(menuButton);
   if (!roomUrl) {
-    console.error('[ELH-helper] openTabsFromAllListings: Could not extract room URL from menu');
+    console.error('[ELH-helper] openTabs_ListingsPage: Could not extract room URL from menu');
     return;
   }
 
-  console.log('[ELH-helper] openTabsFromAllListings: Got room URL:', roomUrl);
+  console.log('[ELH-helper] openTabs_ListingsPage: Got room URL:', roomUrl);
 
   // Normalize roomUrl to absolute URL (background context needs full origin)
   let normalizedUrl = roomUrl;
@@ -201,10 +196,10 @@ async function processRowForOpenTab(row, btnToUpdate = null) {
       }
     }
   } catch (e) {
-    console.warn('[ELH-helper] openTabsFromAllListings: Failed to normalize URL, using original', e);
+    console.warn('[ELH-helper] openTabs_ListingsPage: Failed to normalize URL, using original', e);
     normalizedUrl = roomUrl;
   }
-  console.log('[ELH-helper] openTabsFromAllListings: Normalized room URL:', normalizedUrl);
+  console.log('[ELH-helper] openTabs_ListingsPage: Normalized room URL:', normalizedUrl);
 
   // Get settings and open the tab
   return new Promise((resolve) => {
@@ -212,17 +207,17 @@ async function processRowForOpenTab(row, btnToUpdate = null) {
       const useBackground = items?.openListingRoomsInBG === true;
       const useGroup = items?.openInSameTabGroup === true;
 
-      console.log('[ELH-helper] openTabsFromAllListings: Settings - useBackground:', useBackground, 'useGroup:', useGroup);
+      console.log('[ELH-helper] openTabs_ListingsPage: Settings - useBackground:', useBackground, 'useGroup:', useGroup);
 
       const urls = [normalizedUrl];
 
       if (useBackground) {
-        console.log('[ELH-helper] openTabsFromAllListings: Opening in background via message');
+        console.log('[ELH-helper] openTabs_ListingsPage: Opening in background via message');
         // Send message to background script to open in background
         chrome.runtime.sendMessage(
           { action: 'openTabsInBackground', urls: urls, useGroup: useGroup },
           (response) => {
-            console.log('[ELH-helper] openTabsFromAllListings: Background response:', response);
+            console.log('[ELH-helper] openTabs_ListingsPage: Background response:', response);
             if (response?.success && btnToUpdate) {
               updateButtonState(btnToUpdate, 'opened');
             }
@@ -230,7 +225,7 @@ async function processRowForOpenTab(row, btnToUpdate = null) {
           }
         );
       } else {
-        console.log('[ELH-helper] openTabsFromAllListings: Opening directly');
+        console.log('[ELH-helper] openTabs_ListingsPage: Opening directly');
         // Open directly using fallback method
         openTabsDirectly(urls);
         if (btnToUpdate) {
@@ -249,7 +244,7 @@ function insertOpenTabsButton(row) {
   // Get the Actions cell (last td)
   const cells = row.querySelectorAll('td');
   if (cells.length === 0) {
-    console.log('[ELH-helper] openTabsFromAllListings: Row has no cells, skipping');
+    console.log('[ELH-helper] openTabs_ListingsPage: Row has no cells, skipping');
     return;
   }
 
@@ -257,12 +252,12 @@ function insertOpenTabsButton(row) {
   
   // Check if button already exists
   if (actionCell.querySelector('.elh-open-tabs-btn')) {
-    console.log('[ELH-helper] openTabsFromAllListings: Button already exists in this row, skipping');
+    console.log('[ELH-helper] openTabs_ListingsPage: Button already exists in this row, skipping');
     return;
   }
 
   const rowTitle = row.querySelector('td:nth-child(2)')?.textContent?.trim() || 'unknown';
-  console.log('[ELH-helper] openTabsFromAllListings: Inserting button for row:', rowTitle);
+  console.log('[ELH-helper] openTabs_ListingsPage: Inserting button for row:', rowTitle);
 
   // Create the button
   const btn = document.createElement('button');
@@ -273,7 +268,7 @@ function insertOpenTabsButton(row) {
 
   // Add click handler with proper event handling to prevent row selection
   btn.addEventListener('click', async (e) => {
-    console.log('[ELH-helper] openTabsFromAllListings: Button clicked for row:', rowTitle);
+    console.log('[ELH-helper] openTabs_ListingsPage: Button clicked for row:', rowTitle);
     
     // Prevent all event propagation to stop row/checkbox interaction
     e.preventDefault();
@@ -293,10 +288,10 @@ function insertOpenTabsButton(row) {
     } else {
       menuButton.parentNode.appendChild(btn);
     }
-    console.log('[ELH-helper] openTabsFromAllListings: Button inserted AFTER menu button');
+    console.log('[ELH-helper] openTabs_ListingsPage: Button inserted AFTER menu button');
   } else {
     actionCell.appendChild(btn);
-    console.log('[ELH-helper] openTabsFromAllListings: Button appended to action cell');
+    console.log('[ELH-helper] openTabs_ListingsPage: Button appended to action cell');
   }
 }
 
@@ -318,9 +313,9 @@ function updateButtonState(btn, state) {
  * Fallback method to open tab directly
  */
 function openTabsDirectly(urls) {
-  console.log('[ELH-helper] openTabsFromAllListings: openTabsDirectly called with', urls.length, 'urls');
+  console.log('[ELH-helper] openTabs_ListingsPage: openTabsDirectly called with', urls.length, 'urls');
   urls.forEach((url, idx) => {
-    console.log(`[ELH-helper] openTabsFromAllListings: Opening URL ${idx}:`, url);
+    console.log(`[ELH-helper] openTabs_ListingsPage: Opening URL ${idx}:`, url);
     const link = document.createElement('a');
     link.href = url;
     link.target = '_blank';
@@ -329,7 +324,7 @@ function openTabsDirectly(urls) {
     link.click();
     document.body.removeChild(link);
   });
-  console.log('[ELH-helper] openTabsFromAllListings: openTabsDirectly completed');
+  console.log('[ELH-helper] openTabs_ListingsPage: openTabsDirectly completed');
 }
 
 /**
@@ -340,7 +335,7 @@ function insertOpenTabsButtons() {
   rows.forEach(row => {
     insertOpenTabsButton(row);
   });
-  console.log(`[ELH-helper] openTabsFromAllListings: Processed ${rows.length} rows`);
+  console.log(`[ELH-helper] openTabs_ListingsPage: Processed ${rows.length} rows`);
 }
 
 /**
@@ -352,7 +347,7 @@ function updateBulkButtonState() {
   const selectedCheckboxes = document.querySelectorAll('tbody tr td:first-child button[role="checkbox"][data-state="checked"]');
   const count = selectedCheckboxes.length;
   
-  console.log('[ELH-helper] openTabsFromAllListings: Selected count:', count);
+  console.log('[ELH-helper] openTabs_ListingsPage: Selected count:', count);
   
   if (count > 0) {
     __elh_bulk_btn.innerHTML = `<span>open ${count} selected in new tabs</span>`;
@@ -369,7 +364,7 @@ function updateBulkButtonState() {
 
 async function handleBulkOpen() {
   const selectedCheckboxes = document.querySelectorAll('tbody tr td:first-child button[role="checkbox"][data-state="checked"]');
-  console.log('[ELH-helper] openTabsFromAllListings: Bulk open clicked for', selectedCheckboxes.length, 'items');
+  console.log('[ELH-helper] openTabs_ListingsPage: Bulk open clicked for', selectedCheckboxes.length, 'items');
   
   for (const checkbox of selectedCheckboxes) {
     // Find the row
@@ -385,7 +380,7 @@ async function handleBulkOpen() {
 
 async function handleSelectAll() {
   const allCheckboxes = document.querySelectorAll('tbody tr td:first-child button[role="checkbox"]');
-  console.log('__elh_openTabsFromAllListings: Select All clicked, found', allCheckboxes.length, 'checkboxes');
+  console.log('__elh_openTabs_ListingsPage: Select All clicked, found', allCheckboxes.length, 'checkboxes');
   
   let clickedCount = 0;
   for (const cb of allCheckboxes) {
@@ -396,7 +391,7 @@ async function handleSelectAll() {
       await new Promise(r => setTimeout(r, 20));
     }
   }
-  console.log('__elh_openTabsFromAllListings: Clicked', clickedCount, 'checkboxes to select them');
+  console.log('__elh_openTabs_ListingsPage: Clicked', clickedCount, 'checkboxes to select them');
 }
 
 function insertBulkOpenButton() {
@@ -407,7 +402,7 @@ function insertBulkOpenButton() {
   const container = document.querySelector('div.flex.justify-end.items-center.mb-4.gap-4');
   
   if (container) {
-      console.log('__elh_openTabsFromAllListings: Found container for bulk button');
+      console.log('__elh_openTabs_ListingsPage: Found container for bulk button');
       
       __elh_bulk_btn = document.createElement('button');
       __elh_bulk_btn.type = 'button';
@@ -446,9 +441,9 @@ function insertBulkOpenButton() {
         }
       });
       
-      console.log('__elh_openTabsFromAllListings: Bulk buttons inserted');
+      console.log('__elh_openTabs_ListingsPage: Bulk buttons inserted');
     } else {
-    console.warn('__elh_openTabsFromAllListings: Could not find container to place bulk button');
+    console.warn('__elh_openTabs_ListingsPage: Could not find container to place bulk button');
   }
 }
 
@@ -459,7 +454,7 @@ function setupObserver() {
 
   const tbody = document.querySelector('tbody');
   if (!tbody) {
-    console.error('[ELH-helper] openTabsFromAllListings: tbody not found for observer');
+    console.error('[ELH-helper] openTabs_ListingsPage: tbody not found for observer');
     return;
   }
 
@@ -467,13 +462,13 @@ function setupObserver() {
     let hasNewRows = false;
     mutations.forEach((mutation) => {
       if (mutation.addedNodes.length > 0) {
-        console.log('[ELH-helper] openTabsFromAllListings: MutationObserver detected new nodes');
+        console.log('[ELH-helper] openTabs_ListingsPage: MutationObserver detected new nodes');
         hasNewRows = true;
       }
     });
 
     if (hasNewRows) {
-      console.log('[ELH-helper] openTabsFromAllListings: Processing new rows detected by observer');
+      console.log('[ELH-helper] openTabs_ListingsPage: Processing new rows detected by observer');
       insertOpenTabsButtons();
       // Also re-check bulk button placement if needed (though usually static)
       insertBulkOpenButton();
@@ -486,14 +481,14 @@ function setupObserver() {
     subtree: true
   });
 
-  console.log('[ELH-helper] openTabsFromAllListings: Observer setup complete');
+  console.log('[ELH-helper] openTabs_ListingsPage: Observer setup complete');
 }
 
 /**
  * Initialize the script
  */
 function init() {
-  console.log('[ELH-helper] openTabsFromAllListings: Script initialized');
+  console.log('[ELH-helper] openTabs_ListingsPage: Script initialized');
   
   loadSharedStylesOnce();
   
@@ -502,7 +497,7 @@ function init() {
     const tbody = document.querySelector('tbody');
     if (tbody) {
       clearInterval(checkTable);
-      console.log('[ELH-helper] openTabsFromAllListings: Table found, starting to process rows');
+      console.log('[ELH-helper] openTabs_ListingsPage: Table found, starting to process rows');
       insertOpenTabsButtons();
       insertBulkOpenButton();
       setupObserver();
@@ -512,7 +507,7 @@ function init() {
   // Timeout after 5 seconds
   setTimeout(() => {
     clearInterval(checkTable);
-    console.warn('[ELH-helper] openTabsFromAllListings: Timeout waiting for table');
+    console.warn('[ELH-helper] openTabs_ListingsPage: Timeout waiting for table');
   }, 5000);
 }
 

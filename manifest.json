@@ -21,25 +21,33 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.erasmuslifehousing.com/*"],
+      "matches": [
+        "https://www.erasmuslifehousing.com/*"
+      ],
       "js": [
         "src/content/content.js"
       ]
     },
     {
-      "matches": ["https://www.erasmuslifehousing.com/dashboard/admin/houses"],
+      "matches": [
+        "https://www.erasmuslifehousing.com/dashboard/admin/houses"
+      ],
       "js": [
-        "src/content/openTabs/openTabsOfListing.js"
+        "src/content/openTabs/openTabs_HousesPage.js"
       ]
     },
     {
-      "matches": ["https://www.erasmuslifehousing.com/dashboard/admin/listings"],
+      "matches": [
+        "https://www.erasmuslifehousing.com/dashboard/admin/listings"
+      ],
       "js": [
-        "src/content/openTabs/openTabsFromAllListings.js"
+        "src/content/openTabs/openTabs_ListingsPage.js"
       ]
     },
     {
-      "matches": ["https://www.uniplaces.com/accommodation/*"],
+      "matches": [
+        "https://www.uniplaces.com/accommodation/*"
+      ],
       "js": [
         "src/content/parser/parser_uniplaces.common.js",
         "src/content/parser/parser_uniplaces.data.js",
@@ -47,7 +55,9 @@
       ]
     },
     {
-      "matches": ["https://www.erasmuslifehousing.com/*"],
+      "matches": [
+        "https://www.erasmuslifehousing.com/*"
+      ],
       "js": [
         "src/content/pasteJson/pasteFlatJsonFields.js",
         "src/content/pasteJson/pasteRoomJsonFields.js"
