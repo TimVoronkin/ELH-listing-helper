@@ -17,6 +17,7 @@ Features:
 - Button to open all rooms of one listing in new tabs from houses page
 - Button to open all rooms of all searched listings in new tabs from houses page
 - Button to open all selected rooms in new tabs from listing page
+- Button to fill all address fields on new listing page with Gemini AI
 and more...
 extension still in development
 
