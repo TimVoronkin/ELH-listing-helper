@@ -48,12 +48,12 @@
             }
         },
         {
-            "input": "Av. da Liberdade 100, 1250-145 Lisboa",
+            "input": "Av. da Liberdade 100, 1250-145 Lisboa, 4º à direita 2ª",
             "output": {
                 "StreetAddress": "Av. da Liberdade",
-                "Floor": "",
+                "Floor": "4",
                 "BuildingNumber": "100",
-                "Fraction": "",
+                "Fraction": "2nd door on right",
                 "PostalCode": "1250-145",
                 "Neighborhood": "Santo António",
                 "Zone": "Lisboa city center"

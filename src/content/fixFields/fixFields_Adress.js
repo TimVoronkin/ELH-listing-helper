@@ -113,9 +113,19 @@
         btn.textContent = 'waiting for AI response...';
 
         try {
-            const promptUrl = chrome.runtime.getURL(PROMPT_FILE_PATH);
-            const promptResponse = await fetch(promptUrl);
-            const promptTemplate = await promptResponse.json();
+            // Try to get prompt from storage first
+            let promptTemplate;
+            const storage = await chrome.storage.local.get(['PROMPT_ADDRESS_OBJ']);
+
+            if (storage && storage.PROMPT_ADDRESS_OBJ) {
+                console.log('[ELH-Tim] Using address prompt from storage');
+                promptTemplate = storage.PROMPT_ADDRESS_OBJ;
+            } else {
+                console.log('[ELH-Tim] Using default address prompt file');
+                const promptUrl = chrome.runtime.getURL(PROMPT_FILE_PATH);
+                const promptResponse = await fetch(promptUrl);
+                promptTemplate = await promptResponse.json();
+            }
 
             const filledPrompt = JSON.parse(JSON.stringify(promptTemplate));
             filledPrompt.input = filledPrompt.input.replace('{{INPUT_ADRESS}}', inputAddress);

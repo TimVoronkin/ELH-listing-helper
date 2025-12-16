@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const validateDescBtn = document.getElementById('validateDesc');
   const prettyDescBtn = document.getElementById('prettyDesc');
   const defaultsDescBtn = document.getElementById('defaultsDesc');
-  const jsonDescStatus = document.getElementById('jsonDescStatus');
+  const promptAddressEl = document.getElementById('promptAddressObj');
+  const validateAddressBtn = document.getElementById('validateAddress');
+  const prettyAddressBtn = document.getElementById('prettyAddress');
+  const defaultsAddressBtn = document.getElementById('defaultsAddress');
+  const jsonAddressStatus = document.getElementById('jsonAddressStatus');
 
   async function fetchdefaultPromptForNameFile() {
     try {
@@ -36,6 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return json;
     } catch (err) {
       return { instruction: 'Write a short description', input: { room_name: 'roomName' }, output_format: { description: 'string' } };
+    }
+  }
+
+  async function fetchdefaultPromptForAddressFile() {
+    try {
+      const resp = await fetch(chrome.runtime.getURL('data/defaultPromptForAdress.json'));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+      return json;
+    } catch (err) {
+      return { instruction: 'Extract address', input: '{{INPUT_ADRESS}}', output_format: { StreetAddress: 'string' } };
     }
   }
 
@@ -77,6 +92,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // load address prompt (separate storage key PROMPT_ADDRESS_OBJ)
+  chrome.storage.local.get(['PROMPT_ADDRESS_OBJ'], (items) => {
+    if (items && items.PROMPT_ADDRESS_OBJ) {
+      try {
+        promptAddressEl.value = JSON.stringify(items.PROMPT_ADDRESS_OBJ, null, 2);
+      } catch (e) {
+        promptAddressEl.value = String(items.PROMPT_ADDRESS_OBJ);
+      }
+    } else {
+      fetchdefaultPromptForAddressFile().then((json) => {
+        try {
+          promptAddressEl.value = JSON.stringify(json, null, 2);
+        } catch (e) {
+          promptAddressEl.value = String(json);
+        }
+      });
+    }
+  });
+
   function showStatus(el, text, ok = true) {
     el.textContent = text;
     el.style.color = ok ? '#0b6623' : '#b30000';
@@ -100,18 +134,29 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus(jsonDescStatus, 'promptDesc is not valid JSON: ' + err.message, false);
       return;
     }
-  chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup }, () => {
+    let parsedAddress = null;
+    try {
+      parsedAddress = JSON.parse(promptAddressEl.value);
+    } catch (err) {
+      showStatus(jsonAddressStatus, 'promptAddress is not valid JSON: ' + err.message, false);
+      return;
+    }
+    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup }, () => {
       // save description prompt as well
       chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
-        showStatus(status, 'Saved.');
-        showStatus(jsonStatus, 'promptObj saved.');
-        showStatus(jsonDescStatus, 'promptDesc saved.');
+        // save address prompt as well
+        chrome.storage.local.set({ PROMPT_ADDRESS_OBJ: parsedAddress }, () => {
+          showStatus(status, 'Saved.');
+          showStatus(jsonStatus, 'promptObj saved.');
+          showStatus(jsonDescStatus, 'promptDesc saved.');
+          showStatus(jsonAddressStatus, 'promptAddress saved.');
+        });
       });
     });
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup'], () => {
       apiKeyInput.value = '';
       if (openListingRoomsInBGCheckbox) openListingRoomsInBGCheckbox.checked = false;
       if (openInSameTabGroupCheckbox) openInSameTabGroupCheckbox.checked = false;
@@ -129,8 +174,17 @@ document.addEventListener('DOMContentLoaded', () => {
           promptDescEl.value = String(json);
         }
       });
+      fetchdefaultPromptForAddressFile().then((json) => {
+        try {
+          promptAddressEl.value = JSON.stringify(json, null, 2);
+        } catch (e) {
+          promptAddressEl.value = String(json);
+        }
+      });
       showStatus(status, 'Cleared.');
       showStatus(jsonStatus, 'promptObj cleared.');
+      showStatus(jsonDescStatus, 'promptDesc cleared.');
+      showStatus(jsonAddressStatus, 'promptAddress cleared.');
     });
   });
 
@@ -180,6 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
   defaultsDescBtn.addEventListener('click', async () => {
     const json = await fetchdefaultPromptForDescriptionFile();
     try { promptDescEl.value = JSON.stringify(json, null, 2); showStatus(jsonDescStatus, 'Default loaded.'); } catch (e) { promptDescEl.value = String(json); showStatus(jsonDescStatus, 'Default loaded (non-JSON fallback).'); }
+  });
+
+  // Address prompt controls
+  validateAddressBtn.addEventListener('click', () => {
+    try { JSON.parse(promptAddressEl.value); showStatus(jsonAddressStatus, 'Valid JSON.'); } catch (err) { showStatus(jsonAddressStatus, 'Invalid JSON: ' + err.message, false); }
+  });
+
+  prettyAddressBtn.addEventListener('click', () => {
+    try { const p = JSON.parse(promptAddressEl.value); promptAddressEl.value = JSON.stringify(p, null, 2); showStatus(jsonAddressStatus, 'Pretty printed.'); } catch (err) { showStatus(jsonAddressStatus, 'Invalid JSON: ' + err.message, false); }
+  });
+
+  defaultsAddressBtn.addEventListener('click', async () => {
+    const json = await fetchdefaultPromptForAddressFile();
+    try { promptAddressEl.value = JSON.stringify(json, null, 2); showStatus(jsonAddressStatus, 'Default loaded.'); } catch (e) { promptAddressEl.value = String(json); showStatus(jsonAddressStatus, 'Default loaded (non-JSON fallback).'); }
   });
 
   // Load checkbox state for openListingRoomsInBG and openInSameTabGroup

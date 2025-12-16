@@ -165,6 +165,9 @@
                 <div id="testResult" class="status" style="white-space:pre-wrap;margin-top:8px"></div>
             </div>
         </div>
+    </div>
+
+    <div class="row">
         <div class="col">
             <label class="label">JSON prompt for AI to make <b>Room Name</b></label>
             <div class="json-actions">
@@ -189,9 +192,21 @@
             <button id="defaultsDesc">Load Default</button>
             <div id="jsonDescStatus" class="status">Pretty printed.</div>
         </div>
+        <div class="col">
+            <label class="label">JSON prompt for AI to make <b>Address</b></label>
+            <div class="json-actions">
+                <div>
+                    <button id="validateAddress">Validate JSON</button>
+                    <button id="prettyAddress">Pretty Print</button>
+                </div>
+            </div>
+            <textarea id="promptAddressObj" spellcheck="false"></textarea>
+            <button id="defaultsAddress">Load Default</button>
+            <div id="jsonAddressStatus" class="status">Pretty printed.</div>
+        </div>
     </div>
-    <div class="row">
 
+    <div class="row">
         <div class="col">
             <label class="label"><b>Open rooms tabs</b> settings</label>
             <div>
@@ -203,7 +218,6 @@
                 <label for="openInSameTabGroup">Open all tabs in the same tab group</label>
             </div>
         </div>
-
     </div>
     <script src="src/options/options.js"></script>
 </body>

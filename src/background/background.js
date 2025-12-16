@@ -158,15 +158,19 @@ async function fetchGemini(prompt) {
           } catch (e) { }
         });
       }
-      if (promptObj.input && typeof promptObj.input === 'object') {
-        Object.keys(promptObj.input).forEach((k) => {
-          let v = promptObj.input[k];
-          if (typeof v === 'string' && (v === 'roomDesc' || v.includes('{{PROMPT}}') || v.toLowerCase().includes('prompt'))) {
-            assembled += k + ': ' + prompt + '\n';
-          } else {
-            assembled += k + ': ' + String(v) + '\n';
-          }
-        });
+      if (promptObj.input) {
+        if (typeof promptObj.input === 'object') {
+          Object.keys(promptObj.input).forEach((k) => {
+            let v = promptObj.input[k];
+            if (typeof v === 'string' && (v === 'roomDesc' || v.includes('{{PROMPT}}') || v.toLowerCase().includes('prompt'))) {
+              assembled += k + ': ' + prompt + '\n';
+            } else {
+              assembled += k + ': ' + String(v) + '\n';
+            }
+          });
+        } else if (typeof promptObj.input === 'string') {
+          assembled += 'Input: ' + promptObj.input + '\n';
+        }
       }
       if (promptObj.output_format) {
         try { assembled += '\nOutput format: ' + JSON.stringify(promptObj.output_format) + '\n'; } catch (e) { }
