@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const prettyAddressBtn = document.getElementById('prettyAddress');
   const defaultsAddressBtn = document.getElementById('defaultsAddress');
   const jsonAddressStatus = document.getElementById('jsonAddressStatus');
+  const randomNamesEl = document.getElementById('randomNamesObj');
+  const defaultsNamesBtn = document.getElementById('defaultsNames');
+  const namesStatus = document.getElementById('namesStatus');
 
   async function fetchdefaultPromptForNameFile() {
     try {
@@ -51,6 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return json;
     } catch (err) {
       return { instruction: 'Extract address', input: '{{INPUT_ADRESS}}', output_format: { StreetAddress: 'string' } };
+    }
+  }
+
+  async function fetchRandomNamesFile() {
+    try {
+      const resp = await fetch(chrome.runtime.getURL('data/RandomizedRoomNames.txt'));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const text = await resp.text();
+      return text;
+    } catch (err) {
+      return '';
     }
   }
 
@@ -111,6 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // load randomized names
+  chrome.storage.local.get(['RANDOMIZED_ROOM_NAMES'], (items) => {
+    if (items && items.RANDOMIZED_ROOM_NAMES) {
+      randomNamesEl.value = items.RANDOMIZED_ROOM_NAMES;
+    } else {
+      fetchRandomNamesFile().then((text) => {
+        randomNamesEl.value = text;
+      });
+    }
+  });
+
   function showStatus(el, text, ok = true) {
     el.textContent = text;
     el.style.color = ok ? '#0b6623' : '#b30000';
@@ -141,7 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus(jsonAddressStatus, 'promptAddress is not valid JSON: ' + err.message, false);
       return;
     }
-    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup }, () => {
+    const randomNames = randomNamesEl.value;
+
+    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup, RANDOMIZED_ROOM_NAMES: randomNames }, () => {
       // save description prompt as well
       chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
         // save address prompt as well
@@ -150,13 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
           showStatus(jsonStatus, 'promptObj saved.');
           showStatus(jsonDescStatus, 'promptDesc saved.');
           showStatus(jsonAddressStatus, 'promptAddress saved.');
+          showStatus(namesStatus, 'Names saved.');
         });
       });
     });
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup', 'RANDOMIZED_ROOM_NAMES'], () => {
       apiKeyInput.value = '';
       if (openListingRoomsInBGCheckbox) openListingRoomsInBGCheckbox.checked = false;
       if (openInSameTabGroupCheckbox) openInSameTabGroupCheckbox.checked = false;
@@ -181,10 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
           promptAddressEl.value = String(json);
         }
       });
+      fetchRandomNamesFile().then((text) => {
+        randomNamesEl.value = text;
+      });
       showStatus(status, 'Cleared.');
       showStatus(jsonStatus, 'promptObj cleared.');
       showStatus(jsonDescStatus, 'promptDesc cleared.');
       showStatus(jsonAddressStatus, 'promptAddress cleared.');
+      showStatus(namesStatus, 'Names reset.');
     });
   });
 
@@ -248,6 +280,12 @@ document.addEventListener('DOMContentLoaded', () => {
   defaultsAddressBtn.addEventListener('click', async () => {
     const json = await fetchdefaultPromptForAddressFile();
     try { promptAddressEl.value = JSON.stringify(json, null, 2); showStatus(jsonAddressStatus, 'Default loaded.'); } catch (e) { promptAddressEl.value = String(json); showStatus(jsonAddressStatus, 'Default loaded (non-JSON fallback).'); }
+  });
+
+  defaultsNamesBtn.addEventListener('click', async () => {
+    const text = await fetchRandomNamesFile();
+    randomNamesEl.value = text;
+    showStatus(namesStatus, 'Default names loaded.');
   });
 
   // Load checkbox state for openListingRoomsInBG and openInSameTabGroup

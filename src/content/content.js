@@ -10,7 +10,7 @@ function loadSharedStylesOnce() {
     link.rel = 'stylesheet';
     link.href = chrome.runtime.getURL('src/shared/buttons.css');
     document.head && document.head.appendChild(link);
-    } catch (err) {
+  } catch (err) {
     console.warn('[ELH-helper] [content] Failed to inject shared styles', err);
   }
 }
@@ -64,9 +64,9 @@ function extractNamesFromResponse(response) {
       s = s.slice(1, -1).trim();
     }
     // remove trailing commas or dots
-    s = s.replace(/[\.,;:\s]+$/,'');
+    s = s.replace(/[\.,;:\s]+$/, '');
     // remove leading - or numbering like '1) '
-    s = s.replace(/^\d+\)\s*/,'').replace(/^[-\u2013\u2014]\s*/,'');
+    s = s.replace(/^\d+\)\s*/, '').replace(/^[-\u2013\u2014]\s*/, '');
     // remove surrounding code ticks/backticks
     s = s.replace(/^`+|`+$/g, '').trim();
     return s;
@@ -110,7 +110,7 @@ function extractNamesFromResponse(response) {
       if (quoteMatches && quoteMatches.length >= 1) return quoteMatches.map(cleanName).filter(Boolean);
     }
 
-    } catch (e) {
+  } catch (e) {
     console.warn('[ELH-helper] [content] extractNamesFromResponse error', e);
   }
   return null;
@@ -137,12 +137,12 @@ function highlightElement(el, color = 'green') {
           s.id = id;
           s.src = chrome.runtime.getURL('src/content/shared/highlight.js');
           s.onload = function () {
-            try { if (window.ELH && typeof window.ELH.highlightElement === 'function') window.ELH.highlightElement(el, color); } catch (e) {}
+            try { if (window.ELH && typeof window.ELH.highlightElement === 'function') window.ELH.highlightElement(el, color); } catch (e) { }
           };
           document.head && document.head.appendChild(s);
           // don't return: continue to apply local fallback immediately so UI shows highlighted state
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     if (window.ELH && typeof window.ELH.highlightElement === 'function') { window.ELH.highlightElement(el, color); return; }
 
@@ -156,7 +156,7 @@ function highlightElement(el, color = 'green') {
       el.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)';
     }
     el.style.outline = 'none';
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function parseGeminiResponse(response, possibleKeys = ['new_room_name', 'description']) {
@@ -245,7 +245,7 @@ function findFirstImageUrl() {
           const parsed = new URL(src, location.origin);
           const proxied = parsed.searchParams.get('url');
           if (proxied) src = decodeURIComponent(proxied);
-        } catch (err) {}
+        } catch (err) { }
         if (src) return src;
       }
     }
@@ -278,6 +278,78 @@ function insertGeminiBtn() {
   geminiDescBtn.textContent = '✦︎ Generate Description via name+img1';
   geminiDescBtn.className = 'elh-btn gemini-btn';
 
+  const randomNameBtn = document.createElement('button');
+  randomNameBtn.textContent = '⚄ Randomize Name';
+  randomNameBtn.className = 'elh-btn gemini-btn';
+
+  async function handleRandomNameGeneration(btn) {
+    try {
+      btn.disabled = true;
+      // 1. Fetch names
+      let text = '';
+      try {
+        const stored = await new Promise(r => chrome.storage.local.get(['RANDOMIZED_ROOM_NAMES'], r));
+        if (stored && stored.RANDOMIZED_ROOM_NAMES && typeof stored.RANDOMIZED_ROOM_NAMES === 'string' && stored.RANDOMIZED_ROOM_NAMES.trim().length > 0) {
+          text = stored.RANDOMIZED_ROOM_NAMES;
+        }
+      } catch (err) { }
+
+      if (!text) {
+        const namesUrl = chrome.runtime.getURL('data/RandomizedRoomNames.txt');
+        const resp = await fetch(namesUrl);
+        if (!resp.ok) throw new Error('Failed to load names');
+        text = await resp.text();
+      }
+
+      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+
+      let chosenTemplate = '';
+      if (lines.length > 0) {
+        chosenTemplate = lines[Math.floor(Math.random() * lines.length)];
+      }
+
+      // 2. Get description number
+      const roomDescLabel = findLabelOrSpan('Room Description');
+      let textarea = getInputForLabel(roomDescLabel);
+      let roomDesc = (textarea && textarea.value) ? textarea.value : '';
+
+      const numberMatch = roomDesc.match(/\d+/);
+      let numberStr = numberMatch ? numberMatch[0] : '';
+
+      // 3. Replace <N>
+      let finalName = chosenTemplate;
+      if (finalName.includes('<N>')) {
+        if (numberStr) {
+          finalName = finalName.replace('<N>', numberStr);
+        } else {
+          finalName = finalName.replace('<N>', '').trim();
+        }
+      }
+
+      // 4. Insert
+      let nameLabel = findLabelOrSpan('Room name');
+      let nameInput = getInputForLabel(nameLabel);
+      // Try finding via label text first
+      if (!nameInput) {
+        // Fallback attempt
+        const nameLabel2 = findLabelOrSpan('Room name');
+        nameInput = getInputForLabel(nameLabel2);
+      }
+
+      if (nameInput) {
+        nameInput.value = finalName;
+        // Dispatch event so frameworks (React/Vue/etc) pick up the change
+        nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        try { highlightElement(nameInput, 'green'); } catch (e) { }
+      }
+
+    } catch (e) {
+      console.warn('[ELH-helper] [content] handleRandomNameGeneration error', e);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   // Rate-limiting state for simple debounce/backoff
   let geminiLastCall = 0;
   let geminiBackoff = 0;
@@ -298,7 +370,7 @@ function insertGeminiBtn() {
       let nameLabel = findLabelOrSpan('Room name');
       let nameInput = getInputForLabel(nameLabel);
       if (nameInput) {
-        try { highlightElement(nameInput, 'orange'); } catch (e) {}
+        try { highlightElement(nameInput, 'orange'); } catch (e) { }
       }
 
       // get room description
@@ -311,7 +383,7 @@ function insertGeminiBtn() {
       let promptObj = await fetchStoredPrompt('PROMPT_OBJ');
       if (promptObj) {
         // ensure mutable copy
-        try { promptObj = JSON.parse(JSON.stringify(promptObj)); } catch (e) {}
+        try { promptObj = JSON.parse(JSON.stringify(promptObj)); } catch (e) { }
       }
       if (!promptObj) {
         // Default: request 3 distinct name suggestions as JSON
@@ -376,14 +448,14 @@ function insertGeminiBtn() {
           if (nameInput) {
             nameInput.value = chosen;
             nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-            try { highlightElement(nameInput, 'green'); } catch (e) {}
+            try { highlightElement(nameInput, 'green'); } catch (e) { }
           } else {
             const nameLabel2 = findLabelOrSpan('Room name');
             const nameInput2 = getInputForLabel(nameLabel2);
             if (nameInput2) {
               nameInput2.value = chosen;
               nameInput2.dispatchEvent(new Event('input', { bubbles: true }));
-              try { highlightElement(nameInput2, 'green'); } catch (e) {}
+              try { highlightElement(nameInput2, 'green'); } catch (e) { }
             }
           }
         } catch (e) { console.warn('[ELH-helper] [content] inserting name failed', e); }
@@ -391,7 +463,7 @@ function insertGeminiBtn() {
 
     } catch (e) {
       console.error('[ELH-helper] [content] handleNameGeneration error', e);
-      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Name'; } catch (er) {}
+      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Name'; } catch (er) { }
     }
   }
 
@@ -412,7 +484,7 @@ function insertGeminiBtn() {
       // load prompt: try PROMPT_DESC_OBJ then PROMPT_OBJ
       let promptObj = await fetchStoredPrompt('PROMPT_DESC_OBJ');
       if (!promptObj) promptObj = await fetchStoredPrompt('PROMPT_OBJ');
-      if (promptObj) try { promptObj = JSON.parse(JSON.stringify(promptObj)); } catch (e) {}
+      if (promptObj) try { promptObj = JSON.parse(JSON.stringify(promptObj)); } catch (e) { }
       if (!promptObj) {
         promptObj = {
           instruction: 'Write a short, engaging room description in English based on the room name and optional image. Keep it to 2-3 short sentences.',
@@ -444,7 +516,7 @@ function insertGeminiBtn() {
       const roomDescLabelPending = findLabelOrSpan('Room Description');
       const textareaPending = getInputForLabel(roomDescLabelPending);
       if (textareaPending) {
-        try { highlightElement(textareaPending, 'orange'); } catch (e) {}
+        try { highlightElement(textareaPending, 'orange'); } catch (e) { }
       }
 
       chrome.runtime.sendMessage({ action: 'gemini_request', prompt }, (response) => {
@@ -462,16 +534,17 @@ function insertGeminiBtn() {
         if (textarea) {
           textarea.value = parsed;
           textarea.dispatchEvent(new Event('input', { bubbles: true }));
-          try { highlightElement(textarea, 'green'); } catch (e) {}
+          try { highlightElement(textarea, 'green'); } catch (e) { }
         }
       });
 
     } catch (e) {
       console.error('[ELH-helper] [content] handleDescriptionGeneration error', e);
-      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Description'; } catch (er) {}
+      try { btn.disabled = false; btn.style.pointerEvents = 'auto'; btn.textContent = '✦︎ Generate Description'; } catch (er) { }
     }
   }
 
+  randomNameBtn.addEventListener('click', (e) => { e.preventDefault(); handleRandomNameGeneration(randomNameBtn); });
   geminiBtn.addEventListener('click', (e) => handleNameGeneration({ includeImage: false, btn: geminiBtn }));
   geminiBtnImg.addEventListener('click', (e) => handleNameGeneration({ includeImage: true, btn: geminiBtnImg }));
   geminiDescBtn.addEventListener('click', (e) => handleDescriptionGeneration(geminiDescBtn));
@@ -487,6 +560,7 @@ function insertGeminiBtn() {
         controls.style.display = 'flex';
         controls.style.gap = '8px';
         controls.style.marginTop = '8px';
+        controls.appendChild(randomNameBtn);
         controls.appendChild(geminiBtn);
         controls.appendChild(geminiBtnImg);
         const inputWrapper = nameParent.querySelector('div.relative') || nameParent.querySelector('input');
@@ -555,7 +629,7 @@ function insertCopyImageButtons() {
           const parsed = new URL(src, location.origin);
           const proxied = parsed.searchParams.get('url');
           if (proxied) src = decodeURIComponent(proxied);
-        } catch (err) {}
+        } catch (err) { }
 
         if (!src) {
           btn.textContent = 'No image URL';
@@ -575,7 +649,7 @@ function insertCopyImageButtons() {
               btn.textContent = 'img copied!';
               setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1500);
               return;
-            } catch (err) {}
+            } catch (err) { }
           }
 
           try {
@@ -585,9 +659,9 @@ function insertCopyImageButtons() {
             const ctx = canvas.getContext('2d'); ctx.drawImage(imgBitmap, 0, 0);
             const blob2 = await new Promise((res) => canvas.toBlob(res, blob.type || 'image/png'));
             if (navigator.clipboard && window.ClipboardItem && blob2) {
-              try { const item2 = new ClipboardItem({ [blob2.type]: blob2 }); await navigator.clipboard.write([item2]); btn.textContent = 'img copied!'; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1500); return; } catch (err) {}
+              try { const item2 = new ClipboardItem({ [blob2.type]: blob2 }); await navigator.clipboard.write([item2]); btn.textContent = 'img copied!'; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1500); return; } catch (err) { }
             }
-          } catch (err) {}
+          } catch (err) { }
 
           try {
             const imgForCanvas = new Image(); imgForCanvas.crossOrigin = 'anonymous';
@@ -597,9 +671,9 @@ function insertCopyImageButtons() {
             const ctx2 = canvas2.getContext('2d'); ctx2.drawImage(imgForCanvas, 0, 0);
             const blob3 = await new Promise((res) => canvas2.toBlob(res, 'image/png'));
             if (blob3 && navigator.clipboard && window.ClipboardItem) {
-              try { const item3 = new ClipboardItem({ [blob3.type]: blob3 }); await navigator.clipboard.write([item3]); btn.textContent = 'img copied!'; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1500); return; } catch (err) {}
+              try { const item3 = new ClipboardItem({ [blob3.type]: blob3 }); await navigator.clipboard.write([item3]); btn.textContent = 'img copied!'; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 1500); return; } catch (err) { }
             }
-          } catch (err) {}
+          } catch (err) { }
 
           if (navigator.clipboard && navigator.clipboard.writeText) {
             await navigator.clipboard.writeText(src);

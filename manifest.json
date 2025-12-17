@@ -80,7 +80,8 @@
     {
       "resources": [
         "src/shared/buttons.css",
-        "data/defaultPromptForAdress.json"
+        "data/defaultPromptForAdress.json",
+        "data/RandomizedRoomNames.txt"
       ],
       "matches": [
         "<all_urls>"

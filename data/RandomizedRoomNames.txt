@@ -1,0 +1,15 @@
+Spacious Room <N>
+Cozy Room <N>
+Welcoming Room <N>
+Expansive Living Room <N>
+Comfortable Private Room <N>
+Inviting Guest Room <N>
+Standard Room <N>
+Classic Room <N>
+Basic Room <N>
+Simple Room <N>
+General Purpose Room <N>
+Flexible Use Room <N>
+Designated Room <N>
+Primary Room <N>
+Common Area Room <N>
