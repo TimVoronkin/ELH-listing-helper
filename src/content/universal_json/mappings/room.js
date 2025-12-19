@@ -90,6 +90,105 @@ export const RoomMapper = {
         }
 
         if (step === 'PhotosStep') await this.handlePhotos(stepData, container);
+        if (step === 'BlockedDatesStep') await this.handleBlockedDatesLogic(stepData, container);
+    },
+
+    async handleBlockedDatesLogic(data, container) {
+        if (!data.blocked_dates || !Array.isArray(data.blocked_dates) || data.blocked_dates.length === 0) {
+            console.log('[ELH-Universal] No blocked dates to add.');
+            return;
+        }
+
+        const { selectDateInCalendar, highlightElement } = await import('../field_setters.js');
+
+        // Find "Add Blocked Date" button.
+        // Use a loose text match to be robust.
+        const addBtn = Array.from(container.querySelectorAll('button'))
+            .find(b => b.textContent.includes('Add Blocked Date'));
+
+        if (!addBtn) {
+            console.warn('[ELH-Universal] "Add Blocked Date" button not found.');
+            return;
+        }
+
+        for (const dateRange of data.blocked_dates) {
+            // Helper: Expand YYYY-MM to full date
+            const expandDate = (val, isStart) => {
+                if (!val || val === 'now') return val;
+                // Check for YYYY-MM format (e.g. 2025-12)
+                const monthMatch = val.toString().match(/^(\d{4})-(\d{2})$/);
+                if (monthMatch) {
+                    const [_, y, m] = monthMatch;
+                    if (isStart) {
+                        return `${val}-01`;
+                    } else {
+                        // Get last day: day 0 of next month returns last day of current month
+                        const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
+                        return `${val}-${lastDay}`;
+                    }
+                }
+                return val;
+            };
+
+            // Updated Logic: If start is missing, default to 'now'. Stop only if End is missing.
+            const startVal = expandDate(dateRange.start, true) || 'now';
+            const endVal = expandDate(dateRange.end, false);
+
+            if (!endVal) {
+                console.warn('[ELH-Universal] Blocked date range missing end date. Skipping.');
+                continue;
+            }
+
+            console.log(`[ELH-Universal] Adding Blocked Date: ${startVal} to ${endVal}`);
+
+            // Click Add
+            addBtn.click();
+            await wait(400); // Wait for row to appear
+
+            // Find the NEWEST inputs.
+            // We select the LAST "Start Date" and "End Date" labels to target the newly added row.
+            const startLabels = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
+            const endLabels = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'End Date');
+
+            if (startLabels.length === 0 || endLabels.length === 0) {
+                console.warn('[ELH-Universal] Blocked date labels not found.');
+                continue;
+            }
+
+            const lastStartLabel = startLabels[startLabels.length - 1];
+            const lastEndLabel = endLabels[endLabels.length - 1];
+
+            // Helper to find button from label
+            const findTriggerBtn = (lbl) => {
+                let next = lbl.nextElementSibling;
+                if (next && next.tagName === 'BUTTON') return next;
+                if (next && next.querySelector('button')) return next.querySelector('button');
+                return null;
+            };
+
+            const startBtn = findTriggerBtn(lastStartLabel);
+            const endBtn = findTriggerBtn(lastEndLabel);
+
+            if (startBtn) {
+                console.log('[ELH-Universal] Opening Start Date Picker');
+                startBtn.click();
+                await wait(300); // Wait for popover
+                if (await selectDateInCalendar(startVal)) {
+                    highlightElement(startBtn, 'green');
+                }
+            }
+
+            if (endBtn) {
+                console.log('[ELH-Universal] Opening End Date Picker');
+                endBtn.click();
+                await wait(300); // Wait for popover
+                if (await selectDateInCalendar(endVal)) {
+                    highlightElement(endBtn, 'green');
+                }
+            }
+
+            await wait(200); // Small pause between rows
+        }
     },
 
     async handleRentLogic(rentData, container) {

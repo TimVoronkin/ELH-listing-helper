@@ -107,6 +107,237 @@ export function setRadio(groupLabelText, optionLabelText, contextScope = documen
     return false;
 }
 
+
+// Helper to wait
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Selects a date in the Radix UI DayPicker calendar.
+ * Assumes the calendar popover is already open.
+ * @param {string} dateString - Format "YYYY-MM-DD" or "now"
+ */
+export async function selectDateInCalendar(dateString) {
+    if (!dateString) return false;
+
+    // Clean inputs
+    const cleanDate = dateString.toString().trim().toLowerCase();
+
+    // Parse Date Interaction
+    // We determine if we should use "Specific Date" logic or "First Available" logic.
+    // "First Available" ('now') applies if:
+    // 1. input is 'now'
+    // 2. input date is in the past (before today)
+
+    let useFirstAvailable = (cleanDate === 'now');
+    let targetYear, targetMonth, targetDay;
+
+    if (!useFirstAvailable) {
+        const parts = cleanDate.split('-').map(Number);
+        if (parts.length === 3) {
+            [targetYear, targetMonth, targetDay] = parts;
+            // Native Date: Month is 0-indexed
+            const targetDateObj = new Date(targetYear, targetMonth - 1, targetDay);
+
+            // Check against today (at 00:00:00) to allow selecting "Today" if it's not disabled, 
+            // but if "Today" falls into the logic of "less than first available" (implied past),
+            // the FirstAvailable logic handles "Today" correctly too (it picks it if enabled).
+            // User requirement: "if date in json is less than first available" -> do 'now'
+            // Safest Check: If date is strictly BEFORE today's date (ignoring time), definitely use FirstAvailable.
+            // Actually, if date IS Today, standard logic navigates to today. FirstAvailable scans today. Both work.
+            // But if date is PAST, standard logic breaks (navigates back). FirstAvailable fixes it.
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (targetDateObj < today) {
+                console.log(`[ELH-Universal] Target date ${cleanDate} is in the past. Switching to 'First Available' logic.`);
+                useFirstAvailable = true;
+            }
+        }
+    }
+
+    // 1. Find the open calendar popover
+    let calendarContainer = document.querySelector('[data-radix-popper-content-wrapper] [data-slot="calendar"]');
+
+    if (!calendarContainer) {
+        await wait(200);
+        calendarContainer = document.querySelector('[data-radix-popper-content-wrapper] [data-slot="calendar"]');
+    }
+
+    if (!calendarContainer) {
+        console.warn(`[ELH-Universal] Calendar container not found.`);
+        return false;
+    }
+
+    // --- LOGIC FOR "NOW" / "FIRST AVAILABLE" ---
+    if (useFirstAvailable) {
+        console.log(`[ELH-Universal] selectDateInCalendar: Using 'First Available' Logic`);
+
+        // Find all day buttons
+        // Logic: find buttons that do NOT have disabled attributes/classes
+        const allDayButtons = Array.from(calendarContainer.querySelectorAll('.rdp-day_button'));
+
+        const availableBtn = allDayButtons.find(btn => {
+            // Check button attributes
+            if (btn.hasAttribute('disabled')) return false;
+            if (btn.getAttribute('aria-disabled') === 'true') return false;
+            if (btn.classList.contains('rdp-day_disabled')) return false;
+
+            // Check parent TD for disabled state
+            const parentTd = btn.closest('td');
+            if (parentTd) {
+                if (parentTd.hasAttribute('data-disabled') && parentTd.getAttribute('data-disabled') === 'true') return false;
+                if (parentTd.classList.contains('rdp-disabled')) return false;
+            }
+
+            return true;
+        });
+
+        if (availableBtn) {
+            console.log(`[ELH-Universal] Found first available date: ${availableBtn.textContent.trim()} (aria-label: ${availableBtn.ariaLabel})`);
+            availableBtn.click();
+            highlightElement(availableBtn, 'green');
+            await wait(300);
+            return true;
+        } else {
+            console.warn(`[ELH-Universal] No available dates found in current calendar view for logic 'First Available'.`);
+            return false;
+        }
+    }
+
+    // --- STANDARD SPECIFIC DATE LOGIC ---
+    // (targetYear, targetMonth, targetDay exist from earlier parse)
+    // targetMonth is 1-based (January=1), Date object is 0-based.
+    const targetDateObj = new Date(targetYear, targetMonth - 1, targetDay);
+
+    console.log(`[ELH-Universal] selectDateInCalendar: Target Specific ${cleanDate}`);
+
+    // 2. Navigation Loop (Limit iterations to avoid infinite loops)
+    let attempts = 0;
+    const MAX_ATTEMPTS = 24; // Allow navigating 2 years
+
+    while (attempts < MAX_ATTEMPTS) {
+        // Get current view month/year
+        // Look for element with class 'rdp-caption_label' or similar
+        const captionEl = calendarContainer.querySelector('.rdp-caption_label');
+        if (!captionEl) {
+            console.warn(`[ELH-Universal] Calendar caption not found.`);
+            return false;
+        }
+
+
+        const currentCaption = captionEl.textContent.trim(); // e.g., "December 2025"
+        const currentDate = new Date(Date.parse(`1 ${currentCaption}`)); // "1 December 2025"
+
+        if (isNaN(currentDate.getTime())) {
+            console.warn(`[ELH-Universal] Could not parse calendar caption: '${currentCaption}'`);
+            return false;
+        }
+
+        // Compare Year and Month
+        // We only care about Year and Month (0-11)
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+
+        // Target
+        const tYear = targetDateObj.getFullYear();
+        const tMonth = targetDateObj.getMonth();
+
+        console.log(`[ELH-Debug] Calendar Status: Current=${currentCaption} (${currentYear}-${currentMonth + 1}), Target=${targetYear}-${tMonth + 1}`);
+
+        if (currentYear === tYear && currentMonth === tMonth) {
+            // Match! Break loop to select day.
+            console.log(`[ELH-Debug] Month matched.`);
+            break;
+        }
+
+        // Decide direction
+        // Compare values: (Year * 12 + Month)
+        const currentVal = currentYear * 12 + currentMonth;
+        const targetVal = tYear * 12 + tMonth;
+
+        if (targetVal > currentVal) {
+            // Click Next
+            const nextBtn = calendarContainer.querySelector('.rdp-button_next');
+            if (nextBtn) {
+                console.log(`[ELH-Debug] Clicking Next Month`);
+                nextBtn.click();
+            } else {
+                console.warn(`[ELH-Universal] Next Month button not found.`);
+                return false;
+            }
+        } else {
+            // Click Previous
+            const prevBtn = calendarContainer.querySelector('.rdp-button_previous');
+            if (prevBtn) {
+                console.log(`[ELH-Debug] Clicking Prev Month`);
+                prevBtn.click();
+            } else {
+                console.warn(`[ELH-Universal] Prev Month button not found.`);
+                return false;
+            }
+        }
+
+        // Wait for animation/render
+        await wait(250);
+        attempts++;
+    }
+
+    if (attempts >= MAX_ATTEMPTS) {
+        console.warn(`[ELH-Universal] Failed to navigate to target month after ${MAX_ATTEMPTS} attempts.`);
+        return false;
+    }
+
+    // 3. Select Day
+    // Format required by DayPicker usually matches the input data-day.
+    // However, the DOM shows format: data-day="2025-11-30" (YYYY-MM-DD) OR "11/30/2025" (M/D/YYYY)
+    // The user provided DOM shows: data-day="2025-12-01" AND data-day="12/1/2025" on the same element?
+    // <button data-day="12/1/2025" ... >
+    // Wait, the TD has data-day="2025-12-01", the BUTTON inside has data-day="12/1/2025".
+    // Let's try matching the more standard ISO format on the TD or loose match.
+
+    // Try finding the button directly first.
+    // Construct possible selectors.
+    // Standard ISO: YYYY-MM-DD
+    const isoDate = `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`;
+    // US Format: M/D/YYYY (no leading zeros usually for M/D in some libs, but let's check user DOM)
+    // User DOM: data-day="12/1/2025" (Month 12, Day 1). So no leading zero for Day?
+    // User DOM: data-day="12/10/2025"
+    const usDate = `${targetMonth}/${targetDay}/${targetYear}`;
+
+    // Selector strategy:
+    // 1. Button with exact data-day (US format or ISO)
+    // 2. Gridcell (TD) with data-day (ISO), then find button inside.
+
+    let dayBtn = calendarContainer.querySelector(`button[data-day="${usDate}"]`) ||
+        calendarContainer.querySelector(`button[data-day="${isoDate}"]`);
+
+    if (!dayBtn) {
+        // Try finding via parent TD
+        const dayCell = calendarContainer.querySelector(`td[data-day="${isoDate}"]`);
+        if (dayCell) {
+            dayBtn = dayCell.querySelector('button');
+        }
+    }
+
+    if (dayBtn) {
+        // Check if disabled
+        if (dayBtn.hasAttribute('disabled')) {
+            console.warn(`[ELH-Universal] Target date ${dateString} is disabled.`);
+            return false;
+        }
+
+        console.log(`[ELH-Universal] Clicking day ${dateString}`);
+        dayBtn.click();
+        highlightElement(dayBtn, 'green'); // Visual feedback
+        await wait(300); // Wait for modal to potentially close or update
+        return true;
+    } else {
+        console.warn(`[ELH-Universal] Day button for ${dateString} not found.`);
+        return false;
+    }
+}
+
 /**
  * Sets a select dropdown value.
  */
