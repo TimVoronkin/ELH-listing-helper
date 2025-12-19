@@ -1,0 +1,1064 @@
+<form>
+    <div class="min-h-screen bg-background p-5 relative pb-26">
+        <div data-sentry-component="Title" data-sentry-source-file="index.tsx">
+            <h1 class="text-3xl font-foreground">New Listing</h1>
+            <p class="text-muted-foreground">Fill in all required fields and submit your new listing for approval.</p>
+        </div>
+        <div class="mt-5 flex gap-5 flex-col md:flex-row">
+            <div class="bg-white flex-col p-5 h-fit hidden md:flex rounded-md min-w-64 w-64 sticky top-0"><button
+                    type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center border-primary bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-check size-4 text-white">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <div class="w-0.5 h-full absolute top-4 left-3.5 -z-10 bg-primary"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Location</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Select the city where your house is located.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center border-primary bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-check size-4 text-white">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <div class="w-0.5 h-full absolute top-4 left-3.5 -z-10 bg-primary"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Type of Accommodation</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Choose the type of space and specify rooms, bathrooms,
+                            and other details.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white border-primary">
+                            <div class="size-2.5 bg-primary rounded-full"></div>
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-primary"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Amenities</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Define whether rent includes utilities, internet,
+                            security, and other amenities.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Rules</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Set rules, provide more information about tenants, or
+                            upload relevant files.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Photos &amp; Description</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Add images and a description to attract tenants.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Review &amp; Publish</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Check the details and publish your listing.</span></div>
+                </button></div>
+            <div class="flex items-center gap-2 md:hidden"><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography"><span
+                        class="font-work_sans text-base tracking-normal leading-normal font-bold text-primary"
+                        data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                        data-sentry-component="Typography"> 3 </span>de 6 -</span><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography">Amenities</span></div>
+            <div class="flex flex-col gap-4 w-full">
+                <div class="space-y-4 pb-40" data-sentry-component="StepComodation"
+                    data-sentry-source-file="step-comodation.tsx">
+                    <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                        data-sentry-source-file="index.tsx">Select What's Included</p>
+                    <div class="">
+                        <div class="flex flex-row gap-2 mb-2 items-center space-y-0"><button type="button"
+                                role="checkbox" aria-checked="false" data-state="unchecked" value="on"
+                                class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                id="«rpk»-form-item" aria-describedby="«rpk»-form-item-description"
+                                aria-invalid="false"></button><input aria-hidden="true" tabindex="-1" type="checkbox"
+                                value="on"
+                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-lg"
+                                for="«rpk»-form-item">Expenses</label></div>
+                        <div class="pl-6 space-y-2">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-sm"
+                                    for="«rpl»-form-item">Specify Included Expenses</label><textarea
+                                    class="flex w-full rounded-md border border-input px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input min-h-[80px]"
+                                    placeholder="List all expenses included in the rent" name="expensesDescription"
+                                    id="«rpl»-form-item" aria-describedby="«rpl»-form-item-description"
+                                    aria-invalid="false"
+                                    style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"></textarea>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-sm"
+                                    for="«rpm»-form-item">Specify Maximum Assured Value</label>
+                                <div class="flex items-center relative rounded-full w-full">
+                                    <div class="relative w-full">
+                                        <style>
+                                            input[type="date"]::-webkit-calendar-picker-indicator,
+                                            input[type="time"]::-webkit-calendar-picker-indicator {
+                                                display: none;
+                                            }
+                                        </style><input
+                                            class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-4 pr-4 border-x-0 text-center [appearance:textfield] [&amp;::-webkit-outer-spin-button]:appearance-none [&amp;::-webkit-inner-spin-button]:appearance-none bg-input"
+                                            id="«rpm»-form-item" aria-describedby="«rpm»-form-item-description"
+                                            aria-invalid="false" type="number" value=""
+                                            style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                    </div> <button
+                                        class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-r-none absolute left-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                        type="button"><span
+                                            class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                            data-sentry-element="Tag" data-sentry-component="Typography"
+                                            data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-minus h-4 w-4 text-muted-foreground">
+                                                <path d="M5 12h14"></path>
+                                            </svg></span></button><button
+                                        class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-l-none absolute right-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                        type="button"><span
+                                            class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                            data-sentry-element="Tag" data-sentry-component="Typography"
+                                            data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-plus h-4 w-4 text-muted-foreground">
+                                                <path d="M5 12h14"></path>
+                                                <path d="M12 5v14"></path>
+                                            </svg></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex flex-row gap-2 mb-2 items-center space-y-0"><button type="button"
+                                role="checkbox" aria-checked="false" data-state="unchecked" value="on"
+                                class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                id="«rpn»-form-item" aria-describedby="«rpn»-form-item-description"
+                                aria-invalid="false"></button><input aria-hidden="true" tabindex="-1" type="checkbox"
+                                value="on"
+                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-lg"
+                                for="«rpn»-form-item">Cleaning</label></div>
+                        <div class="pl-6">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-sm"
+                                    for="«rpo»-form-item">Specify Cleaning Details</label><textarea
+                                    class="flex w-full rounded-md border border-input px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input min-h-[80px]"
+                                    placeholder="Describe cleaning services included" name="cleaningDescription"
+                                    id="«rpo»-form-item" aria-describedby="«rpo»-form-item-description"
+                                    aria-invalid="false"
+                                    style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="space-y-2 flex flex-col"><label
+                                class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-base"
+                                for="«rpp»-form-item">Other Amenities</label><textarea
+                                class="flex w-full rounded-md border border-input px-3 py-2 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input min-h-[80px]"
+                                placeholder="List any other amenities included" name="otherAmenities"
+                                id="«rpp»-form-item" aria-describedby="«rpp»-form-item-description" aria-invalid="false"
+                                style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"></textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                            data-sentry-source-file="index.tsx">Safety and accessibility</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rpq»-form-item">CCTV</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rpq»-form-item" aria-describedby="«rpq»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rpr»-form-item" aria-describedby="«rpr»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rpr»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rpt»-form-item" aria-describedby="«rpt»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rpt»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rpv»-form-item">Code Entry</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rpv»-form-item" aria-describedby="«rpv»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rq0»-form-item" aria-describedby="«rq0»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rq0»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rq2»-form-item" aria-describedby="«rq2»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rq2»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rq4»-form-item">24h Security</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rq4»-form-item" aria-describedby="«rq4»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rq5»-form-item" aria-describedby="«rq5»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rq5»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rq7»-form-item" aria-describedby="«rq7»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rq7»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rq9»-form-item">Smoke Detectors</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rq9»-form-item" aria-describedby="«rq9»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqa»-form-item" aria-describedby="«rqa»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqa»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqc»-form-item" aria-describedby="«rqc»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqc»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rqe»-form-item">Armored Door</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rqe»-form-item" aria-describedby="«rqe»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqf»-form-item" aria-describedby="«rqf»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqf»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqh»-form-item" aria-describedby="«rqh»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqh»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rqj»-form-item">Elevator</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rqj»-form-item" aria-describedby="«rqj»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqk»-form-item" aria-describedby="«rqk»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqk»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqm»-form-item" aria-describedby="«rqm»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqm»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rqo»-form-item">Reduced Mobility Access</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rqo»-form-item" aria-describedby="«rqo»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqp»-form-item" aria-describedby="«rqp»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqp»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqr»-form-item" aria-describedby="«rqr»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqr»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rqt»-form-item">Parking</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rqt»-form-item" aria-describedby="«rqt»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rqu»-form-item" aria-describedby="«rqu»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rqu»-form-item">Yes</label></div>
+                                    <div class="space-y-2 flex flex-row items-center space-x-3"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rr0»-form-item" aria-describedby="«rr0»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rr0»-form-item">No</label></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex flex-col mt-4"><label
+                                class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground text-sm"
+                                for="«rr2»-form-item">Distance to Public Transport (m)</label>
+                            <div class="flex items-center relative rounded-full w-full">
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-4 pr-4 border-x-0 text-center [appearance:textfield] [&amp;::-webkit-outer-spin-button]:appearance-none [&amp;::-webkit-inner-spin-button]:appearance-none bg-input"
+                                        id="«rr2»-form-item" aria-describedby="«rr2»-form-item-description"
+                                        aria-invalid="false" type="number" value="300"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div> <button
+                                    class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-r-none absolute left-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                    type="button"><span
+                                        class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                        data-sentry-element="Tag" data-sentry-component="Typography"
+                                        data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-minus h-4 w-4 text-muted-foreground">
+                                            <path d="M5 12h14"></path>
+                                        </svg></span></button><button
+                                    class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-l-none absolute right-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                    type="button"><span
+                                        class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                        data-sentry-element="Tag" data-sentry-component="Typography"
+                                        data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-plus h-4 w-4 text-muted-foreground">
+                                            <path d="M5 12h14"></path>
+                                            <path d="M12 5v14"></path>
+                                        </svg></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                            data-sentry-source-file="index.tsx">Comfort and air conditioning</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rr3»-form-item">Central Heating</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rr3»-form-item" aria-describedby="«rr3»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rr4»-form-item" aria-describedby="«rr4»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rr4»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rr6»-form-item" aria-describedby="«rr6»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rr6»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rr8»-form-item">Air Conditioning</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rr8»-form-item" aria-describedby="«rr8»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rr9»-form-item" aria-describedby="«rr9»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rr9»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrb»-form-item" aria-describedby="«rrb»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrb»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rrd»-form-item">Thermal Insulation</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rrd»-form-item" aria-describedby="«rrd»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rre»-form-item" aria-describedby="«rre»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rre»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrg»-form-item" aria-describedby="«rrg»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrg»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rri»-form-item">Double Glazed Windows</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rri»-form-item" aria-describedby="«rri»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrj»-form-item" aria-describedby="«rrj»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrj»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrl»-form-item" aria-describedby="«rrl»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrl»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rrn»-form-item">Kitchen Equipment</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rrn»-form-item" aria-describedby="«rrn»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rro»-form-item" aria-describedby="«rro»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rro»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrq»-form-item" aria-describedby="«rrq»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrq»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rrs»-form-item">Fridge</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rrs»-form-item" aria-describedby="«rrs»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrt»-form-item" aria-describedby="«rrt»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrt»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rrv»-form-item" aria-describedby="«rrv»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rrv»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rs1»-form-item">Microwave Oven</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rs1»-form-item" aria-describedby="«rs1»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rs2»-form-item" aria-describedby="«rs2»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rs2»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rs4»-form-item" aria-describedby="«rs4»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rs4»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rs6»-form-item">Gas/Electric Stove</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rs6»-form-item" aria-describedby="«rs6»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rs7»-form-item" aria-describedby="«rs7»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rs7»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rs9»-form-item" aria-describedby="«rs9»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rs9»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rsb»-form-item">Dishwasher</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rsb»-form-item" aria-describedby="«rsb»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rsc»-form-item" aria-describedby="«rsc»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rsc»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rse»-form-item" aria-describedby="«rse»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rse»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rsg»-form-item">Washer/Dryer</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rsg»-form-item" aria-describedby="«rsg»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rsh»-form-item" aria-describedby="«rsh»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rsh»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rsj»-form-item" aria-describedby="«rsj»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rsj»-form-item">No</label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xl text-foreground mb-8 mt-4" data-sentry-component="Subtitle"
+                            data-sentry-source-file="index.tsx">Technology and connectivity</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rsl»-form-item">Internet</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rsl»-form-item" aria-describedby="«rsl»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rsm»-form-item" aria-describedby="«rsm»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rsm»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rso»-form-item" aria-describedby="«rso»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rso»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rsq»-form-item">Internet Speed (mb/s)</label>
+                                <div class="flex items-center relative rounded-full w-full">
+                                    <div class="relative w-full">
+                                        <style>
+                                            input[type="date"]::-webkit-calendar-picker-indicator,
+                                            input[type="time"]::-webkit-calendar-picker-indicator {
+                                                display: none;
+                                            }
+                                        </style><input
+                                            class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-4 pr-4 border-x-0 text-center [appearance:textfield] [&amp;::-webkit-outer-spin-button]:appearance-none [&amp;::-webkit-inner-spin-button]:appearance-none bg-input"
+                                            id="«rsq»-form-item" aria-describedby="«rsq»-form-item-description"
+                                            aria-invalid="false" type="number" value="100"
+                                            style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                    </div> <button
+                                        class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-r-none absolute left-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                        type="button"><span
+                                            class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                            data-sentry-element="Tag" data-sentry-component="Typography"
+                                            data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-minus h-4 w-4 text-muted-foreground">
+                                                <path d="M5 12h14"></path>
+                                            </svg></span></button><button
+                                        class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-l-none absolute right-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                        type="button"><span
+                                            class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                            data-sentry-element="Tag" data-sentry-component="Typography"
+                                            data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-plus h-4 w-4 text-muted-foreground">
+                                                <path d="M5 12h14"></path>
+                                                <path d="M12 5v14"></path>
+                                            </svg></span></button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rsr»-form-item">Cable TV</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rsr»-form-item" aria-describedby="«rsr»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rss»-form-item" aria-describedby="«rss»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rss»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rsu»-form-item" aria-describedby="«rsu»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rsu»-form-item">No</label></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rt0»-form-item">Smart TV</label>
+                                <div role="radiogroup" aria-required="false" dir="ltr" class="grid grid-cols-2 gap-4"
+                                    id="«rt0»-form-item" aria-describedby="«rt0»-form-item-description"
+                                    aria-invalid="false" tabindex="0" style="outline: none;">
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="false" data-state="unchecked" value="yes"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rt1»-form-item" aria-describedby="«rt1»-form-item-description"
+                                            aria-invalid="false" tabindex="-1"
+                                            data-radix-collection-item=""></button><input aria-hidden="true"
+                                            tabindex="-1" type="radio" value="yes"
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rt1»-form-item">Yes</label></div>
+                                    <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                            role="radio" aria-checked="true" data-state="checked" value="no"
+                                            class="aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="«rt3»-form-item" aria-describedby="«rt3»-form-item-description"
+                                            aria-invalid="false" tabindex="-1" data-radix-collection-item=""><span
+                                                data-state="checked" class="flex items-center justify-center"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-circle h-3.5 w-3.5 fill-primary">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                </svg></span></button><input aria-hidden="true" tabindex="-1"
+                                            type="radio" value="no" checked=""
+                                            style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black"
+                                            for="«rt3»-form-item">No</label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="z-100 fixed bottom-0 left-0 right-0 w-full flex justify-between bg-white p-4 border-t">
+        <div><button
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-full px-4 py-2"
+                type="button"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-arrow-left size-4">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path>
+                    </svg>Back</span></button></div>
+        <div class="flex items-center gap-x-2"><a
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-full px-4 py-2"
+                href="/dashboard/manager/listings"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">Cancel</span></a><button
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 disabled:opacity-50 h-9 rounded-full px-4 py-2 capitalize"
+                type="button"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">next<svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right size-4">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg></span></button></div>
+    </div>
+</form>

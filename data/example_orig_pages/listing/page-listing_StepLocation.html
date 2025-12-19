@@ -1,0 +1,405 @@
+<form>
+    <div class="min-h-screen bg-background p-5 relative pb-26">
+        <div data-sentry-component="Title" data-sentry-source-file="index.tsx">
+            <h1 class="text-3xl font-foreground">New Listing</h1>
+            <p class="text-muted-foreground">Fill in all required fields and submit your new listing for approval.</p>
+        </div>
+        <div class="mt-5 flex gap-5 flex-col md:flex-row">
+            <div class="bg-white flex-col p-5 h-fit hidden md:flex rounded-md min-w-64 w-64 sticky top-0"><button
+                    type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white border-primary">
+                            <div class="size-2.5 bg-primary rounded-full"></div>
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-primary"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Location</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Select the city where your house is located.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Type of Accommodation</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Choose the type of space and specify rooms, bathrooms,
+                            and other details.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Amenities</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Define whether rent includes utilities, internet,
+                            security, and other amenities.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Rules</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Set rules, provide more information about tenants, or
+                            upload relevant files.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Photos &amp; Description</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Add images and a description to attract tenants.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Review &amp; Publish</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Check the details and publish your listing.</span></div>
+                </button></div>
+            <div class="flex items-center gap-2 md:hidden"><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography"><span
+                        class="font-work_sans text-base tracking-normal leading-normal font-bold text-primary"
+                        data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                        data-sentry-component="Typography"> 1 </span>de 6 -</span><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography">Location</span></div>
+            <div class="flex flex-col gap-4 w-full">
+                <div class="space-y-6 pb-40 md:pb-0" data-sentry-component="StepLocation"
+                    data-sentry-source-file="step-location.tsx">
+                    <div class="space-y-4">
+                        <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                            data-sentry-source-file="index.tsx"> Select the district where the property is located</p>
+                        <div class="space-y-2 flex flex-col"><label
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                for="«rfd»-form-item">Choose the city where you live </label>
+                            <div class="relative flex-1">
+                                <div
+                                    class="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-full border border-input bg-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1 cursor-pointer">
+                                    <div>Choose an option</div><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-chevron-down h-4 w-4 opacity-50">
+                                        <path d="m6 9 6 6 6-6"></path>
+                                    </svg>
+                                </div><select class="sr-only" id="«rfd»-form-item"
+                                    aria-describedby="«rfd»-form-item-description" aria-invalid="false">
+                                    <option value="" disabled="">Choose an option</option>
+                                    <option value="acores">Açores</option>
+                                    <option value="aveiro">Aveiro</option>
+                                    <option value="beja">Beja</option>
+                                    <option value="braga">Braga</option>
+                                    <option value="bragaganca">Bragança</option>
+                                    <option value="castelo-branco">Castelo Branco</option>
+                                    <option value="coimbra">Coimbra</option>
+                                    <option value="evora">Évora</option>
+                                    <option value="faro">Faro</option>
+                                    <option value="guarda">Guarda</option>
+                                    <option value="leiria">Leiria</option>
+                                    <option value="lisboa">Lisboa</option>
+                                    <option value="madeira">Madeira</option>
+                                    <option value="portalegre">Portalegre</option>
+                                    <option value="porto">Porto</option>
+                                    <option value="santarem">Santarém</option>
+                                    <option value="setubal">Setúbal</option>
+                                    <option value="viana-do-castelo">Viana do Castelo</option>
+                                    <option value="vila-real">Vila Real</option>
+                                    <option value="viseu">Viseu</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                            data-sentry-source-file="index.tsx">Tell us the address of the property</p>
+                        <div class="space-y-2 flex flex-col"><label
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                for="«rfe»-form-item">Street address</label>
+                            <div class="relative w-full">
+                                <style>
+                                    input[type="date"]::-webkit-calendar-picker-indicator,
+                                    input[type="time"]::-webkit-calendar-picker-indicator {
+                                        display: none;
+                                    }
+                                </style><input
+                                    class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                    placeholder="Street and Number" id="«rfe»-form-item"
+                                    aria-describedby="«rfe»-form-item-description" aria-invalid="false" name="address"
+                                    style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rff»-form-item">Floor (Optional)</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        placeholder="Ex: 2" id="«rff»-form-item"
+                                        aria-describedby="«rff»-form-item-description" aria-invalid="false" name="floor"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfg»-form-item">Building number (Optional)</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        placeholder="Ex: 12A" id="«rfg»-form-item"
+                                        aria-describedby="«rfg»-form-item-description" aria-invalid="false"
+                                        name="doorNumber"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfh»-form-item">Fraction (Optional)</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        placeholder="Ex: 1º Dto" id="«rfh»-form-item"
+                                        aria-describedby="«rfh»-form-item-description" aria-invalid="false"
+                                        name="fraction"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfi»-form-item">Postal Code</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        placeholder="Ex: 1000-100" id="«rfi»-form-item"
+                                        aria-describedby="«rfi»-form-item-description" aria-invalid="false"
+                                        name="postalCode"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfj»-form-item">Neighborhood</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        placeholder="Ex: Santo António" id="«rfj»-form-item"
+                                        aria-describedby="«rfj»-form-item-description" aria-invalid="false"
+                                        name="freguesia"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex flex-col"><label
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                for="«rfk»-form-item">Zone</label>
+                            <div class="relative w-full">
+                                <style>
+                                    input[type="date"]::-webkit-calendar-picker-indicator,
+                                    input[type="time"]::-webkit-calendar-picker-indicator {
+                                        display: none;
+                                    }
+                                </style><input
+                                    class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                    placeholder="Ex: Centro, Norte, etc." id="«rfk»-form-item"
+                                    aria-describedby="«rfk»-form-item-description" aria-invalid="false" name="zone"
+                                    style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfl»-form-item">Latitude</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        readonly="" disabled="" id="«rfl»-form-item"
+                                        aria-describedby="«rfl»-form-item-description" aria-invalid="false"
+                                        type="number" name="latitude"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex flex-col"><label
+                                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                    for="«rfm»-form-item">Longitude</label>
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-input pl-4 pr-4"
+                                        readonly="" disabled="" id="«rfm»-form-item"
+                                        aria-describedby="«rfm»-form-item-description" aria-invalid="false"
+                                        type="number" name="longitude"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div>
+                            </div><button
+                                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 disabled:opacity-50 h-9 rounded-full px-4 py-2"
+                                type="button" disabled="" data-sentry-element="Button"
+                                data-sentry-source-file="step-location.tsx"><span
+                                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                    data-sentry-element="Tag" data-sentry-component="Typography"
+                                    data-sentry-source-file="index.tsx">Compute Geo-location</span></button>
+                        </div>
+                        <div class="mt-20">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4"
+                                data-sentry-component="InfoBanner" data-sentry-source-file="info-banner.tsx">
+                                <div class="flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-info w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                                        data-sentry-element="Info" data-sentry-source-file="info-banner.tsx">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 16v-4"></path>
+                                        <path d="M12 8h.01"></path>
+                                    </svg>
+                                    <div class="text-sm"><span
+                                            class="font-work_sans text-base tracking-normal leading-normal block font-medium text-blue-900 mb-1 whitespace-pre-line"
+                                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                                            data-sentry-component="Typography">Manually set geo-location</span><span
+                                            class="font-work_sans text-base tracking-normal font-normal text-blue-700 leading-relaxed whitespace-pre-line"
+                                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                                            data-sentry-component="Typography">You are able to override the location by
+                                            clicking on the map</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-96 w-full rounded-lg overflow-hidden">
+                        <div class="size-full cursor-pointer mapboxgl-map">
+                            <div class="mapboxgl-canary" style="visibility: hidden;"></div>
+                            <div
+                                class="mapboxgl-canvas-container mapboxgl-interactive mapboxgl-touch-drag-pan mapboxgl-touch-zoom-rotate">
+                                <canvas class="mapboxgl-canvas" tabindex="0" aria-label="Map" role="region" width="613"
+                                    height="432" style="width: 544.444px; height: 384px;"></canvas>
+                            </div>
+                            <div class="mapboxgl-control-container">
+                                <div class="mapboxgl-ctrl-top-left"></div>
+                                <div class="mapboxgl-ctrl-top"></div>
+                                <div class="mapboxgl-ctrl-top-right"></div>
+                                <div class="mapboxgl-ctrl-right"></div>
+                                <div class="mapboxgl-ctrl-bottom-right">
+                                    <div class="mapboxgl-ctrl mapboxgl-ctrl-attrib mapboxgl-compact"><button
+                                            class="mapboxgl-ctrl-attrib-button" type="button"
+                                            aria-label="Toggle attribution"><span class="mapboxgl-ctrl-icon"
+                                                aria-hidden="true" title="Toggle attribution"></span></button>
+                                        <div class="mapboxgl-ctrl-attrib-inner"><a
+                                                href="https://www.mapbox.com/about/maps" target="_blank" title="Mapbox"
+                                                aria-label="Mapbox">© Mapbox</a> <a
+                                                href="https://www.openstreetmap.org/copyright/" target="_blank"
+                                                title="OpenStreetMap" aria-label="OpenStreetMap">© OpenStreetMap</a> <a
+                                                class="mapbox-improve-map"
+                                                href="https://apps.mapbox.com/feedback/?owner=mapbox&amp;id=streets-v12&amp;access_token=pk.eyJ1IjoiaWJlcmZvcnQiLCJhIjoiY21jcTAzdW9wMGJiOTJqcXdsNGR4cmUwNCJ9.VpLjz5OPueoNuZAsAl0RSQ#/-9.13934/38.72225/12"
+                                                target="_blank" title="Improve this map" aria-label="Improve this map"
+                                                rel="noopener nofollow">Improve this map</a></div>
+                                    </div>
+                                </div>
+                                <div class="mapboxgl-ctrl-bottom"></div>
+                                <div class="mapboxgl-ctrl-bottom-left">
+                                    <div class="mapboxgl-ctrl" style="display: block;"><a class="mapboxgl-ctrl-logo"
+                                            target="_blank" rel="noopener nofollow" href="https://www.mapbox.com/"
+                                            aria-label="Mapbox homepage"></a></div>
+                                </div>
+                                <div class="mapboxgl-ctrl-left"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="z-100 fixed bottom-0 left-0 right-0 w-full flex justify-between bg-white p-4 border-t">
+        <div></div>
+        <div class="flex items-center gap-x-2"><a
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-full px-4 py-2"
+                href="/dashboard/manager/listings"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">Cancel</span></a><button
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 disabled:opacity-50 h-9 rounded-full px-4 py-2 capitalize"
+                type="button"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">next<svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right size-4">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg></span></button></div>
+    </div>
+</form>

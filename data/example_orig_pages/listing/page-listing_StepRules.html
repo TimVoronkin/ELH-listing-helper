@@ -1,0 +1,332 @@
+<form>
+    <div class="min-h-screen bg-background p-5 relative pb-26">
+        <div data-sentry-component="Title" data-sentry-source-file="index.tsx">
+            <h1 class="text-3xl font-foreground">New Listing</h1>
+            <p class="text-muted-foreground">Fill in all required fields and submit your new listing for approval.</p>
+        </div>
+        <div class="mt-5 flex gap-5 flex-col md:flex-row">
+            <div class="bg-white flex-col p-5 h-fit hidden md:flex rounded-md min-w-64 w-64 sticky top-0"><button
+                    type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center border-primary bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-check size-4 text-white">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <div class="w-0.5 h-full absolute top-4 left-3.5 -z-10 bg-primary"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Location</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Select the city where your house is located.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center border-primary bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-check size-4 text-white">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <div class="w-0.5 h-full absolute top-4 left-3.5 -z-10 bg-primary"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Type of Accommodation</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Choose the type of space and specify rooms, bathrooms,
+                            and other details.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center border-primary bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-check size-4 text-white">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <div class="w-0.5 h-full absolute top-4 left-3.5 -z-10 bg-primary"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Amenities</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Define whether rent includes utilities, internet,
+                            security, and other amenities.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white border-primary">
+                            <div class="size-2.5 bg-primary rounded-full"></div>
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-primary"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Rules</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Set rules, provide more information about tenants, or
+                            upload relevant files.</span></div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                        <div class="w-0.5 bg-muted-foreground h-full absolute top-4 left-3.5 -z-10 opacity-20"></div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Photos &amp; Description</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Add images and a description to attract tenants.</span>
+                    </div>
+                </button><button type="button" class="min-h-20 text-left flex gap-4 cursor-pointer">
+                    <div class="relative">
+                        <div
+                            class="z-20 size-8 border-2 rounded-full flex items-center justify-center bg-white opacity-20, border-muted-foreground/20">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5"><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-semibold uppercase text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Review &amp; Publish</span><span
+                            class="font-work_sans text-xs tracking-normal leading-tight font-normal text-muted-foreground"
+                            data-sentry-element="Tag" data-sentry-component="Typography"
+                            data-sentry-source-file="index.tsx">Check the details and publish your listing.</span></div>
+                </button></div>
+            <div class="flex items-center gap-2 md:hidden"><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography"><span
+                        class="font-work_sans text-base tracking-normal leading-normal font-bold text-primary"
+                        data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                        data-sentry-component="Typography"> 4 </span>de 6 -</span><span
+                    class="font-work_sans tracking-normal font-normal text-muted-foreground text-xs"
+                    data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                    data-sentry-component="Typography">Rules</span></div>
+            <div class="flex flex-col gap-4 w-full">
+                <div class="space-y-6 pb-40" data-sentry-component="StepRules" data-sentry-source-file="step-rules.tsx">
+                    <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                        data-sentry-source-file="index.tsx">Define what is and isn't allowed by selecting the option</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                role="checkbox" aria-checked="false" data-state="unchecked" value="on"
+                                class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                id="«rta»-form-item" aria-describedby="«rta»-form-item-description"
+                                aria-invalid="false"></button><input aria-hidden="true" tabindex="-1" type="checkbox"
+                                value="on"
+                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground font-normal"
+                                for="«rta»-form-item">Allow Night Guests</label></div>
+                        <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                role="checkbox" aria-checked="false" data-state="unchecked" value="on"
+                                class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                id="«rtb»-form-item" aria-describedby="«rtb»-form-item-description"
+                                aria-invalid="false"></button><input aria-hidden="true" tabindex="-1" type="checkbox"
+                                value="on"
+                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground font-normal"
+                                for="«rtb»-form-item">Allow Pets</label></div>
+                        <div class="flex flex-row items-center space-x-3 space-y-0"><button type="button"
+                                role="checkbox" aria-checked="false" data-state="unchecked" value="on"
+                                class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none cursor-pointer focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                id="«rtc»-form-item" aria-describedby="«rtc»-form-item-description"
+                                aria-invalid="false"></button><input aria-hidden="true" tabindex="-1" type="checkbox"
+                                value="on"
+                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 16px; height: 16px; font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;"><label
+                                class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground font-normal"
+                                for="«rtc»-form-item">Smoking allowed</label></div>
+                    </div>
+                    <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                        data-sentry-source-file="index.tsx">About the Tenants</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2 flex flex-col"><label
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                for="«rtd»-form-item"> Preferred Gender</label>
+                            <div class="relative flex-1">
+                                <div
+                                    class="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-full border border-input bg-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1 cursor-pointer">
+                                    <div>Doesn't Matter</div><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-chevron-down h-4 w-4 opacity-50">
+                                        <path d="m6 9 6 6 6-6"></path>
+                                    </svg>
+                                </div><select class="sr-only" id="«rtd»-form-item"
+                                    aria-describedby="«rtd»-form-item-description" aria-invalid="false">
+                                    <option value="" disabled="">Choose an option</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="any">Doesn't Matter</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-2 flex flex-col"><label
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
+                                for="«rte»-form-item">Maximum Number of Tenants</label>
+                            <div class="flex items-center relative rounded-full w-full">
+                                <div class="relative w-full">
+                                    <style>
+                                        input[type="date"]::-webkit-calendar-picker-indicator,
+                                        input[type="time"]::-webkit-calendar-picker-indicator {
+                                            display: none;
+                                        }
+                                    </style><input
+                                        class="flex h-9 w-full rounded-full px-1 py-1 text-base transition-colors font-work_sans file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-4 pr-4 border-x-0 text-center [appearance:textfield] [&amp;::-webkit-outer-spin-button]:appearance-none [&amp;::-webkit-inner-spin-button]:appearance-none bg-input"
+                                        id="«rte»-form-item" aria-describedby="«rte»-form-item-description"
+                                        aria-invalid="false" type="number" value="1"
+                                        style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                                </div> <button
+                                    class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-r-none absolute left-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                    type="button"><span
+                                        class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                        data-sentry-element="Tag" data-sentry-component="Typography"
+                                        data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-minus h-4 w-4 text-muted-foreground">
+                                            <path d="M5 12h14"></path>
+                                        </svg></span></button><button
+                                    class="inline-flex items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-white disabled:opacity-50 h-9 w-9 rounded-l-none absolute right-0 bg-transparent hover:bg-transparent cursor-pointer"
+                                    type="button"><span
+                                        class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                                        data-sentry-element="Tag" data-sentry-component="Typography"
+                                        data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="lucide lucide-plus h-4 w-4 text-muted-foreground">
+                                            <path d="M5 12h14"></path>
+                                            <path d="M12 5v14"></path>
+                                        </svg></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                        data-sentry-source-file="index.tsx">Upload a PDF with the rules (optional)</p>
+                    <div class="flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-12 bg-white transition-colors duration-200 border-gray-200"
+                        aria-label="File upload area" data-sentry-component="FileUpload"
+                        data-sentry-source-file="index.tsx">
+                        <div class="w-14 h-14 bg-primary-light mb-6 p-4 rounded-md"><svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-cloud-upload w-6 h-6 text-blue-400 mb-6"
+                                aria-hidden="true" data-sentry-element="UploadCloud"
+                                data-sentry-source-file="index.tsx">
+                                <path d="M12 13v8"></path>
+                                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                                <path d="m8 17 4-4 4 4"></path>
+                            </svg></div><span
+                            class="font-work_sans text-xl tracking-normal leading-normal font-semibold mb-2 text-center"
+                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                            data-sentry-component="Typography">Upload files</span><span
+                            class="font-work_sans text-base tracking-normal leading-normal font-normal text-muted-foreground text-center mb-6"
+                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                            data-sentry-component="Typography">Drag files or click the button below to upload
+                            them.<br>Files up to 100MB will be accepted.<br><span
+                                class="font-work_sans text-sm tracking-normal leading-tight font-normal text-gray-500"
+                                data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                                data-sentry-component="Typography">0 of 1 file uploaded</span></span><button
+                            type="button"
+                            class="flex items-center gap-2 px-8 py-3 border border-gray-200 rounded-full bg-white shadow-sm text-lg font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:bg-gray-50"
+                            aria-label="Upload files"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-cloud-upload w-5 h-5" data-sentry-element="UploadCloud"
+                                data-sentry-source-file="index.tsx">
+                                <path d="M12 13v8"></path>
+                                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                                <path d="m8 17 4-4 4 4"></path>
+                            </svg>Upload files</button><input multiple="" accept="application/pdf" class="hidden"
+                            aria-label="Select file" type="file"
+                            style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                    </div>
+                    <p class="text-xl text-foreground mb-8" data-sentry-component="Subtitle"
+                        data-sentry-source-file="index.tsx">Upload a PDF as a contract (optional)</p>
+                    <div class="flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-12 bg-white transition-colors duration-200 border-gray-200"
+                        aria-label="File upload area" data-sentry-component="FileUpload"
+                        data-sentry-source-file="index.tsx">
+                        <div class="w-14 h-14 bg-primary-light mb-6 p-4 rounded-md"><svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-cloud-upload w-6 h-6 text-blue-400 mb-6"
+                                aria-hidden="true" data-sentry-element="UploadCloud"
+                                data-sentry-source-file="index.tsx">
+                                <path d="M12 13v8"></path>
+                                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                                <path d="m8 17 4-4 4 4"></path>
+                            </svg></div><span
+                            class="font-work_sans text-xl tracking-normal leading-normal font-semibold mb-2 text-center"
+                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                            data-sentry-component="Typography">Upload files</span><span
+                            class="font-work_sans text-base tracking-normal leading-normal font-normal text-muted-foreground text-center mb-6"
+                            data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                            data-sentry-component="Typography">Drag files or click the button below to upload
+                            them.<br>Files up to 100MB will be accepted.<br><span
+                                class="font-work_sans text-sm tracking-normal leading-tight font-normal text-gray-500"
+                                data-sentry-element="Tag" data-sentry-source-file="index.tsx"
+                                data-sentry-component="Typography">0 of 1 file uploaded</span></span><button
+                            type="button"
+                            class="flex items-center gap-2 px-8 py-3 border border-gray-200 rounded-full bg-white shadow-sm text-lg font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:bg-gray-50"
+                            aria-label="Upload files"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-cloud-upload w-5 h-5" data-sentry-element="UploadCloud"
+                                data-sentry-source-file="index.tsx">
+                                <path d="M12 13v8"></path>
+                                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                                <path d="m8 17 4-4 4 4"></path>
+                            </svg>Upload files</button><input multiple="" accept="application/pdf" class="hidden"
+                            aria-label="Select file" type="file"
+                            style="font-family: emojeeeeee, emojiiiiii, figtree, &quot;figtree Fallback&quot;, ui-sans-serif, system-ui, sans-serif, ui-sans-serif, system-ui, sans-serif;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="z-100 fixed bottom-0 left-0 right-0 w-full flex justify-between bg-white p-4 border-t">
+        <div><button
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-full px-4 py-2"
+                type="button"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-arrow-left size-4">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path>
+                    </svg>Back</span></button></div>
+        <div class="flex items-center gap-x-2"><a
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-full px-4 py-2"
+                href="/dashboard/manager/listings"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">Cancel</span></a><button
+                class="inline-flex cursor-pointer items-center justify-center gap-4 font-work_sans whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 disabled:opacity-50 h-9 rounded-full px-4 py-2 capitalize"
+                type="button"><span
+                    class="font-work_sans text-sm tracking-normal leading-tight font-medium flex flex-row items-center gap-2"
+                    data-sentry-element="Tag" data-sentry-component="Typography"
+                    data-sentry-source-file="index.tsx">next<svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right size-4">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg></span></button></div>
+    </div>
+</form>
