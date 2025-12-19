@@ -111,6 +111,47 @@ export const RoomMapper = {
             return;
         }
 
+        // --- NEW LOGIC: Delete existing blocked dates if option enabled ---
+        const storageData = await new Promise(resolve => chrome.storage.local.get(['deleteBlockedDatesBeforePasting'], resolve));
+        console.log('[ELH-Universal] Storage Check - deleteBlockedDatesBeforePasting:', storageData.deleteBlockedDatesBeforePasting); // DEBUG CHECK
+
+        if (storageData.deleteBlockedDatesBeforePasting) {
+            console.log('[ELH-Universal] Deleting existing blocked dates before pasting...');
+
+            // Strategy: Find all trash buttons within the container and click them.
+            // Based on user snippet, trash button contains specific SVG or class structure.
+            // Selector: button:has(svg.lucide-trash2) OR button svg.lucide-trash2 -> closest button
+
+            // We'll iterate until no trash buttons are found to ensure full cleanup.
+            // Limit iterations to avoid infinite loops.
+            let attempt = 0;
+            while (attempt < 20) {
+                const trashSvgs = Array.from(container.querySelectorAll('svg.lucide-trash2'));
+                // Filter only those inside buttons
+                const deleteBtns = trashSvgs
+                    .map(svg => svg.closest('button'))
+                    .filter(btn => btn && !btn.disabled);
+
+                if (deleteBtns.length === 0) {
+                    console.log('[ELH-Universal] No more blocked dates to delete.');
+                    break;
+                }
+
+                console.log(`[ELH-Universal] Found ${deleteBtns.length} blocked dates to delete.`);
+
+                for (const btn of deleteBtns) {
+                    btn.click();
+                    highlightElement(btn, 'green'); // Visual feedback
+                    await wait(200); // Wait for deletion animation/update
+                }
+
+                // Wait a bit for DOM to refresh after batch deletion
+                await wait(500);
+                attempt++;
+            }
+        }
+        // -----------------------------------------------------------------
+
         for (const dateRange of data.blocked_dates) {
             // Helper: Expand YYYY-MM to full date
             const expandDate = (val, isStart) => {

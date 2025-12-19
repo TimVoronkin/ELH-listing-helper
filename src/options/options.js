@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const key = apiKeyInput.value.trim();
     const openListingRoomsInBG = openListingRoomsInBGCheckbox ? openListingRoomsInBGCheckbox.checked : false;
     const openInSameTabGroup = openInSameTabGroupCheckbox ? openInSameTabGroupCheckbox.checked : false;
+    const deleteBlockedDatesBeforePasting = deleteBlockedDatesBeforePastingCheckbox ? deleteBlockedDatesBeforePastingCheckbox.checked : false;
     let parsed = null;
     try {
       parsed = JSON.parse(promptObjEl.value);
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const randomNames = randomNamesEl.value;
 
-    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup, RANDOMIZED_ROOM_NAMES: randomNames }, () => {
+    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup, deleteBlockedDatesBeforePasting: deleteBlockedDatesBeforePasting, RANDOMIZED_ROOM_NAMES: randomNames }, () => {
       // save description prompt as well
       chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
         // save address prompt as well
@@ -184,10 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup', 'RANDOMIZED_ROOM_NAMES'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting', 'RANDOMIZED_ROOM_NAMES'], () => {
       apiKeyInput.value = '';
       if (openListingRoomsInBGCheckbox) openListingRoomsInBGCheckbox.checked = false;
       if (openInSameTabGroupCheckbox) openInSameTabGroupCheckbox.checked = false;
+      if (deleteBlockedDatesBeforePastingCheckbox) deleteBlockedDatesBeforePastingCheckbox.checked = false;
       fetchdefaultPromptForNameFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
@@ -291,13 +293,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load checkbox state for openListingRoomsInBG and openInSameTabGroup
   const openListingRoomsInBGCheckbox = document.getElementById('openListingRoomsInBG');
   const openInSameTabGroupCheckbox = document.getElementById('openInSameTabGroup');
-  if (openListingRoomsInBGCheckbox || openInSameTabGroupCheckbox) {
-    chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup'], (items) => {
+  const deleteBlockedDatesBeforePastingCheckbox = document.getElementById('deleteBlockedDatesBeforePasting');
+  if (openListingRoomsInBGCheckbox || openInSameTabGroupCheckbox || deleteBlockedDatesBeforePastingCheckbox) {
+    chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting'], (items) => {
       if (openListingRoomsInBGCheckbox && items && items.openListingRoomsInBG !== undefined) {
         openListingRoomsInBGCheckbox.checked = items.openListingRoomsInBG;
       }
       if (openInSameTabGroupCheckbox && items && items.openInSameTabGroup !== undefined) {
         openInSameTabGroupCheckbox.checked = items.openInSameTabGroup;
+      }
+      if (deleteBlockedDatesBeforePastingCheckbox && items && items.deleteBlockedDatesBeforePasting !== undefined) {
+        deleteBlockedDatesBeforePastingCheckbox.checked = items.deleteBlockedDatesBeforePasting;
       }
     });
   }
