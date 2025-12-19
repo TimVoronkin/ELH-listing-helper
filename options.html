@@ -5,238 +5,115 @@
     <meta charset="utf-8" />
     <title>Extension Options</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="src/shared/buttons.css">
-    <style>
-        :root {
-            --bg: #f7f8fa;
-            --card: #fff;
-            --muted: #6b7280;
-            --accent: #2563eb
-        }
-
-        body {
-            font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
-            background: var(--bg);
-            margin: 0;
-            padding: 24px;
-            color: #111
-        }
-
-        h2 {
-            margin: 0 0 8px;
-            font-weight: 600
-        }
-
-        .muted {
-            color: var(--muted);
-            margin: 0 0 16px
-        }
-
-        .row {
-            display: flex;
-            gap: 16px;
-            padding-bottom: 16px;
-        }
-
-        .col {
-            flex: 1;
-            background: var(--card);
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .col-split {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 8px;
-            color: #111
-        }
-
-        input[type=text] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #e6e9ef;
-            border-radius: 6px
-        }
-
-        input.secretinput {
-            -webkit-text-security: disc
-        }
-
-        textarea {
-            width: 100%;
-            height: 320px;
-            padding: 10px;
-            border: 1px solid #e6e9ef;
-            border-radius: 6px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace
-        }
-
-        .key-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px
-        }
-
-        .buttons {
-            margin-top: 10px;
-            display: flex;
-            gap: 8px
-        }
-
-        button {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            background: #f3f4f6;
-            cursor: pointer
-        }
-
-        button.primary {
-            background: var(--accent);
-            color: #fff;
-            border: none
-        }
-
-        .status {
-            margin-top: 8px;
-            color: var(--muted);
-            font-size: 13px
-        }
-
-
-        @media (max-width:800px) {
-            .row {
-                flex-direction: column
-            }
-
-            .col {
-                padding: 12px
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="src/options/options.css">
 </head>
 
 <body>
-    <div class="header-row">
-        <div>
-            <h2>ELH helper — Options</h2>
-            <p class="muted">Configure your Gemini API key and the full <code>promptObj</code> template used for
-                requests. Use <code>{{PROMPT}}</code> inside the JSON where the dynamic prompt text should be injected.
-            </p>
-        </div>
-        <div>
-            <button id="save" class="primary">Save</button>
+    <div class="sticky-header">
+        <div class="header-content">
+            <div class="header-title">
+                <h2>ELH Tim's helper - Options</h2>
+                <p>All settings are stored locally. Don't forget to save.</p>
+            </div>
+            <div>
+                <button id="save" class="primary">Save</button>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-split">
-            <div class="col">
-                <label class="label">API Key of Gemini</label>
+    <div class="container">
+
+        <div class="row">
+            <div class="col card">
+                <label class="label">Gemini API Key</label>
                 <div class="key-row" style="display: flex; gap: 10px;">
-                    <input class="secretinput" id="apiKey" type="text" placeholder="GEMINI_API_KEY">
+                    <input class="secretinput" id="apiKey" type="password" placeholder="GEMINI_API_KEY">
                     <button id="clear">Clear</button>
                 </div>
                 <label class="label">Upload .env file
                     <input id="envFile" type="file" accept=".env">
                 </label>
-                <div id="status" class="status" style="color: rgb(11, 102, 35);">Saved.</div>
+                <div id="status" class="status"></div>
             </div>
-            <div class="col">
+            <div class="col card">
                 <button id="test" title="Send a test prompt using the saved key">Test Gemini</button>
                 <div id="testResult" class="status" style="white-space:pre-wrap;margin-top:8px"></div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col">
-            <label class="label">JSON prompt for AI to make <b>Room Name</b></label>
-            <div class="json-actions">
-                <div>
-                    <button id="validate">Validate JSON</button>
-                    <button id="pretty">Pretty Print</button>
+        <div class="row">
+            <div class="col card">
+                <label class="label">JSON prompt for AI to make<br><b>Room Name</b></label>
+                <div class="json-actions">
+                    <div>
+                        <button id="validate">Validate JSON</button>
+                        <button id="pretty">Pretty Print</button>
+                    </div>
+                </div>
+                <textarea id="promptObj" spellcheck="false"></textarea>
+                <button id="defaults">Load Default</button>
+                <div id="jsonStatus" class="status"></div>
+            </div>
+            <div class="col card">
+                <label class="label">JSON prompt for AI to make<br><b>Room Description</b></label>
+                <div class="json-actions">
+                    <div>
+                        <button id="validateDesc">Validate JSON</button>
+                        <button id="prettyDesc">Pretty Print</button>
+                    </div>
+                </div>
+                <textarea id="promptDescObj" spellcheck="false"></textarea>
+                <button id="defaultsDesc">Load Default</button>
+                <div id="jsonDescStatus" class="status"></div>
+            </div>
+            <div class="col card">
+                <label class="label">JSON prompt for AI to make<br><b>Address</b></label>
+                <div class="json-actions">
+                    <div>
+                        <button id="validateAddress">Validate JSON</button>
+                        <button id="prettyAddress">Pretty Print</button>
+                    </div>
+                </div>
+                <textarea id="promptAddressObj" spellcheck="false"></textarea>
+                <button id="defaultsAddress">Load Default</button>
+                <div id="jsonAddressStatus" class="status"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col card">
+                <label class="label"><b>Randomized Room Names</b><br>one per line, use &lt;N&gt; for number</label>
+
+                <textarea id="randomNamesObj" spellcheck="false" style="min-height: 150px;"></textarea>
+                <div id="namesStatus" class="status"></div>
+                <div class="json-actions">
+                    <button id="defaultsNames">Restore Default Names</button>
                 </div>
             </div>
-            <textarea id="promptObj" spellcheck="false"></textarea>
-            <button id="defaults">Load Default</button>
-            <div id="jsonStatus" class="status">Pretty printed.</div>
         </div>
-        <div class="col">
-            <label class="label">JSON prompt for AI to make <b>Room Description</b></label>
-            <div class="json-actions">
+
+        <div class="row">
+            <div class="col card">
+                <label class="label"><b>Open rooms tabs</b> settings</label>
                 <div>
-                    <button id="validateDesc">Validate JSON</button>
-                    <button id="prettyDesc">Pretty Print</button>
+                    <input type="checkbox" id="openListingRoomsInBG">
+                    <label for="openListingRoomsInBG">Stay in same page after opening all tabs</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="openInSameTabGroup">
+                    <label for="openInSameTabGroup">Open all tabs in the same tab group</label>
                 </div>
             </div>
-            <textarea id="promptDescObj" spellcheck="false"></textarea>
-            <button id="defaultsDesc">Load Default</button>
-            <div id="jsonDescStatus" class="status">Pretty printed.</div>
         </div>
-        <div class="col">
-            <label class="label">JSON prompt for AI to make <b>Address</b></label>
-            <div class="json-actions">
+        <div class="row">
+            <div class="col card">
+                <label class="label"><b>Universal JSON pasting</b> settings</label>
                 <div>
-                    <button id="validateAddress">Validate JSON</button>
-                    <button id="prettyAddress">Pretty Print</button>
+                    <input type="checkbox" id="deleteBlockedDatesBeforePasting">
+                    <label for="deleteBlockedDatesBeforePasting">In Room Blocked Dates page, delete all blocked dates
+                        before
+                        pasting new ones</label>
                 </div>
-            </div>
-            <textarea id="promptAddressObj" spellcheck="false"></textarea>
-            <button id="defaultsAddress">Load Default</button>
-            <div id="jsonAddressStatus" class="status">Pretty printed.</div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label class="label"><b>Randomized Room Names</b> (one per line, use &lt;N&gt; for number)</label>
-            <div class="json-actions">
-                <button id="defaultsNames">Restore Default Names</button>
-            </div>
-            <textarea id="randomNamesObj" spellcheck="false" style="min-height: 150px;"></textarea>
-            <div id="namesStatus" class="status">Loaded.</div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <label class="label"><b>Open rooms tabs</b> settings</label>
-            <div>
-                <input type="checkbox" id="openListingRoomsInBG">
-                <label for="openListingRoomsInBG">Stay in same page after opening all tabs</label>
-            </div>
-            <div>
-                <input type="checkbox" id="openInSameTabGroup">
-                <label for="openInSameTabGroup">Open all tabs in the same tab group</label>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <label class="label"><b>Universal JSON pasting</b> settings</label>
-            <div>
-                <input type="checkbox" id="deleteBlockedDatesBeforePasting">
-                <label for="deleteBlockedDatesBeforePasting">In Room Blocked Dates page, delete all blocked dates before
-                    pasting new ones</label>
             </div>
         </div>
     </div>

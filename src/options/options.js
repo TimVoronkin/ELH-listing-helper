@@ -142,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   saveBtn.addEventListener('click', () => {
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+
     const key = apiKeyInput.value.trim();
     const openListingRoomsInBG = openListingRoomsInBGCheckbox ? openListingRoomsInBGCheckbox.checked : false;
     const openInSameTabGroup = openInSameTabGroupCheckbox ? openInSameTabGroupCheckbox.checked : false;
@@ -151,6 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
       parsed = JSON.parse(promptObjEl.value);
     } catch (err) {
       showStatus(jsonStatus, 'promptObj is not valid JSON: ' + err.message, false);
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
       return;
     }
     let parsedDesc = null;
@@ -158,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
       parsedDesc = JSON.parse(promptDescEl.value);
     } catch (err) {
       showStatus(jsonDescStatus, 'promptDesc is not valid JSON: ' + err.message, false);
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
       return;
     }
     let parsedAddress = null;
@@ -165,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
       parsedAddress = JSON.parse(promptAddressEl.value);
     } catch (err) {
       showStatus(jsonAddressStatus, 'promptAddress is not valid JSON: ' + err.message, false);
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
       return;
     }
     const randomNames = randomNamesEl.value;
@@ -175,10 +185,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // save address prompt as well
         chrome.storage.local.set({ PROMPT_ADDRESS_OBJ: parsedAddress }, () => {
           showStatus(status, 'Saved.');
+          /*
+          // Silenced verbose messages as per user request
           showStatus(jsonStatus, 'promptObj saved.');
           showStatus(jsonDescStatus, 'promptDesc saved.');
           showStatus(jsonAddressStatus, 'promptAddress saved.');
           showStatus(namesStatus, 'Names saved.');
+          */
+
+          // Button feedback
+          saveBtn.textContent = 'Saved!';
+          setTimeout(() => {
+            saveBtn.textContent = originalText;
+            saveBtn.disabled = false;
+          }, 1500);
         });
       });
     });

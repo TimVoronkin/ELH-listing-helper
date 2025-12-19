@@ -81,8 +81,8 @@ export class ButtonInjector {
         btn.className = 'elh-btn elh-paste-btn universal-paste-btn';
         btn.style.cssText = `
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+bottom: 15px;
+    right: 210px;
             z-index: 9999;
             padding: 10px 20px;
             background-color: #4CAF50;

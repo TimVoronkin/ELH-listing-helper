@@ -81,15 +81,16 @@
 /* Container for Gemini controls (name + name+img1 + description) */
 .elh-gemini-controls {
     display: flex !important;
-    gap: 10px !important; /* default gap between gemini buttons */
+    gap: 10px !important;
+    /* default gap between gemini buttons */
 }
 
 /* Shared floating container for paste buttons */
 .elh-paste-container {
     position: fixed !important;
-    left: 50% !important;
+    left: 20% !important;
     transform: translateX(-50%) !important;
-    bottom: 16px !important;
+    bottom: 15px !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;
@@ -107,4 +108,3 @@
     font-size: 14px !important;
     font-weight: 700 !important;
 }
-
