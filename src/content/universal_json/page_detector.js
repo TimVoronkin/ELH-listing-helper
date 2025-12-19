@@ -10,12 +10,13 @@ export function detectContext() {
     const url = window.location.href;
 
     // 1. Detect Landlord Page
-    // Usually has StepMain for landlords
+    // Usually has StepMain for landlords, or LandlordForm
     if (url.includes('/landlords/')) {
-        const stepMain = document.querySelector('div[data-sentry-component="StepMain"]');
+        const stepMain = document.querySelector('div[data-sentry-component="StepMain"]') ||
+            document.querySelector('div[data-sentry-component="LandlordForm"]');
         if (stepMain) {
             context.pageType = 'landlord';
-            context.step = 'StepMain';
+            context.step = 'StepMain'; // Map this to the single step config
             context.element = stepMain;
             return context;
         }

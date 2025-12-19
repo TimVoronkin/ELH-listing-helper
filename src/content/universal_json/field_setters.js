@@ -431,25 +431,34 @@ function findRadioButtonByLabel(groupLabel, optionLabel, scope) {
             // Check htmlFor
             if (el.htmlFor) {
                 const linkedEl = scope.querySelector(`#${CSS.escape(el.htmlFor)}`);
-                if (linkedEl && linkedEl.getAttribute('role') === 'radiogroup') {
-                    groupContainer = linkedEl;
-                    console.log(`[ELH-Debug] Found radiogroup via htmlFor for '${groupLabel}'`);
-                    break;
+                if (linkedEl) {
+                    const r = linkedEl.getAttribute('role');
+                    if (r === 'radiogroup' || r === 'group') {
+                        groupContainer = linkedEl;
+                        console.log(`[ELH-Debug] Found radiogroup via htmlFor for '${groupLabel}'`);
+                        break;
+                    }
                 }
             }
             // Check siblings/parent
-            if (el.nextElementSibling && el.nextElementSibling.getAttribute('role') === 'radiogroup') {
-                groupContainer = el.nextElementSibling;
-                console.log(`[ELH-Debug] Found radiogroup via nextSibling for '${groupLabel}'`);
-                break;
+            if (el.nextElementSibling) {
+                const r = el.nextElementSibling.getAttribute('role');
+                if (r === 'radiogroup' || r === 'group') {
+                    groupContainer = el.nextElementSibling;
+                    console.log(`[ELH-Debug] Found radiogroup via nextSibling for '${groupLabel}'`);
+                    break;
+                }
             }
-            if (el.parentElement && el.parentElement.nextElementSibling && el.parentElement.nextElementSibling.getAttribute('role') === 'radiogroup') {
-                groupContainer = el.parentElement.nextElementSibling;
-                console.log(`[ELH-Debug] Found radiogroup via parentNextSibling for '${groupLabel}'`);
-                break;
+            if (el.parentElement && el.parentElement.nextElementSibling) {
+                const r = el.parentElement.nextElementSibling.getAttribute('role');
+                if (r === 'radiogroup' || r === 'group') {
+                    groupContainer = el.parentElement.nextElementSibling;
+                    console.log(`[ELH-Debug] Found radiogroup via parentNextSibling for '${groupLabel}'`);
+                    break;
+                }
             }
             if (el.parentElement) {
-                const inner = el.parentElement.querySelector('div[role="radiogroup"]');
+                const inner = el.parentElement.querySelector('div[role="radiogroup"], div[role="group"]');
                 if (inner) {
                     groupContainer = inner;
                     console.log(`[ELH-Debug] Found radiogroup via parentInner for '${groupLabel}'`);
@@ -658,4 +667,40 @@ export async function setCombobox(labelText, value, contextScope = document) {
     }
 
     return true;
+}
+
+export function findInputAfterLabel(container, textPart) {
+    // Also include spans as they are often used as labels in this app
+    const labels = Array.from(container.querySelectorAll('label, span'));
+    const lbl = labels.find(l => l.innerText && l.innerText.toLowerCase().includes(textPart.toLowerCase()));
+
+    if (!lbl) return null;
+
+    if (lbl.htmlFor) {
+        try {
+            const linked = container.querySelector(`#${CSS.escape(lbl.htmlFor)}`);
+            if (linked) return linked;
+        } catch (e) { }
+    }
+
+    let next = lbl.nextElementSibling;
+    let limit = 4;
+    while (next && limit-- > 0) {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(next.tagName)) return next;
+
+        // Specific case for PhoneInput wrapper
+        if (next.classList.contains('PhoneInput')) {
+            const nestedPhone = next.querySelector('input');
+            if (nestedPhone) return nestedPhone;
+        }
+
+        const nested = next.querySelector('input:not([type="hidden"]), select, textarea');
+        if (nested) return nested;
+        next = next.nextElementSibling;
+    }
+
+    const childInput = lbl.querySelector('input, select, textarea');
+    if (childInput) return childInput;
+
+    return null;
 }

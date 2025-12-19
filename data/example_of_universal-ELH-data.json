@@ -154,7 +154,7 @@
     },
     "landlord_data": {
         "StepMain": {
-            "full_name": "name",
+            "full_name": "Name Surname",
             "taxpayer_number": "123456789",
             "phone_number": "+351912345678",
             "email": "example@example.com",
