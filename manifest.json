@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ELH Tim's helper",
-  "version": "0.7",
+  "version": "0.8",
   "description": "Adds some buttons to help working with Erasmus Life Housing platform",
   "permissions": [
     "activeTab",
@@ -60,7 +60,9 @@
       ],
       "js": [
         "src/content/pasteJson/pasteFlatJsonFields.js",
-        "src/content/pasteJson/pasteRoomJsonFields.js"
+        "src/content/pasteJson/pasteRoomJsonFields.js",
+        "src/content/shared/highlight.js",
+        "src/content/universal_json/loader.js"
       ]
     },
     {
@@ -81,7 +83,9 @@
       "resources": [
         "src/shared/buttons.css",
         "data/defaultPromptForAdress.json",
-        "data/RandomizedRoomNames.txt"
+        "data/RandomizedRoomNames.txt",
+        "src/content/universal_json/*.js",
+        "src/content/universal_json/mappings/*.js"
       ],
       "matches": [
         "<all_urls>"

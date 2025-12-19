@@ -1,11 +1,14 @@
 {
-    "json_type": "Universal_ELH_json_data_by_Tim_v0",
-    "created_at": "2025-11-11T12:00:00Z",
+    "json_meta": {
+        "json_type": "Universal_ELH_json_data_by_Tim_v0",
+        "created_at": "2025-11-11T12:00:00Z"
+    },
     "room_data": {
         "FeaturesSteps": {
             "type_of_bed": "Single",
             "second_bed": true,
-            "total_area_m2": 12,
+            "type_of_second_bed": "Double",
+            "room_area_m2": 12,
             "private_bathroom": true,
             "balcony": false,
             "desk": true,
@@ -18,7 +21,7 @@
         },
         "PaymentSteps": {
             "rent": {
-                "is_fixed": false,
+                "is_fixed": true,
                 "if_true": {
                     "monthly_rent": 580
                 },
@@ -43,7 +46,7 @@
                 "allowed": true,
                 "value_eur": 50
             },
-            "amount_to_pay_on_checkin": "Rent + Deposit",
+            "amount_to_pay_on_checkin": "Deposit",
             "administrative_tax_eur": 50,
             "deposit_eur": 580
         },
@@ -79,12 +82,16 @@
         "StepType": {
             "number_of_rooms": 1,
             "number_of_bathrooms": 1,
-            "total_area_m2": 12,
+            "listing_area_m2": 12,
             "furnished": true,
             "shared_space": true,
             "living_room": true,
             "balcony": false,
-            "view": "city"
+            "view": {
+                "city": true,
+                "field": false,
+                "sea": false
+            }
         },
         "StepComodation": {
             "Expenses": {
@@ -146,15 +153,17 @@
         }
     },
     "landlord_data": {
-        "full_name": "name",
-        "taxpayer_number": "123456789",
-        "phone_number": "+351912345678",
-        "email": "example@example.com",
-        "email_is_preferred": true,
-        "observations": "Observations details",
-        "bank_details": {
-            "name_designation": "example bank",
-            "iban_payments": "PT50000201231234567890154"
+        "StepMain": {
+            "full_name": "name",
+            "taxpayer_number": "123456789",
+            "phone_number": "+351912345678",
+            "email": "example@example.com",
+            "email_is_preferred": true,
+            "observations": "Observations details",
+            "bank_details": {
+                "name_designation": "example bank",
+                "iban_payments": "PT50000201231234567890154"
+            }
         }
     }
 }

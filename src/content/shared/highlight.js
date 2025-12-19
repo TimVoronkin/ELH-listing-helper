@@ -13,13 +13,16 @@
           if (!el.dataset.elhPrevBorder) el.dataset.elhPrevBorder = el.style.border || '';
           if (!el.dataset.elhPrevBoxShadow) el.dataset.elhPrevBoxShadow = el.style.boxShadow || '';
           if (!el.dataset.elhPrevOutline) el.dataset.elhPrevOutline = el.style.outline || '';
-        } catch (e) {}
+        } catch (e) { }
 
         if (color === 'orange') {
-          el.style.border = '2px solid #ff8c00';
+          el.style.border = '3px solid #ff8c00';
           el.style.boxShadow = '0 0 0 4px rgba(255,140,0,0.12)';
+        } else if (color === 'gray') {
+          el.style.border = '3px solid #80a889ff';
+          el.style.boxShadow = '0 0 0 4px rgba(128,168,137,0.08)';
         } else {
-          el.style.border = '2px solid #28a745';
+          el.style.border = '3px solid #28a745';
           el.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)';
         }
         el.style.outline = 'none';
@@ -36,8 +39,8 @@
         if (el.dataset.elhPrevBoxShadow !== undefined) el.style.boxShadow = el.dataset.elhPrevBoxShadow;
         if (el.dataset.elhPrevOutline !== undefined) el.style.outline = el.dataset.elhPrevOutline;
         // cleanup dataset keys
-        try { delete el.dataset.elhPrevBorder; delete el.dataset.elhPrevBoxShadow; delete el.dataset.elhPrevOutline; } catch (e) {}
-      } catch (e) {}
+        try { delete el.dataset.elhPrevBorder; delete el.dataset.elhPrevBoxShadow; delete el.dataset.elhPrevOutline; } catch (e) { }
+      } catch (e) { }
     };
-  } catch (e) {}
+  } catch (e) { }
 })();
