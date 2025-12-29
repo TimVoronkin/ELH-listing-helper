@@ -116,6 +116,26 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col card">
+                <label class="label"><b>Batch Processing</b> (Paste from Google Sheets)</label>
+                <div class="description" style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
+                    Paste your data here. Columns must be: <b>URL</b> [tab] <b>JSON</b>.
+                </div>
+                <textarea id="batchInput" spellcheck="false" placeholder="https://.../form/123	{...}"
+                    style="min-height: 100px; white-space: pre; overflow-x: scroll;"></textarea>
+
+                <div id="batchPreviewContainer" style="margin-top: 15px; overflow-x: auto;">
+                    <!-- Table will be injected here -->
+                    <p style="color: #888; font-style: italic;">Preview will appear here...</p>
+                </div>
+
+                <div class="json-actions" style="margin-top: 15px;">
+                    <button id="batchProcessBtn" disabled>Process Batch</button>
+                    <span id="batchStatus" class="status"></span>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="src/options/options.js"></script>
 </body>

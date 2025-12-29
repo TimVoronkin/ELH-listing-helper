@@ -7,10 +7,23 @@
  */
 export async function readClipboardJson() {
     try {
-        const text = await navigator.clipboard.readText();
+        let text = await navigator.clipboard.readText();
         if (!text || !text.trim()) {
             console.warn('[ELH-Universal] Clipboard is empty.');
             return null;
+        }
+
+        text = text.trim();
+
+        // Handle Google Sheets / Excel escaping (doubled quotes and surrounding quotes)
+        // When copying a cell with special chars, Sheets wraps it in quotes and doubles internal quotes.
+        // Example: "{""key"": ""value""}" -> {"key": "value"}
+        if (text.startsWith('"') && text.endsWith('"')) {
+            const unescaped = text.slice(1, -1).replace(/""/g, '"');
+            // Ensure we only use the unescaped version if it looks like a JSON object
+            if (unescaped.trim().startsWith('{')) {
+                text = unescaped;
+            }
         }
 
         let data;

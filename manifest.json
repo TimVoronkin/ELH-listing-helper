@@ -62,7 +62,8 @@
         "src/content/pasteJson/pasteFlatJsonFields.js",
         "src/content/pasteJson/pasteRoomJsonFields.js",
         "src/content/shared/highlight.js",
-        "src/content/universal_json/loader.js"
+        "src/content/universal_json/loader.js",
+        "src/content/universal_run/batch_runner.js"
       ]
     },
     {
