@@ -90,19 +90,19 @@ export const RoomMapper = {
         }
 
         if (step === 'PhotosStep') await this.handlePhotos(stepData, container);
-        if (step === 'BlockedDatesStep') await this.handleBlockedDatesLogic(stepData, container);
+        if (step === 'BlockedDatesStep') return await this.handleBlockedDatesLogic(stepData, container);
     },
 
     async handleBlockedDatesLogic(data, container) {
+        // --- 1. Prep & Imports ---
         if (!data.blocked_dates || !Array.isArray(data.blocked_dates) || data.blocked_dates.length === 0) {
             console.log('[ELH-Universal] No blocked dates to add.');
-            return;
+            return { added: 0, deleted: 0, matched: 0, ignored: 0 };
         }
 
         const { selectDateInCalendar, highlightElement } = await import('../field_setters.js');
 
         // Find "Add Blocked Date" button.
-        // Use a loose text match to be robust.
         const addBtn = Array.from(container.querySelectorAll('button'))
             .find(b => b.textContent.includes('Add Blocked Date'));
 
@@ -111,125 +111,191 @@ export const RoomMapper = {
             return;
         }
 
-        // --- NEW LOGIC: Delete existing blocked dates if option enabled ---
+        // --- 2. READ Existing Dates from DOM ---
+        // We'll parse the current rows to understand what is already blocked.
+        // Structure assumption: Each row has two inputs (Start, End) and a Delete button.
+        // We need to find the specific container for these rows.
+        // Based on HTML, they are inside a div with id="...-form-item" or similar structure.
+        // Let's iterate all "Start Date" labels to find their values.
+
+        const existingBlocks = [];
+        const startLabels = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
+
+        for (const sLabel of startLabels) {
+            // Find Start Button/Input
+            const sBtn = sLabel.nextElementSibling?.querySelector('button') || sLabel.nextElementSibling;
+            if (!sBtn || sBtn.tagName !== 'BUTTON') continue;
+
+            // Find sibling "End Date" logic
+            // The HTML structure shows Start and End are in a grid. 
+            // The "End Date" label is likely in the next div.
+            // Let's traverse up to the common row container.
+            const rowContainer = sLabel.closest('.flex.items-center.gap-4'); // Based on HTML class
+            if (!rowContainer) continue;
+
+            const eLabel = Array.from(rowContainer.querySelectorAll('label')).find(l => l.textContent.trim() === 'End Date');
+            const eBtn = eLabel?.nextElementSibling?.querySelector('button') || eLabel?.nextElementSibling;
+            const trashBtn = rowContainer.querySelector('button:has(svg.lucide-trash2)') || rowContainer.querySelector('svg.lucide-trash2')?.closest('button');
+
+            if (eBtn && sBtn && trashBtn) {
+                existingBlocks.push({
+                    startText: sBtn.textContent.trim(), // e.g., "October 29th, 2025"
+                    endText: eBtn.textContent.trim(),
+                    startVal: this.parseDateText(sBtn.textContent.trim()), // YYYY-MM-DD
+                    endVal: this.parseDateText(eBtn.textContent.trim()),   // YYYY-MM-DD
+                    rowElement: rowContainer,
+                    trashBtn: trashBtn,
+                    isMatched: false
+                });
+            }
+        }
+
+        // --- 3. FILTER "The Past" ---
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        existingBlocks.forEach(block => {
+            if (this.isDateInPast(block.endVal)) {
+                block.isPast = true;
+                highlightElement(block.rowElement, 'gray'); // Mark as ignored/ghost
+            }
+        });
+
+        // --- 4. COMPARE matches ---
+        let stats = { added: 0, deleted: 0, matched: 0, ignored: 0 };
+        const datesToAdd = [];
+
+        // Helper: Expand JSON dates
+        const expandDate = (val, isStart) => {
+            if (!val || val === 'now') return val;
+            const monthMatch = val.toString().match(/^(\d{4})-(\d{2})$/);
+            if (monthMatch) {
+                const [_, y, m] = monthMatch;
+                if (isStart) return `${val}-01`;
+                const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
+                return `${val}-${lastDay}`;
+            }
+            return val;
+        };
+
+        for (const range of data.blocked_dates) {
+            let s = expandDate(range.start, true);
+            let e = expandDate(range.end, false);
+            let isNowLogic = false;
+
+            // Handle 'now' for comparison
+            if (s === 'now') {
+                const now = new Date();
+                s = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                isNowLogic = true;
+            }
+
+            // Find match in logic
+            // Rule:
+            // 1. Exact match (Standard)
+            // 2. Relaxed match (ONLY if isNowLogic): Existing block ends on same day, but starts EARLIER than 's'.
+            //    (Because if it started earlier, it covers 'now' -> future segment too)
+
+            const match = existingBlocks.find(b => {
+                if (b.isPast || b.isMatched) return false;
+
+                // Check End Date first (Must match exactly)
+                if (b.endVal !== e) return false;
+
+                // Check Start Date
+                if (b.startVal === s) return true; // Exact match
+
+                // Relaxed: if we want 'now', but site has 'yesterday' -> It covers 'now'.
+                if (isNowLogic && b.startVal < s) {
+                    console.log(`[ELH-Universal] Relaxed match found: Site start ${b.startVal} < Now ${s} (End ${e})`);
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (match) {
+                match.isMatched = true;
+                highlightElement(match.rowElement, 'gray'); // Visual: It's good
+                stats.matched++;
+            } else {
+                datesToAdd.push({ start: range.start, end: e });
+            }
+        }
+
+        // --- 5. CLEANUP (Delete extras) ---
         const storageData = await new Promise(resolve => chrome.storage.local.get(['deleteBlockedDatesBeforePasting'], resolve));
-        console.log('[ELH-Universal] Storage Check - deleteBlockedDatesBeforePasting:', storageData.deleteBlockedDatesBeforePasting); // DEBUG CHECK
-
         if (storageData.deleteBlockedDatesBeforePasting) {
-            console.log('[ELH-Universal] Deleting existing blocked dates before pasting...');
-
-            // Strategy: Find all trash buttons within the container and click them.
-            // Based on user snippet, trash button contains specific SVG or class structure.
-            // Selector: button:has(svg.lucide-trash2) OR button svg.lucide-trash2 -> closest button
-
-            // We'll iterate until no trash buttons are found to ensure full cleanup.
-            // Limit iterations to avoid infinite loops.
-            let attempt = 0;
-            while (attempt < 20) {
-                const trashSvgs = Array.from(container.querySelectorAll('svg.lucide-trash2'));
-                // Filter only those inside buttons
-                const deleteBtns = trashSvgs
-                    .map(svg => svg.closest('button'))
-                    .filter(btn => btn && !btn.disabled);
-
-                if (deleteBtns.length === 0) {
-                    console.log('[ELH-Universal] No more blocked dates to delete.');
-                    break;
+            const toDelete = existingBlocks.filter(b => !b.isPast && !b.isMatched);
+            for (const item of toDelete) {
+                if (!item.trashBtn.disabled) {
+                    item.trashBtn.click();
+                    stats.deleted++;
+                    await wait(200);
                 }
-
-                console.log(`[ELH-Universal] Found ${deleteBtns.length} blocked dates to delete.`);
-
-                for (const btn of deleteBtns) {
-                    btn.click();
-                    highlightElement(btn, 'green'); // Visual feedback
-                    await wait(200); // Wait for deletion animation/update
-                }
-
-                // Wait a bit for DOM to refresh after batch deletion
-                await wait(500);
-                attempt++;
             }
+            if (toDelete.length > 0) await wait(500); // Wait for DOM update
         }
-        // -----------------------------------------------------------------
 
-        for (const dateRange of data.blocked_dates) {
-            // Helper: Expand YYYY-MM to full date
-            const expandDate = (val, isStart) => {
-                if (!val || val === 'now') return val;
-                // Check for YYYY-MM format (e.g. 2025-12)
-                const monthMatch = val.toString().match(/^(\d{4})-(\d{2})$/);
-                if (monthMatch) {
-                    const [_, y, m] = monthMatch;
-                    if (isStart) {
-                        return `${val}-01`;
-                    } else {
-                        // Get last day: day 0 of next month returns last day of current month
-                        const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
-                        return `${val}-${lastDay}`;
-                    }
-                }
-                return val;
-            };
-
-            // Updated Logic: If start is missing, default to 'now'. Stop only if End is missing.
-            const startVal = expandDate(dateRange.start, true) || 'now';
-            const endVal = expandDate(dateRange.end, false);
-
-            if (!endVal) {
-                console.warn('[ELH-Universal] Blocked date range missing end date. Skipping.');
-                continue;
-            }
-
-            console.log(`[ELH-Universal] Adding Blocked Date: ${startVal} to ${endVal}`);
-
-            // Click Add
+        // --- 6. ADD New Dates ---
+        for (const item of datesToAdd) {
+            // Re-use logic for adding
             addBtn.click();
-            await wait(400); // Wait for row to appear
+            await wait(400);
 
-            // Find the NEWEST inputs.
-            // We select the LAST "Start Date" and "End Date" labels to target the newly added row.
-            const startLabels = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
-            const endLabels = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'End Date');
+            // Re-scan finding the new row is acceptable or we use the "last label" trick
+            // The "last label" trick works because we just added it at the bottom.
+            const startLabelsAll = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
+            const endLabelsAll = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'End Date');
 
-            if (startLabels.length === 0 || endLabels.length === 0) {
-                console.warn('[ELH-Universal] Blocked date labels not found.');
-                continue;
+            if (startLabelsAll.length === 0) continue;
+
+            const lastStart = startLabelsAll[startLabelsAll.length - 1];
+            const lastEnd = endLabelsAll[endLabelsAll.length - 1];
+
+            const sTrigger = lastStart.nextElementSibling?.querySelector('button') || lastStart.nextElementSibling;
+            const eTrigger = lastEnd.nextElementSibling?.querySelector('button') || lastEnd.nextElementSibling;
+
+            // Start
+            if (sTrigger) {
+                sTrigger.click();
+                await wait(300);
+                if (await selectDateInCalendar(item.start)) highlightElement(sTrigger, 'green');
+            }
+            // End
+            if (eTrigger) {
+                eTrigger.click();
+                await wait(300);
+                if (await selectDateInCalendar(item.end)) highlightElement(eTrigger, 'green');
             }
 
-            const lastStartLabel = startLabels[startLabels.length - 1];
-            const lastEndLabel = endLabels[endLabels.length - 1];
-
-            // Helper to find button from label
-            const findTriggerBtn = (lbl) => {
-                let next = lbl.nextElementSibling;
-                if (next && next.tagName === 'BUTTON') return next;
-                if (next && next.querySelector('button')) return next.querySelector('button');
-                return null;
-            };
-
-            const startBtn = findTriggerBtn(lastStartLabel);
-            const endBtn = findTriggerBtn(lastEndLabel);
-
-            if (startBtn) {
-                console.log('[ELH-Universal] Opening Start Date Picker');
-                startBtn.click();
-                await wait(300); // Wait for popover
-                if (await selectDateInCalendar(startVal)) {
-                    highlightElement(startBtn, 'green');
-                }
-            }
-
-            if (endBtn) {
-                console.log('[ELH-Universal] Opening End Date Picker');
-                endBtn.click();
-                await wait(300); // Wait for popover
-                if (await selectDateInCalendar(endVal)) {
-                    highlightElement(endBtn, 'green');
-                }
-            }
-
-            await wait(200); // Small pause between rows
+            stats.added++;
+            await wait(200);
         }
+
+        return stats;
+    },
+
+    // --- Helpers for Date Parsing ---
+    parseDateText(text) {
+        // Text format: "October 29th, 2025"
+        // We need to parse this to "2025-10-29"
+        if (!text) return null;
+
+        // Remove ordinal suffixes (st, nd, rd, th) if present
+        const clean = text.replace(/(\d+)(st|nd|rd|th)/, '$1');
+        const d = new Date(clean);
+        if (isNaN(d.getTime())) return null;
+
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+
+    isDateInPast(dateStr) {
+        if (!dateStr) return false;
+        const d = new Date(dateStr);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return d < now;
     },
 
     async handleRentLogic(rentData, container) {

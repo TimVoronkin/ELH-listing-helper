@@ -348,6 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const batchProcessBtn = document.getElementById('batchProcessBtn');
   const batchStatus = document.getElementById('batchStatus');
 
+  let isStopRequested = false;
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'ELH_BATCH_FORCE_STOP') {
+      console.log('[ELH-helper] Force stop requested.');
+      isStopRequested = true;
+      batchStatus.textContent = 'Stopping...';
+    }
+  });
+
   if (batchInput) {
     // Delegated listener for buttons in the table
     batchPreviewContainer.addEventListener('click', (e) => {
@@ -590,8 +600,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       batchProcessBtn.disabled = true;
       let processedCount = 0;
+      isStopRequested = false; // Reset flag
+
+      // Capture current tab to refocus later
+      const currentTab = await new Promise(resolve => chrome.tabs.getCurrent(resolve));
 
       for (let i = 0; i < lines.length; i++) {
+        if (isStopRequested) {
+          batchStatus.textContent = `Stopped by user. Processed ${processedCount} rows.`;
+          batchProcessBtn.disabled = false;
+          // Refocus Options Page
+          if (currentTab) chrome.tabs.update(currentTab.id, { active: true });
+          return;
+        }
+
         const line = lines[i];
         let url = '';
         let jsonStr = '';
@@ -664,19 +686,54 @@ document.addEventListener('DOMContentLoaded', () => {
           // Wait a bit more for scripts to init
           await new Promise(r => setTimeout(r, 2000));
 
-          // Send Message
-          await chrome.tabs.sendMessage(tab.id, {
+          // Send Message and wait for response
+          const response = await chrome.tabs.sendMessage(tab.id, {
             action: 'ELH_BATCH_RUN_STEP',
-            data: jsonData
+            data: jsonData,
+            progress: { current: i + 1, total: lines.length }
           });
 
           processedCount++;
 
+          // Update Status Cell in the "Row" part of the table logic?
+          // We rebuilt the table InnerHTML earlier. To update a specific row, we need a reference.
+          // Since we are inside the loop, we know we are at index `i`.
+          // Table rows are 1-indexed in the UI (header is row 0). So data row i is TR index i+1.
+
+          // Let's find the row based on index
+          const rows = batchPreviewContainer.querySelectorAll('tr');
+          // rows[0] is header. rows[i+1] is our target.
+          if (rows[i + 1]) {
+            const statusCell = rows[i + 1].children[3]; // 4th column
+            if (response && response.stats) {
+              const s = response.stats;
+              const details = [];
+              if (s.matched > 0) details.push(`<span title="Already on site">Matches:${s.matched}</span>`);
+              if (s.deleted > 0) details.push(`<span style="color:orange" title="Old dates removed">Del:${s.deleted}</span>`);
+              if (s.added > 0) details.push(`<span style="color:blue" title="New dates added">Added:${s.added}</span>`);
+              if (s.ignored > 0) details.push(`<span style="color:gray" title="Past dates ignored">Ign:${s.ignored}</span>`);
+
+              if (details.length === 0) details.push('Done (No changes)');
+
+              statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column;">
+                    <span style="color:green; font-weight:bold;">Done</span>
+                    <span>${details.join(', ')}</span>
+                 </div>`;
+            } else {
+              statusCell.innerHTML = '<span style="color:green; font-weight:bold;">Done</span>';
+            }
+          }
+
         } catch (err) {
           console.error(`Error processing row ${i + 1}:`, err);
           batchStatus.textContent = `Error at row ${i + 1}: ${err.message}`;
-          // Continue to next row? maybe pause? 
-          // For now, continue but maybe slow down
+
+          // Update table row with error
+          const rows = batchPreviewContainer.querySelectorAll('tr');
+          if (rows[i + 1]) {
+            const statusCell = rows[i + 1].children[3];
+            statusCell.innerHTML = `<span style="color:red; font-weight:bold;">Error</span>`;
+          }
         }
 
         // Artificial delay between tabs to not overwhelm
@@ -685,6 +742,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       batchStatus.textContent = `Done! Processed ${processedCount} rows.`;
       batchProcessBtn.disabled = false;
+
+      // Refocus Options Page
+      if (currentTab) {
+        chrome.tabs.update(currentTab.id, { active: true });
+      }
     });
 
   } // end if batchInput
