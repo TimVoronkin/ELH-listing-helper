@@ -404,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
       html += '<th style="padding:5px; border:1px solid #ccc; width: 30px; color: #666;">Row</th>';
       html += '<th style="padding:5px; border:1px solid #ccc;">URL</th>';
       html += '<th style="padding:5px; border:1px solid #ccc;">u-JSON</th>';
+      html += '<th style="padding:5px; border:1px solid #ccc;">Old Dates</th>';
       html += '<th style="padding:5px; border:1px solid #ccc;">Status</th>';
       html += '</tr>';
 
@@ -490,10 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Final Row Status
         let rowStatusHtml = '';
         if (urlOk && jsonOk) {
-          rowStatusHtml = '<span style="color:green; font-weight:bold;">Ready</span>';
+          rowStatusHtml = '<span style="color:green;">Ready</span>';
           validCount++;
         } else {
-          rowStatusHtml = '<span style="color:red; font-weight:bold;">ignoring</span>';
+          rowStatusHtml = '<span style="color:red;">Ignoring</span>';
         }
 
         // Prepare Cells
@@ -572,10 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        html += `<tr>`;
+        html += `<tr data-original-index="${index}">`;
         html += `<td style="padding:5px; border:1px solid #ccc; text-align: center; color:#888;">${index + 1}</td>`;
         html += `<td style="padding:5px; border:1px solid #ccc;">${urlCellInner}</td>`;
         html += `<td style="padding:5px; border:1px solid #ccc;">${jsonCellInner}</td>`;
+        html += `<td style="padding:5px; border:1px solid #ccc; color:#aaa; font-style:italic;" id="old-dates-${index}">-</td>`;
         html += `<td style="padding:5px; border:1px solid #ccc;">${rowStatusHtml}</td>`;
         html += `</tr>`;
       });
@@ -586,7 +588,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (validCount > 0) {
         batchProcessBtn.disabled = false;
         batchProcessBtn.classList.add('primary');
-        batchStatus.textContent = `${validCount} / ${lines.length} ready.`;
+
+        // Calculate Estimate: 12 seconds per room
+        const totalSeconds = validCount * 12;
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+        let statusText = `${validCount} / ${lines.length} valid rows. (≈ ${timeStr} to process)`;
+
+        if (validCount > 100) {
+          statusText += ' <span style="color:orange; font-weight:bold;">⚠️ High memory usage warning!</span>';
+        }
+
+        batchStatus.innerHTML = statusText;
       } else {
         batchProcessBtn.disabled = true;
         batchProcessBtn.classList.remove('primary');
@@ -700,27 +715,38 @@ document.addEventListener('DOMContentLoaded', () => {
           // Since we are inside the loop, we know we are at index `i`.
           // Table rows are 1-indexed in the UI (header is row 0). So data row i is TR index i+1.
 
-          // Let's find the row based on index
-          const rows = batchPreviewContainer.querySelectorAll('tr');
-          // rows[0] is header. rows[i+1] is our target.
-          if (rows[i + 1]) {
-            const statusCell = rows[i + 1].children[3]; // 4th column
+          // Find the row by original index (data-original-index attribute)
+          const targetRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
+          if (targetRow) {
+            const oldDatesCell = targetRow.children[3]; // 4th column (Old Dates)
+            const statusCell = targetRow.children[4];   // 5th column (Status)
+
             if (response && response.stats) {
               const s = response.stats;
-              const details = [];
-              if (s.matched > 0) details.push(`<span title="Already on site">Matches:${s.matched}</span>`);
-              if (s.deleted > 0) details.push(`<span style="color:orange" title="Old dates removed">Del:${s.deleted}</span>`);
-              if (s.added > 0) details.push(`<span style="color:blue" title="New dates added">Added:${s.added}</span>`);
-              if (s.ignored > 0) details.push(`<span style="color:gray" title="Past dates ignored">Ign:${s.ignored}</span>`);
 
-              if (details.length === 0) details.push('Done (No changes)');
+              // Populate Old Dates
+              if (s.old_dates && s.old_dates.length > 0) {
+                oldDatesCell.innerHTML = s.old_dates.map(d => `<div style="font-size:10px; line-height:1.2;"><b><code>${d}</code></b></div>`).join('');
+                oldDatesCell.style.color = '#333';
+                oldDatesCell.style.fontStyle = 'normal';
+              } else {
+                oldDatesCell.textContent = 'None';
+              }
+
+              const details = [];
+              if (s.matched > 0) details.push(`<span style="color:gray" title="Already on site">${s.matched} same</span>`);
+              if (s.deleted > 0) details.push(`<span style="color:red; font-weight:bold;" title="Old dates removed">-${s.deleted}</span>`);
+              if (s.added > 0) details.push(`<span style="color:green; font-weight:bold;" title="New dates added">+${s.added}</span>`);
+              if (s.ignored > 0) details.push(`<span style="color:orange;" title="Past dates ignored">Ign:${s.ignored}</span>`);
+
+              if (details.length === 0) details.push('No changes');
 
               statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column;">
-                    <span style="color:green; font-weight:bold;">Done</span>
+                    <span style="font-weight:bold;">✓</span>
                     <span>${details.join(', ')}</span>
                  </div>`;
             } else {
-              statusCell.innerHTML = '<span style="color:green; font-weight:bold;">Done</span>';
+              statusCell.innerHTML = '<span style="font-weight:bold;">✓</span>';
             }
           }
 
@@ -729,9 +755,9 @@ document.addEventListener('DOMContentLoaded', () => {
           batchStatus.textContent = `Error at row ${i + 1}: ${err.message}`;
 
           // Update table row with error
-          const rows = batchPreviewContainer.querySelectorAll('tr');
-          if (rows[i + 1]) {
-            const statusCell = rows[i + 1].children[3];
+          const errorRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
+          if (errorRow) {
+            const statusCell = errorRow.children[4]; // Status is 5th column now
             statusCell.innerHTML = `<span style="color:red; font-weight:bold;">Error</span>`;
           }
         }

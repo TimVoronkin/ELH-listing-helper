@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log('[ELH-helper] [universal_run/batch_runner.js] Received batch step:', message);
             handleBatchStep(message.data, message.progress)
                 .then((result) => {
-                    markOverlayAsComplete(message.progress);
+                    markOverlayAsComplete(message.progress, result); // Pass result stats
                     sendResponse({ success: true, stats: result });
                 })
                 .catch(err => {
@@ -158,7 +158,7 @@ function showProgressOverlay(progress) {
     overlay.appendChild(container);
 }
 
-function markOverlayAsComplete(progress) {
+function markOverlayAsComplete(progress, stats) {
     const overlay = document.getElementById('elh-batch-overlay');
     if (!overlay) return;
 
@@ -166,18 +166,24 @@ function markOverlayAsComplete(progress) {
 
     overlay.innerHTML = `
         <div style="display:flex; align-items:center; gap:8px; color: #4ade80;">
-            <div style="font-size: 16px;">✅</div>
-            <strong>Processed!</strong>
+            <div style="font-size: 16px;">✓</div>
+            <strong>Processed</strong>
         </div>
         <div style="margin-top:4px;">Room <b>${current}</b> of <b>${total}</b> is done.</div>
     `;
+
+    // Show Old Dates
+    if (stats && stats.old_dates && stats.old_dates.length > 0) {
+        let datesHtml = stats.old_dates.map(d => `<div style="font-size:10px; color:#aaa; margin-top:2px;">${d}</div>`).join('');
+        overlay.innerHTML += `<div style="margin-top:8px; padding-top:4px; border-top:1px solid #444;">Previous dates: ${datesHtml}</div>`;
+    }
 
     // Remove background opacity or change it to be less intrusive?
     // User requested: "changes design... disappears warning... disappears stop button"
     // The innerHTML replacement handles disappearing Stop/Warning.
     // Let's make it fade out after a few seconds?
     // Maybe not requested, but good UX.
-    setTimeout(() => {
-        if (overlay) overlay.style.opacity = '0.5';
-    }, 2000);
+    // User requested: "changes design... disappears warning... disappears stop button"
+    // The innerHTML replacement handles disappearing Stop/Warning.
+    // Opacity change removed as per user request.
 }

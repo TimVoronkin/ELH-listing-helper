@@ -95,20 +95,15 @@ export const RoomMapper = {
 
     async handleBlockedDatesLogic(data, container) {
         // --- 1. Prep & Imports ---
-        if (!data.blocked_dates || !Array.isArray(data.blocked_dates) || data.blocked_dates.length === 0) {
-            console.log('[ELH-Universal] No blocked dates to add.');
-            return { added: 0, deleted: 0, matched: 0, ignored: 0 };
-        }
-
         const { selectDateInCalendar, highlightElement } = await import('../field_setters.js');
 
-        // Find "Add Blocked Date" button.
+        // Find "Add Blocked Date" button first, as we need container context
         const addBtn = Array.from(container.querySelectorAll('button'))
             .find(b => b.textContent.includes('Add Blocked Date'));
 
         if (!addBtn) {
             console.warn('[ELH-Universal] "Add Blocked Date" button not found.');
-            return;
+            return { added: 0, deleted: 0, matched: 0, ignored: 0, old_dates: [] };
         }
 
         // --- 2. READ Existing Dates from DOM ---
@@ -161,8 +156,42 @@ export const RoomMapper = {
             }
         });
 
+        // --- 3.1 Collect Old Dates for Stats ---
+        const collectedOldDates = existingBlocks
+            .filter(b => b.startVal && b.endVal)
+            .map(b => `${b.startVal} - ${b.endVal}`);  // Format: "YYYY-MM-DD / YYYY-MM-DD"
+
         // --- 4. COMPARE matches ---
         let stats = { added: 0, deleted: 0, matched: 0, ignored: 0 };
+
+        // If no new dates provided, check if we should delete existing ones
+        if (!data.blocked_dates || !Array.isArray(data.blocked_dates) || data.blocked_dates.length === 0) {
+            console.log('[ELH-Universal] No blocked dates to add.');
+
+            // Check if we should delete existing dates when input is empty
+            const storageData = await new Promise(resolve => chrome.storage.local.get(['deleteBlockedDatesBeforePasting'], resolve));
+            if (storageData.deleteBlockedDatesBeforePasting) {
+                console.log('[ELH-Universal] Deleting all existing dates (empty JSON + delete setting ON).');
+                const toDelete = existingBlocks.filter(b => !b.isPast);
+                for (const item of toDelete) {
+                    if (item.trashBtn && !item.trashBtn.disabled) {
+                        item.trashBtn.click();
+                        stats.deleted++;
+                        await wait(200);
+                    }
+                }
+                if (toDelete.length > 0) await wait(500); // Wait for DOM update
+            }
+
+            console.log('[ELH-Universal] Returning old dates.');
+            return {
+                added: 0,
+                deleted: stats.deleted,
+                matched: 0,
+                ignored: 0,
+                old_dates: collectedOldDates
+            };
+        }
         const datesToAdd = [];
 
         // Helper: Expand JSON dates
@@ -273,7 +302,13 @@ export const RoomMapper = {
             await wait(200);
         }
 
-        return stats;
+        return {
+            added: stats.added,
+            deleted: stats.deleted,
+            matched: stats.matched,
+            ignored: stats.ignored,
+            old_dates: collectedOldDates
+        };
     },
 
     // --- Helpers for Date Parsing ---
