@@ -93,6 +93,203 @@ export const RoomMapper = {
         if (step === 'BlockedDatesStep') return await this.handleBlockedDatesLogic(stepData, container);
     },
 
+    // --- Central Decision Logic for Blocked Dates Overlap ---
+    decideDateActions(existingBlocks, jsonRanges) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const result = {
+            toDelete: [],
+            toAdd: [],
+            toKeep: [],
+            matched: 0,
+            ignored: 0
+        };
+
+        // Filter past dates (end < today)
+        const activeSites = existingBlocks.filter(b => {
+            if (!b.endVal) return false;
+            const endDate = new Date(b.endVal);
+            return endDate >= today;
+        });
+
+        const pastSites = existingBlocks.filter(b => {
+            if (!b.endVal) return true;  // Invalid = ignore
+            const endDate = new Date(b.endVal);
+            return endDate < today;
+        });
+
+        // Track which Sites have been processed
+        const processedSites = new Set();
+
+        // Past dates are always kept (but marked as ignored)
+        pastSites.forEach(s => {
+            result.toKeep.push(s);
+            result.ignored++;
+        });
+
+        // Process each JSON range
+        for (const json of jsonRanges) {
+            // Expand dates
+            let jsonStart = this.expandDate(json.start, true);
+            let jsonEnd = this.expandDate(json.end, false);
+
+            // Handle 'now' (means TOMORROW, not today)
+            if (jsonStart === 'now') {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);  // Add 1 day
+                jsonStart = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+            }
+
+            // Check FULL COVERAGE: JSON covers multiple Sites completely
+            const fullyCovered = activeSites.filter(s => {
+                if (processedSites.has(s)) return false;
+                return s.startVal >= jsonStart && s.endVal <= jsonEnd;
+            });
+
+            if (fullyCovered.length >= 2) {
+                // VARIANT A: KEEP Sites (they already do the job)
+                fullyCovered.forEach(s => {
+                    result.toKeep.push(s);
+                    result.matched++;
+                    processedSites.add(s);
+                });
+                continue;  // Skip this JSON (it's redundant)
+            }
+
+            // Process individual overlaps
+            let jsonModified = { start: jsonStart, end: jsonEnd, original: json };
+            let jsonHandled = false;
+            let jsonTrimmed = false;
+
+            for (const site of activeSites) {
+                if (processedSites.has(site)) continue;
+
+                const overlapType = this.getOverlapType(site.startVal, site.endVal, jsonModified.start, jsonModified.end);
+
+                switch (overlapType) {
+                    case 'EXACT_MATCH':
+                        result.toKeep.push(site);
+                        result.matched++;
+                        processedSites.add(site);
+                        jsonHandled = true;  // Don't add JSON
+                        break;
+
+                    case 'JSON_INSIDE_SITE':  // Rule 1: JSON fully inside Site
+                        result.toKeep.push(site);
+                        result.matched++;
+                        processedSites.add(site);
+                        jsonHandled = true;  // Don't add JSON (already covered)
+                        break;
+
+                    case 'SITE_INSIDE_JSON':  // Rule 2: Site fully inside JSON
+                        result.toDelete.push(site);
+                        processedSites.add(site);
+                        // JSON will be added later
+                        break;
+
+                    case 'JSON_STARTS_BEFORE':  // Rule 3: Trim JSON end
+                        if (!jsonTrimmed) {
+                            jsonModified.end = this.addDays(site.startVal, -1);
+                            jsonTrimmed = true;
+                        }
+                        result.toKeep.push(site);
+                        processedSites.add(site);
+                        break;
+
+                    case 'JSON_ENDS_AFTER':  // Rule 4: Trim JSON start
+                        if (!jsonTrimmed) {
+                            jsonModified.start = this.addDays(site.endVal, 1);
+                            jsonTrimmed = true;
+                        }
+                        result.toKeep.push(site);
+                        processedSites.add(site);
+                        break;
+
+                    case 'NO_OVERLAP':
+                        // Don't process this Site
+                        continue;
+                }
+
+                // If processed this Site, break (to avoid multiple trims)
+                if (overlapType !== 'NO_OVERLAP') break;
+            }
+
+            // Add JSON (original or trimmed) if not handled
+            if (!jsonHandled) {
+                // Validate trimmed JSON
+                if (jsonModified.start <= jsonModified.end) {
+                    result.toAdd.push(jsonModified);
+                }
+            }
+        }
+
+        // All unprocessed active Sites → delete
+        for (const site of activeSites) {
+            if (!processedSites.has(site)) {
+                result.toDelete.push(site);
+            }
+        }
+
+        return result;
+    },
+
+    // Helper: Detect overlap type
+    getOverlapType(siteStart, siteEnd, jsonStart, jsonEnd) {
+        // No overlap
+        if (jsonEnd < siteStart || jsonStart > siteEnd) {
+            return 'NO_OVERLAP';
+        }
+
+        // Exact match
+        if (siteStart === jsonStart && siteEnd === jsonEnd) {
+            return 'EXACT_MATCH';
+        }
+
+        // JSON fully inside Site
+        if (jsonStart >= siteStart && jsonEnd <= siteEnd) {
+            return 'JSON_INSIDE_SITE';
+        }
+
+        // Site fully inside JSON
+        if (siteStart >= jsonStart && siteEnd <= jsonEnd) {
+            return 'SITE_INSIDE_JSON';
+        }
+
+        // JSON starts before Site (partial overlap)
+        if (jsonStart < siteStart && jsonEnd >= siteStart && jsonEnd <= siteEnd) {
+            return 'JSON_STARTS_BEFORE';
+        }
+
+        // JSON ends after Site (partial overlap)
+        if (jsonStart >= siteStart && jsonStart <= siteEnd && jsonEnd > siteEnd) {
+            return 'JSON_ENDS_AFTER';
+        }
+
+        // Fallback
+        return 'NO_OVERLAP';
+    },
+
+    // Helper: Add days to date string
+    addDays(dateStr, days) {
+        const d = new Date(dateStr);
+        d.setDate(d.getDate() + days);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+
+    // Helper: Expand date (YYYY-MM → YYYY-MM-01 or YYYY-MM-30)
+    expandDate(val, isStart) {
+        if (!val || val === 'now') return val;
+        const monthMatch = val.toString().match(/^(\d{4})-(\d{2})$/);
+        if (monthMatch) {
+            const [_, y, m] = monthMatch;
+            if (isStart) return `${val}-01`;
+            const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
+            return `${val}-${lastDay}`;
+        }
+        return val;
+    },
+
     async handleBlockedDatesLogic(data, container) {
         // --- 1. Prep & Imports ---
         const { selectDateInCalendar, highlightElement } = await import('../field_setters.js');
@@ -159,121 +356,47 @@ export const RoomMapper = {
         // --- 3.1 Collect Old Dates for Stats ---
         const collectedOldDates = existingBlocks
             .filter(b => b.startVal && b.endVal)
-            .map(b => `${b.startVal} - ${b.endVal}`);  // Format: "YYYY-MM-DD / YYYY-MM-DD"
+            .map(b => `${b.startVal} - ${b.endVal}`);
 
-        // --- 4. COMPARE matches ---
-        let stats = { added: 0, deleted: 0, matched: 0, ignored: 0 };
+        // --- 4. DECIDE ACTIONS (using centralized logic) ---
+        const jsonRanges = (data.blocked_dates && Array.isArray(data.blocked_dates)) ? data.blocked_dates : [];
 
-        // If no new dates provided, check if we should delete existing ones
-        if (!data.blocked_dates || !Array.isArray(data.blocked_dates) || data.blocked_dates.length === 0) {
-            console.log('[ELH-Universal] No blocked dates to add.');
+        // If empty JSON → treat as "delete all" (user confirmed always delete unmatched)
+        const decisions = this.decideDateActions(existingBlocks, jsonRanges);
 
-            // Check if we should delete existing dates when input is empty
-            const storageData = await new Promise(resolve => chrome.storage.local.get(['deleteBlockedDatesBeforePasting'], resolve));
-            if (storageData.deleteBlockedDatesBeforePasting) {
-                console.log('[ELH-Universal] Deleting all existing dates (empty JSON + delete setting ON).');
-                const toDelete = existingBlocks.filter(b => !b.isPast);
-                for (const item of toDelete) {
-                    if (item.trashBtn && !item.trashBtn.disabled) {
-                        item.trashBtn.click();
-                        stats.deleted++;
-                        await wait(200);
-                    }
-                }
-                if (toDelete.length > 0) await wait(500); // Wait for DOM update
-            }
+        console.log('[ELH-Universal] Decisions:', decisions);
 
-            console.log('[ELH-Universal] Returning old dates.');
-            return {
-                added: 0,
-                deleted: stats.deleted,
-                matched: 0,
-                ignored: 0,
-                old_dates: collectedOldDates
-            };
-        }
-        const datesToAdd = [];
-
-        // Helper: Expand JSON dates
-        const expandDate = (val, isStart) => {
-            if (!val || val === 'now') return val;
-            const monthMatch = val.toString().match(/^(\d{4})-(\d{2})$/);
-            if (monthMatch) {
-                const [_, y, m] = monthMatch;
-                if (isStart) return `${val}-01`;
-                const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
-                return `${val}-${lastDay}`;
-            }
-            return val;
+        let stats = {
+            added: 0,
+            deleted: 0,
+            matched: decisions.matched,
+            ignored: decisions.ignored
         };
 
-        for (const range of data.blocked_dates) {
-            let s = expandDate(range.start, true);
-            let e = expandDate(range.end, false);
-            let isNowLogic = false;
-
-            // Handle 'now' for comparison
-            if (s === 'now') {
-                const now = new Date();
-                s = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                isNowLogic = true;
+        // --- 5. APPLY DECISIONS: DELETE ---
+        for (const item of decisions.toDelete) {
+            if (item.trashBtn && !item.trashBtn.disabled) {
+                item.trashBtn.click();
+                stats.deleted++;
+                await wait(200);
             }
+        }
+        if (decisions.toDelete.length > 0) await wait(500);
 
-            // Find match in logic
-            // Rule:
-            // 1. Exact match (Standard)
-            // 2. Relaxed match (ONLY if isNowLogic): Existing block ends on same day, but starts EARLIER than 's'.
-            //    (Because if it started earlier, it covers 'now' -> future segment too)
-
-            const match = existingBlocks.find(b => {
-                if (b.isPast || b.isMatched) return false;
-
-                // Check End Date first (Must match exactly)
-                if (b.endVal !== e) return false;
-
-                // Check Start Date
-                if (b.startVal === s) return true; // Exact match
-
-                // Relaxed: if we want 'now', but site has 'yesterday' -> It covers 'now'.
-                if (isNowLogic && b.startVal < s) {
-                    console.log(`[ELH-Universal] Relaxed match found: Site start ${b.startVal} < Now ${s} (End ${e})`);
-                    return true;
-                }
-
-                return false;
-            });
-
-            if (match) {
-                match.isMatched = true;
-                highlightElement(match.rowElement, 'gray'); // Visual: It's good
-                stats.matched++;
-            } else {
-                datesToAdd.push({ start: range.start, end: e });
+        // Highlight kept/matched blocks
+        for (const item of decisions.toKeep) {
+            if (item.rowElement) {
+                highlightElement(item.rowElement, 'gray');  // Matched or past
             }
         }
 
-        // --- 5. CLEANUP (Delete extras) ---
-        const storageData = await new Promise(resolve => chrome.storage.local.get(['deleteBlockedDatesBeforePasting'], resolve));
-        if (storageData.deleteBlockedDatesBeforePasting) {
-            const toDelete = existingBlocks.filter(b => !b.isPast && !b.isMatched);
-            for (const item of toDelete) {
-                if (!item.trashBtn.disabled) {
-                    item.trashBtn.click();
-                    stats.deleted++;
-                    await wait(200);
-                }
-            }
-            if (toDelete.length > 0) await wait(500); // Wait for DOM update
-        }
-
-        // --- 6. ADD New Dates ---
-        for (const item of datesToAdd) {
-            // Re-use logic for adding
+        // --- 6. APPLY DECISIONS: ADD ---
+        for (const jsonItem of decisions.toAdd) {
+            // Add new block
             addBtn.click();
             await wait(400);
 
-            // Re-scan finding the new row is acceptable or we use the "last label" trick
-            // The "last label" trick works because we just added it at the bottom.
+            // Find newly added inputs (last ones)
             const startLabelsAll = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
             const endLabelsAll = Array.from(container.querySelectorAll('label')).filter(l => l.textContent.trim() === 'End Date');
 
@@ -285,17 +408,21 @@ export const RoomMapper = {
             const sTrigger = lastStart.nextElementSibling?.querySelector('button') || lastStart.nextElementSibling;
             const eTrigger = lastEnd.nextElementSibling?.querySelector('button') || lastEnd.nextElementSibling;
 
-            // Start
+            // Use normalized dates (already expanded and 'now' → TODAY)
+            const startToUse = jsonItem.start;  // Already normalized
+            const endToUse = jsonItem.end;      // Already normalized
+
+            // Start Date
             if (sTrigger) {
                 sTrigger.click();
                 await wait(300);
-                if (await selectDateInCalendar(item.start)) highlightElement(sTrigger, 'green');
+                if (await selectDateInCalendar(startToUse)) highlightElement(sTrigger, 'green');
             }
-            // End
+            // End Date
             if (eTrigger) {
                 eTrigger.click();
                 await wait(300);
-                if (await selectDateInCalendar(item.end)) highlightElement(eTrigger, 'green');
+                if (await selectDateInCalendar(endToUse)) highlightElement(eTrigger, 'green');
             }
 
             stats.added++;
