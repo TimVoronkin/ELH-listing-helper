@@ -348,6 +348,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const batchProcessBtn = document.getElementById('batchProcessBtn');
   const batchControls = document.getElementById('batchControls'); // Container
   const batchStatus = document.getElementById('batchStatus');
+  const autoPauseLimitEl = document.getElementById('autoPauseLimit');
+
+  // Load auto-pause limit
+  chrome.storage.local.get(['BATCH_AUTO_PAUSE_LIMIT'], (items) => {
+    if (items && items.BATCH_AUTO_PAUSE_LIMIT) {
+      autoPauseLimitEl.value = items.BATCH_AUTO_PAUSE_LIMIT;
+    }
+  });
+
+  autoPauseLimitEl.addEventListener('change', () => {
+    chrome.storage.local.set({ BATCH_AUTO_PAUSE_LIMIT: autoPauseLimitEl.value });
+  });
 
   let batchState = 'IDLE'; // IDLE, RUNNING, PAUSED
   let resumeResolve = null; // Function to resolve the pause promise
@@ -414,7 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // If source is user (options page), we are already here.
     // If source is 'content', we should focus this tab.
-    if (source === 'content') {
+    // If source is 'auto' (limit reached), we also want to bring user back here.
+    if (source === 'content' || source === 'auto') {
       chrome.tabs.getCurrent(tab => {
         if (tab) chrome.tabs.update(tab.id, { active: true });
       });
@@ -462,6 +475,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // handled by startBatch calling updateBatchUI
 
     let processedCount = 0;
+
+    let tabsSinceResume = 0;
     isStopRequested = false; // Reset flag
 
     // Capture current tab to refocus later
@@ -478,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(resolve => { resumeResolve = resolve; });
         // Re-check Stop after resume
         if (isStopRequested) break;
+        tabsSinceResume = 0;
       }
 
       const line = lines[i];
@@ -529,7 +545,13 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
 
-      batchStatus.textContent = `Processing row ${i + 1} / ${lines.length}...`;
+      let statusText = `Processing row ${i + 1} / ${lines.length}...`;
+      const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
+      if (limitVal > 0) {
+        const remaining = Math.max(0, limitVal - tabsSinceResume);
+        statusText += ` (Autostop will be in ${remaining} row-tabs)`;
+      }
+      batchStatus.textContent = statusText;
 
       try {
         // Open Tab
@@ -607,6 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Artificial delay between tabs
       await new Promise(r => setTimeout(r, 1000));
+
+      tabsSinceResume++;
+      const currentLimit = parseInt(autoPauseLimitEl.value, 10) || 0;
+      if (currentLimit > 0 && tabsSinceResume >= currentLimit) {
+        pauseBatch('auto');
+      }
     }
 
     batchStatus.textContent = isStopRequested
