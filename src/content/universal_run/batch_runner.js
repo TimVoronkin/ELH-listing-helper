@@ -134,27 +134,63 @@ function showProgressOverlay(progress) {
         </style>
     `;
 
-    // Stop Button
-    const stopBtn = document.createElement('button');
-    stopBtn.textContent = 'Force Stop';
-    stopBtn.style.marginTop = '8px';
-    stopBtn.style.padding = '4px 8px';
-    stopBtn.style.fontSize = '12px';
-    stopBtn.style.color = 'white';
-    stopBtn.style.background = '#ef4444';
-    stopBtn.style.border = 'none';
-    stopBtn.style.borderRadius = '4px';
-    stopBtn.style.cursor = 'pointer';
-    stopBtn.style.pointerEvents = 'auto'; // Re-enable clicks
-    stopBtn.style.alignSelf = 'flex-start';
+    // Button Container
+    const btnContainer = document.createElement('div');
+    btnContainer.style.display = 'flex';
+    btnContainer.style.gap = '5px';
+    btnContainer.style.marginTop = '8px';
+
+    const createBtn = (text, bg) => {
+        const b = document.createElement('button');
+        b.textContent = text;
+        b.style.padding = '4px 8px';
+        b.style.fontSize = '12px';
+        b.style.color = 'white';
+        b.style.background = bg;
+        b.style.border = 'none';
+        b.style.borderRadius = '4px';
+        b.style.cursor = 'pointer';
+        b.style.pointerEvents = 'auto';
+        return b;
+    };
+
+    const pauseBtn = createBtn('❚❚ Pause', '#eab308'); // Yellow/Amber
+    const resumeBtn = createBtn('▶︎ Resume', '#22c55e'); // Green
+    const stopBtn = createBtn('■ Stop', '#ef4444'); // Red
+
+    // Initial State: Running -> Show Pause
+    resumeBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+
+    pauseBtn.onclick = () => {
+        pauseBtn.style.display = 'none';
+        resumeBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'inline-block';
+
+        // Update text to indicate paused state
+        // Maybe change the "Batch Runner in progress" text too?
+        // But for now just buttons as requested.
+        chrome.runtime.sendMessage({ action: 'ELH_BATCH_PAUSE' });
+    };
+
+    resumeBtn.onclick = () => {
+        resumeBtn.style.display = 'none';
+        stopBtn.style.display = 'none';
+        pauseBtn.style.display = 'inline-block';
+        chrome.runtime.sendMessage({ action: 'ELH_BATCH_RESUME' });
+    };
 
     stopBtn.onclick = () => {
         stopBtn.textContent = 'Stopping...';
         stopBtn.disabled = true;
+        resumeBtn.disabled = true;
         chrome.runtime.sendMessage({ action: 'ELH_BATCH_FORCE_STOP' });
     };
 
-    container.appendChild(stopBtn);
+    btnContainer.appendChild(pauseBtn);
+    btnContainer.appendChild(resumeBtn);
+    btnContainer.appendChild(stopBtn);
+    container.appendChild(btnContainer);
     overlay.appendChild(container);
 }
 
