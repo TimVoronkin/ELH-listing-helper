@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const randomNamesEl = document.getElementById('randomNamesObj');
   const defaultsNamesBtn = document.getElementById('defaultsNames');
   const namesStatus = document.getElementById('namesStatus');
+  const openListingRoomsInBGCheckbox = document.getElementById('openListingRoomsInBG');
+  const openInSameTabGroupCheckbox = document.getElementById('openInSameTabGroup');
+  const deleteBlockedDatesBeforePastingCheckbox = document.getElementById('deleteBlockedDatesBeforePasting');
+  const batchProcessInBackgroundCheckbox = document.getElementById('batchProcessInBackground');
 
   async function fetchdefaultPromptForNameFile() {
     try {
@@ -150,6 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const openListingRoomsInBG = openListingRoomsInBGCheckbox ? openListingRoomsInBGCheckbox.checked : false;
     const openInSameTabGroup = openInSameTabGroupCheckbox ? openInSameTabGroupCheckbox.checked : false;
     const deleteBlockedDatesBeforePasting = deleteBlockedDatesBeforePastingCheckbox ? deleteBlockedDatesBeforePastingCheckbox.checked : false;
+    const batchProcessInBackground = batchProcessInBackgroundCheckbox ? batchProcessInBackgroundCheckbox.checked : false;
+    console.log('[ELH-helper] Saving batchProcessInBackground:', batchProcessInBackground, 'checkbox element:', batchProcessInBackgroundCheckbox);
     let parsed = null;
     try {
       parsed = JSON.parse(promptObjEl.value);
@@ -179,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const randomNames = randomNamesEl.value;
 
-    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup, deleteBlockedDatesBeforePasting: deleteBlockedDatesBeforePasting, RANDOMIZED_ROOM_NAMES: randomNames }, () => {
+    chrome.storage.local.set({ GEMINI_API_KEY: key, PROMPT_OBJ: parsed, openListingRoomsInBG: openListingRoomsInBG, openInSameTabGroup: openInSameTabGroup, deleteBlockedDatesBeforePasting: deleteBlockedDatesBeforePasting, batchProcessInBackground: batchProcessInBackground, RANDOMIZED_ROOM_NAMES: randomNames }, () => {
       // save description prompt as well
       chrome.storage.local.set({ PROMPT_DESC_OBJ: parsedDesc }, () => {
         // save address prompt as well
@@ -205,11 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   clearBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting', 'RANDOMIZED_ROOM_NAMES'], () => {
+    chrome.storage.local.remove(['GEMINI_API_KEY', 'PROMPT_OBJ', 'PROMPT_DESC_OBJ', 'PROMPT_ADDRESS_OBJ', 'openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting', 'batchProcessInBackground', 'RANDOMIZED_ROOM_NAMES'], () => {
       apiKeyInput.value = '';
       if (openListingRoomsInBGCheckbox) openListingRoomsInBGCheckbox.checked = false;
       if (openInSameTabGroupCheckbox) openInSameTabGroupCheckbox.checked = false;
       if (deleteBlockedDatesBeforePastingCheckbox) deleteBlockedDatesBeforePastingCheckbox.checked = false;
+      if (batchProcessInBackgroundCheckbox) batchProcessInBackgroundCheckbox.checked = false;
       fetchdefaultPromptForNameFile().then((json) => {
         try {
           promptObjEl.value = JSON.stringify(json, null, 2);
@@ -311,11 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Load checkbox state for openListingRoomsInBG and openInSameTabGroup
-  const openListingRoomsInBGCheckbox = document.getElementById('openListingRoomsInBG');
-  const openInSameTabGroupCheckbox = document.getElementById('openInSameTabGroup');
-  const deleteBlockedDatesBeforePastingCheckbox = document.getElementById('deleteBlockedDatesBeforePasting');
-  if (openListingRoomsInBGCheckbox || openInSameTabGroupCheckbox || deleteBlockedDatesBeforePastingCheckbox) {
-    chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting'], (items) => {
+  // Load checkbox state for openListingRoomsInBG and openInSameTabGroup
+  /* Variables moved to top of scope */
+
+  if (openListingRoomsInBGCheckbox || openInSameTabGroupCheckbox || deleteBlockedDatesBeforePastingCheckbox || batchProcessInBackgroundCheckbox) {
+    chrome.storage.local.get(['openListingRoomsInBG', 'openInSameTabGroup', 'deleteBlockedDatesBeforePasting', 'batchProcessInBackground'], (items) => {
+      console.log('[ELH-helper] Loaded settings:', items);
       if (openListingRoomsInBGCheckbox && items && items.openListingRoomsInBG !== undefined) {
         openListingRoomsInBGCheckbox.checked = items.openListingRoomsInBG;
       }
@@ -325,147 +333,613 @@ document.addEventListener('DOMContentLoaded', () => {
       if (deleteBlockedDatesBeforePastingCheckbox && items && items.deleteBlockedDatesBeforePasting !== undefined) {
         deleteBlockedDatesBeforePastingCheckbox.checked = items.deleteBlockedDatesBeforePasting;
       }
+      if (batchProcessInBackgroundCheckbox && items && items.batchProcessInBackground !== undefined) {
+        batchProcessInBackgroundCheckbox.checked = items.batchProcessInBackground;
+      }
     });
   }
+});
 
-  const testBtn = document.getElementById('test');
-  const testResult = document.getElementById('testResult');
-  testBtn.addEventListener('click', async () => {
-    showStatus(testResult, 'Running test...', true);
-    let parsed;
-    try { parsed = JSON.parse(promptObjEl.value); } catch (err) { showStatus(testResult, 'promptObj JSON invalid: ' + err.message, false); return; }
-    try {
-      chrome.runtime.sendMessage({ action: 'gemini_request', prompt: 'Test prompt for preview' }, (resp) => {
-        if (chrome.runtime.lastError) { console.error('[ELH-helper] [options] Runtime message error:', chrome.runtime.lastError); showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false); return; }
-        try { testResult.textContent = JSON.stringify(resp, null, 2); } catch (e) { testResult.textContent = String(resp); }
-      });
-    } catch (err) { console.error('[ELH-helper] [options] Test send error:', err); showStatus(testResult, 'Error sending test: ' + err.message, false); }
-  }); // end testBtn listener
+const testBtn = document.getElementById('test');
+const testResult = document.getElementById('testResult');
+testBtn.addEventListener('click', async () => {
+  showStatus(testResult, 'Running test...', true);
+  let parsed;
+  try { parsed = JSON.parse(promptObjEl.value); } catch (err) { showStatus(testResult, 'promptObj JSON invalid: ' + err.message, false); return; }
+  try {
+    chrome.runtime.sendMessage({ action: 'gemini_request', prompt: 'Test prompt for preview' }, (resp) => {
+      if (chrome.runtime.lastError) { console.error('[ELH-helper] [options] Runtime message error:', chrome.runtime.lastError); showStatus(testResult, 'Runtime error: ' + chrome.runtime.lastError.message, false); return; }
+      try { testResult.textContent = JSON.stringify(resp, null, 2); } catch (e) { testResult.textContent = String(resp); }
+    });
+  } catch (err) { console.error('[ELH-helper] [options] Test send error:', err); showStatus(testResult, 'Error sending test: ' + err.message, false); }
+}); // end testBtn listener
 
-  // Batch Processing Logic
-  const batchInput = document.getElementById('batchInput');
-  const batchPreviewContainer = document.getElementById('batchPreviewContainer');
-  const batchProcessBtn = document.getElementById('batchProcessBtn');
-  const batchControls = document.getElementById('batchControls'); // Container
-  const batchStatus = document.getElementById('batchStatus');
-  const autoPauseLimitEl = document.getElementById('autoPauseLimit');
+// Batch Processing Logic
+const batchInput = document.getElementById('batchInput');
+const batchPreviewContainer = document.getElementById('batchPreviewContainer');
+const batchProcessBtn = document.getElementById('batchProcessBtn');
+const batchControls = document.getElementById('batchControls'); // Container
+const batchStatus = document.getElementById('batchStatus');
+const autoPauseLimitEl = document.getElementById('autoPauseLimit');
 
-  // Load auto-pause limit
-  chrome.storage.local.get(['BATCH_AUTO_PAUSE_LIMIT'], (items) => {
-    if (items && items.BATCH_AUTO_PAUSE_LIMIT) {
-      autoPauseLimitEl.value = items.BATCH_AUTO_PAUSE_LIMIT;
-    }
-  });
-
-  autoPauseLimitEl.addEventListener('change', () => {
-    chrome.storage.local.set({ BATCH_AUTO_PAUSE_LIMIT: autoPauseLimitEl.value });
-  });
-
-  let batchState = 'IDLE'; // IDLE, RUNNING, PAUSED
-  let resumeResolve = null; // Function to resolve the pause promise
-  let isStopRequested = false;
-
-  function updateBatchUI() {
-    batchControls.innerHTML = ''; // Clear container
-
-    if (batchState === 'IDLE') {
-      const startBtn = document.createElement('button');
-      startBtn.id = 'batchProcessBtn';
-      startBtn.textContent = '▶︎ Start Batch Process';
-      // Enable if we have valid rows (logic for disabled depends on validation, 
-      // but we can trust the validation logic to set disabled on the element with this ID if it exists, 
-      // OR we just re-run validation check? 
-      // Better: The validation logic (lines 383+) modifies 'batchProcessBtn'. 
-      // We should ensure that logic still finds the button.
-      // Since we are clearing innerHTML, we might lose the 'disabled' state set by validation.
-      // We should probably just toggle visibility instead of recreating?
-      // user wants specific buttons.
-      // Let's keep distinct buttons in the DOM and toggle display?
-      // Or just recreate and set disabled based on row count?
-      // Let's recreate. We'll need to check row count.
-      // For now, assume enabled if logic allows.
-
-      startBtn.addEventListener('click', startBatch);
-      batchControls.appendChild(startBtn);
-
-      // Trigger validation logic again to set disabled state?
-      // We can just manually check if batchInput has valid content.
-      const text = batchInput.value;
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-      if (lines.length === 0) startBtn.disabled = true;
-      else startBtn.classList.add('primary');
-
-    } else if (batchState === 'RUNNING') {
-      const pauseBtn = document.createElement('button');
-      pauseBtn.textContent = '❚❚ Pause';
-      pauseBtn.addEventListener('click', () => pauseBatch('user'));
-      batchControls.appendChild(pauseBtn);
-
-    } else if (batchState === 'PAUSED') {
-      const resumeBtn = document.createElement('button');
-      resumeBtn.textContent = '▶︎ Resume';
-      resumeBtn.className = 'primary';
-      resumeBtn.addEventListener('click', resumeBatch);
-
-      const stopBtn = document.createElement('button');
-      stopBtn.textContent = '■ Stop';
-      stopBtn.style.backgroundColor = '#d32f2f'; // Red
-      stopBtn.style.color = 'white';
-      stopBtn.addEventListener('click', stopBatch);
-
-      batchControls.appendChild(resumeBtn);
-      batchControls.appendChild(stopBtn);
-    }
+// Load auto-pause limit
+chrome.storage.local.get(['BATCH_AUTO_PAUSE_LIMIT'], (items) => {
+  if (items && items.BATCH_AUTO_PAUSE_LIMIT) {
+    autoPauseLimitEl.value = items.BATCH_AUTO_PAUSE_LIMIT;
   }
+});
 
-  function pauseBatch(source) {
-    if (batchState !== 'RUNNING') return;
-    batchState = 'PAUSED';
-    updateBatchUI();
-    batchStatus.textContent = 'Batch processing is paused.';
+autoPauseLimitEl.addEventListener('change', () => {
+  chrome.storage.local.set({ BATCH_AUTO_PAUSE_LIMIT: autoPauseLimitEl.value });
+  // Trigger batchInput input event to refresh warning
+  batchInput.dispatchEvent(new Event('input'));
+});
 
-    // If source is user (options page), we are already here.
-    // If source is 'content', we should focus this tab.
-    // If source is 'auto' (limit reached), we also want to bring user back here.
-    if (source === 'content' || source === 'auto') {
-      chrome.tabs.getCurrent(tab => {
-        if (tab) chrome.tabs.update(tab.id, { active: true });
-      });
-    }
+let batchState = 'IDLE'; // IDLE, RUNNING, PAUSED
+let resumeResolve = null; // Function to resolve the pause promise
+let isStopRequested = false;
+
+function updateBatchUI() {
+  batchControls.innerHTML = ''; // Clear container
+
+  if (batchState === 'IDLE') {
+    const startBtn = document.createElement('button');
+    startBtn.id = 'batchProcessBtn';
+    startBtn.textContent = '▶︎ Start Batch Process';
+    // Enable if we have valid rows (logic for disabled depends on validation, 
+    // but we can trust the validation logic to set disabled on the element with this ID if it exists, 
+    // OR we just re-run validation check? 
+    // Better: The validation logic (lines 383+) modifies 'batchProcessBtn'. 
+    // We should ensure that logic still finds the button.
+    // Since we are clearing innerHTML, we might lose the 'disabled' state set by validation.
+    // We should probably just toggle visibility instead of recreating?
+    // user wants specific buttons.
+    // Let's keep distinct buttons in the DOM and toggle display?
+    // Or just recreate and set disabled based on row count?
+    // Let's recreate. We'll need to check row count.
+    // For now, assume enabled if logic allows.
+
+    startBtn.addEventListener('click', startBatch);
+    batchControls.appendChild(startBtn);
+
+    // Trigger validation logic again to set disabled state?
+    // We can just manually check if batchInput has valid content.
+    const text = batchInput.value;
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length === 0) startBtn.disabled = true;
+    else startBtn.classList.add('primary');
+
+  } else if (batchState === 'RUNNING') {
+    const pauseBtn = document.createElement('button');
+    pauseBtn.textContent = '❚❚ Pause';
+    pauseBtn.className = 'warning';
+    pauseBtn.addEventListener('click', () => pauseBatch('user'));
+    batchControls.appendChild(pauseBtn);
+
+  } else if (batchState === 'PAUSED') {
+    const resumeBtn = document.createElement('button');
+    resumeBtn.textContent = '▶︎ Resume';
+    resumeBtn.className = 'primary';
+    resumeBtn.addEventListener('click', resumeBatch);
+
+    const stopBtn = document.createElement('button');
+    stopBtn.textContent = '■ Stop';
+    stopBtn.className = 'danger';
+    stopBtn.addEventListener('click', stopBatch);
+
+    batchControls.appendChild(resumeBtn);
+    batchControls.appendChild(stopBtn);
   }
+}
 
-  function resumeBatch() {
-    if (batchState !== 'PAUSED') return;
-    batchState = 'RUNNING';
-    updateBatchUI();
-    batchStatus.textContent = 'Resuming...';
+function pauseBatch(source) {
+  if (batchState !== 'RUNNING') return;
+  batchState = 'PAUSED';
+  updateBatchUI();
+  batchStatus.textContent = 'Batch processing is paused.';
+
+  // If source is user (options page), we are already here.
+  // If source is 'content', we should focus this tab.
+  // If source is 'auto' (limit reached), we also want to bring user back here.
+  if (source === 'content' || source === 'auto') {
+    chrome.tabs.getCurrent(tab => {
+      if (tab) chrome.tabs.update(tab.id, { active: true });
+    });
+  }
+}
+
+function resumeBatch() {
+  if (batchState !== 'PAUSED') return;
+  batchState = 'RUNNING';
+  updateBatchUI();
+  batchStatus.textContent = 'Resuming...';
+  if (resumeResolve) {
+    resumeResolve();
+    resumeResolve = null;
+  }
+}
+
+function stopBatch() {
+  // If running, standard stop. If paused, we need to break the wait.
+  isStopRequested = true;
+  if (batchState === 'PAUSED') {
+    // Resolve the pause so the loop can check isStopRequested
     if (resumeResolve) {
       resumeResolve();
       resumeResolve = null;
     }
   }
+  // UI update happens when loop finishes
+  batchStatus.textContent = 'Stopping...';
+}
 
-  function stopBatch() {
-    // If running, standard stop. If paused, we need to break the wait.
-    isStopRequested = true;
+// Redefine startBatch which was the anonymous click handler
+async function startBatch() {
+  batchState = 'RUNNING';
+  updateBatchUI();
+  // Logic from previous click handler...
+  processBatchLoop();
+}
+
+async function processBatchLoop() {
+  const text = batchInput.value;
+  const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+
+  // Ensure button reflects running state immediately
+  // handled by startBatch calling updateBatchUI
+
+  let processedCount = 0;
+
+  let tabsSinceResume = 0;
+  isStopRequested = false; // Reset flag
+
+  // Capture current tab to refocus later
+  const currentTab = await new Promise(resolve => chrome.tabs.getCurrent(resolve));
+
+  for (let i = 0; i < lines.length; i++) {
+    // 1. Check Stop
+    if (isStopRequested) {
+      break;
+    }
+
+    // 2. Check Pause
     if (batchState === 'PAUSED') {
-      // Resolve the pause so the loop can check isStopRequested
-      if (resumeResolve) {
-        resumeResolve();
-        resumeResolve = null;
+      await new Promise(resolve => { resumeResolve = resolve; });
+      // Re-check Stop after resume
+      if (isStopRequested) break;
+      tabsSinceResume = 0;
+    }
+
+    const line = lines[i];
+    let url = '';
+    let jsonStr = '';
+
+    // 1. Try Markdown Table Format
+    const pipeMatch = line.trim().match(/^\|(.*)\|(.*)\|$/);
+    if (pipeMatch) {
+      let rawUrlCol = pipeMatch[1].trim();
+      let rawJsonCol = pipeMatch[2].trim();
+      const mdLinkMatch = rawUrlCol.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (mdLinkMatch) url = mdLinkMatch[1].trim();
+      else url = rawUrlCol;
+
+      if (rawJsonCol.startsWith('`') && rawJsonCol.endsWith('`')) {
+        jsonStr = rawJsonCol.slice(1, -1).trim();
+      } else {
+        jsonStr = rawJsonCol;
+      }
+    } else {
+      // 2. TSV Fallback
+      const partIndex = line.indexOf('\t');
+      if (partIndex !== -1) {
+        url = line.substring(0, partIndex).trim();
+        jsonStr = line.substring(partIndex + 1).trim();
+      } else {
+        continue;
       }
     }
-    // UI update happens when loop finishes
-    batchStatus.textContent = 'Stopping...';
+
+    if (url.toLowerCase() === 'url' || url.includes('---')) continue;
+    if (!url.startsWith('http')) continue;
+
+    // Handle Google Sheets escaping again for the actual data
+    if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
+      try {
+        const unescaped = jsonStr.slice(1, -1).replace(/""/g, '"');
+        JSON.parse(unescaped);
+        jsonStr = unescaped;
+      } catch (e) { }
+    }
+
+    let jsonData;
+    try {
+      jsonData = JSON.parse(jsonStr);
+    } catch (e) {
+      console.error('Skipping invalid JSON at row ' + (i + 1));
+      continue;
+    }
+
+    let statusText = `Processing row ${i + 1} / ${lines.length}...`;
+    const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
+    if (limitVal > 0) {
+      const remaining = Math.max(0, limitVal - tabsSinceResume);
+      statusText += ` (Auto-pause in ${remaining} tabs)`;
+    }
+    batchStatus.textContent = statusText;
+
+    try {
+      // Open Tab
+      const bgCheck = document.getElementById('batchProcessInBackground');
+      const isBg = bgCheck ? bgCheck.checked : false;
+      const tab = await chrome.tabs.create({ url: url, active: !isBg });
+
+      // Wait for it to load
+      await new Promise((resolve) => {
+        const listener = (tabId, changeInfo) => {
+          if (tabId === tab.id && changeInfo.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+            resolve();
+          }
+        };
+        chrome.tabs.onUpdated.addListener(listener);
+      });
+
+      // Wait a bit more for scripts to init
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Send Message and wait for response
+      const response = await chrome.tabs.sendMessage(tab.id, {
+        action: 'ELH_BATCH_RUN_STEP',
+        data: jsonData,
+        progress: { current: i + 1, total: lines.length }
+      });
+
+      processedCount++;
+
+      // Update Status Cell logic
+      const targetRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
+      if (targetRow) {
+        const oldDatesCell = targetRow.children[3]; // 4th column (Old Dates)
+        const statusCell = targetRow.children[4];   // 5th column (Status)
+
+        if (response && response.stats) {
+          const s = response.stats;
+
+          // Populate Old Dates
+          if (s.old_dates && s.old_dates.length > 0) {
+            oldDatesCell.innerHTML = s.old_dates.map(d => `<div style="font-size:10px; line-height:1.2;"><b><code>${d}</code></b></div>`).join('');
+            oldDatesCell.style.color = '#333';
+            oldDatesCell.style.fontStyle = 'normal';
+          } else {
+            oldDatesCell.textContent = 'None';
+          }
+
+          const details = [];
+          if (s.matched > 0) details.push(`<span style="color:gray" title="Already on site">${s.matched} same</span>`);
+          if (s.deleted > 0) details.push(`<span style="color:red; font-weight:bold;" title="Old dates removed">-${s.deleted}</span>`);
+          if (s.added > 0) details.push(`<span style="color:green; font-weight:bold;" title="New dates added">+${s.added}</span>`);
+          if (s.ignored > 0) details.push(`<span style="color:orange;" title="Past dates ignored">Ign:${s.ignored}</span>`);
+
+          if (details.length === 0) details.push('No changes');
+
+          statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column;">
+                    <span style="font-weight:bold;">✓</span>
+                    <span>${details.join(', ')}</span>
+                 </div>`;
+        } else {
+          statusCell.innerHTML = '<span style="font-weight:bold;">✓</span>';
+        }
+      }
+
+    } catch (err) {
+      console.error(`Error processing row ${i + 1}:`, err);
+      batchStatus.textContent = `Error at row ${i + 1}: ${err.message}`;
+
+      // Update table row with error
+      const errorRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
+      if (errorRow) {
+        const statusCell = errorRow.children[4]; // Status is 5th column now
+        statusCell.innerHTML = `<span style="color:red; font-weight:bold;">Error</span>`;
+      }
+    }
+
+    // Artificial delay between tabs
+    await new Promise(r => setTimeout(r, 1000));
+
+    tabsSinceResume++;
+    const currentLimit = parseInt(autoPauseLimitEl.value, 10) || 0;
+    if (currentLimit > 0 && tabsSinceResume >= currentLimit) {
+      pauseBatch('auto');
+    }
   }
 
-  // Redefine startBatch which was the anonymous click handler
-  async function startBatch() {
-    batchState = 'RUNNING';
-    updateBatchUI();
-    // Logic from previous click handler...
-    processBatchLoop();
+  batchStatus.textContent = isStopRequested
+    ? `Stopped by user. Processed ${processedCount} rows.`
+    : `Done! Processed ${processedCount} rows.`;
+
+  batchState = 'IDLE';
+  updateBatchUI();
+
+  // Refocus Options Page
+  if (currentTab) {
+    chrome.tabs.update(currentTab.id, { active: true });
   }
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'ELH_BATCH_FORCE_STOP') {
+    console.log('[ELH-helper] Force stop requested.');
+    stopBatch();
+  }
+  if (message.action === 'ELH_BATCH_PAUSE') {
+    pauseBatch('content');
+  }
+  if (message.action === 'ELH_BATCH_RESUME') {
+    resumeBatch();
+  }
+});
+
+if (batchInput) {
+  // Delegated listener for buttons in the table
+  batchPreviewContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.batch-copy-btn')) {
+      const btn = e.target.closest('.batch-copy-btn');
+      const content = btn.getAttribute('data-content');
+      if (content) {
+        navigator.clipboard.writeText(content).then(() => {
+          const originalText = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = originalText, 1000);
+        });
+      }
+    } else if (e.target.closest('.batch-open-btn')) {
+      const btn = e.target.closest('.batch-open-btn');
+      const url = btn.getAttribute('data-url');
+      if (url) {
+        window.open(url, '_blank');
+      }
+    }
+  });
+
+  batchInput.addEventListener('input', () => {
+    const updateStartBtn = (disabled) => {
+      // Only update if we are in IDLE state where the button exists and is relevant
+      if (batchState === 'IDLE') {
+        const btn = document.getElementById('batchProcessBtn');
+        if (btn) {
+          btn.disabled = disabled;
+          // Always keep it green (primary) as per user request
+          btn.classList.add('primary');
+        }
+      }
+    };
+
+    const text = batchInput.value;
+    if (!text.trim()) {
+      batchPreviewContainer.innerHTML = '<p style="color: #888; font-style: italic;">Preview will appear here...</p>';
+      updateStartBtn(true);
+      batchStatus.textContent = '';
+      return;
+    }
+
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length === 0) {
+      batchPreviewContainer.innerHTML = '<p style="color: #888; font-style: italic;">Preview will appear here...</p>';
+      updateStartBtn(true);
+      batchStatus.textContent = '';
+      return;
+    }
+
+    let html = '<table style="width:100%; border-collapse: collapse; font-size: 11px;">';
+    html += '<tr style="background:#eee; text-align:left;">';
+    html += '<th style="padding:5px; border:1px solid #ccc; width: 30px; color: #666;">Row</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc;">URL</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc;">u-JSON</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc;">Old Dates</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc;">Status</th>';
+    html += '</tr>';
+
+    let validCount = 0;
+
+    lines.forEach((line, index) => {
+      let url = '';
+      let jsonStr = '';
+
+      // 1. Try Markdown Table Format: | col1 | col2 |
+      const pipeMatch = line.trim().match(/^\|(.*)\|(.*)\|$/);
+      if (pipeMatch) {
+        let rawUrlCol = pipeMatch[1].trim();
+        let rawJsonCol = pipeMatch[2].trim();
+
+        // Extract URL from Markdown link: [text](href) -> take text or href? 
+        // User example: [clean_url](google_redirect) -> take clean_url
+        const mdLinkMatch = rawUrlCol.match(/\[([^\]]+)\]\(([^)]+)\)/);
+        if (mdLinkMatch) {
+          url = mdLinkMatch[1].trim();
+        } else {
+          url = rawUrlCol;
+        }
+
+        // Clean JSON from backticks: `json` -> json
+        if (rawJsonCol.startsWith('`') && rawJsonCol.endsWith('`')) {
+          jsonStr = rawJsonCol.slice(1, -1).trim();
+        } else {
+          jsonStr = rawJsonCol;
+        }
+      } else {
+        // 2. Fallback to TSV/Simple: Url \t Json
+        const partIndex = line.indexOf('\t');
+        if (partIndex !== -1) {
+          url = line.substring(0, partIndex).trim();
+          jsonStr = line.substring(partIndex + 1).trim();
+        } else {
+          url = line.trim();
+        }
+      }
+
+      // Skip header row if it looks like "URL | JSON"
+      if (url.toLowerCase() === 'url' || url.includes('---')) return;
+
+      let urlOk = false;
+      let jsonOk = false;
+      let errorMsg = '';
+
+      // Check URL
+      if (url.startsWith('http') && url.includes('erasmuslifehousing.com')) {
+        urlOk = true;
+      } else if (!url.startsWith('http')) {
+        errorMsg = 'Bad URL';
+      } else {
+        errorMsg = 'Wrong Domain'; // Valid http but not erasmuslifehousing
+      }
+
+      // Check JSON
+      let cleanJson = jsonStr;
+      if (!jsonStr) {
+        if (!errorMsg) errorMsg = 'No JSON';
+      } else {
+        // Handle escaping
+        if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
+          try {
+            const unescaped = jsonStr.slice(1, -1).replace(/""/g, '"');
+            JSON.parse(unescaped);
+            cleanJson = unescaped;
+            jsonOk = true;
+          } catch (e) { /* ignored, try regular parse next */ }
+        }
+
+        if (!jsonOk) {
+          try {
+            JSON.parse(jsonStr);
+            jsonOk = true;
+            cleanJson = jsonStr;
+          } catch (e) {
+            if (!errorMsg) errorMsg = 'Bad JSON';
+          }
+        }
+      }
+
+      // Final Row Status
+      let rowStatusHtml = '';
+      if (urlOk && jsonOk) {
+        rowStatusHtml = '<span style="color:green;">Ready</span>';
+        validCount++;
+      } else {
+        rowStatusHtml = '<span style="color:red;">Ignoring</span>';
+      }
+
+      // Prepare Cells
+      const encodedUrl = url.replace(/"/g, '&quot;');
+      const encodedJson = cleanJson ? cleanJson.replace(/"/g, '&quot;') : '';
+      const safeRawUrl = url.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // URL Cell
+      let urlCellInner = '';
+      if (urlOk) {
+        // Extract IDs
+        // URL format: .../listings/{listingID}/rooms/form/{roomID}
+        // Fix regex to be less greedy or direct
+        const idMatch = url.match(/\/listings\/([^/]+)\/rooms\/form\/([^/]+)/);
+        let idsHtml = '';
+
+        if (idMatch) {
+          idsHtml = `<div style="font-size:10px; color:black; line-height:1.2;">
+                    listing: <b><code>${idMatch[1]}</code></b>, room: <b><code>${idMatch[2]}</code></b>
+                </div>`;
+        } else {
+          idsHtml = `<div style="font-size:10px; color:black;">${safeRawUrl.substring(0, 30)}...</div>`;
+        }
+
+        urlCellInner = `
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align:left;">
+                        ${idsHtml}
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
+                        <span style="color:green; font-weight:bold;">OK</span>
+                        <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; font-size:10px;">open</button>
+                        <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer; font-size:10px;">copy</button>
+                    </div>
+                </div>
+            `;
+      } else {
+        // Red error type, black text
+        urlCellInner = `<span style="color:red; font-weight:bold;">${errorMsg}</span> <span style="color:black; font-size:10px;">"${safeRawUrl.substring(0, 30)}${safeRawUrl.length > 30 ? '...' : ''}"</span>`;
+      }
+
+      // JSON Cell
+      let jsonCellInner = '';
+      if (jsonOk) {
+        let datesHtml = '';
+        try {
+          const parsed = JSON.parse(cleanJson);
+          // Check for blocked dates structure
+          const dates = parsed?.room_data?.BlockedDatesStep?.blocked_dates;
+          if (Array.isArray(dates) && dates.length > 0) {
+            datesHtml = dates.map(d => `<div style="font-size:10px; white-space: nowrap;"><b><code>${d.start}</code></b> - <b><code>${d.end}</code></b></div>`).join('');
+          } else {
+            datesHtml = '<span style="font-size:10px; color:#888;">No dates found</span>';
+          }
+        } catch (e) {
+          datesHtml = '<span style="font-size:10px; color:red;">Parse check failed</span>';
+        }
+
+        jsonCellInner = `
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align:left; line-height:1.2;">
+                         ${datesHtml}
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
+                        <span style="color:green; font-weight:bold;">OK</span>
+                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px;">Copy</button>
+                    </div>
+                </div>
+            `;
+      } else {
+        // If json was empty, just show 'Missing JSON'
+        if (!jsonStr) {
+          jsonCellInner = '<span style="color:red; font-weight:bold;">Missing JSON</span>';
+        } else {
+          jsonCellInner = `<span style="color:red; font-weight:bold;">Invalid JSON</span> <span style="color:black; font-size:10px;">"..."</span>`;
+        }
+      }
+
+      html += `<tr data-original-index="${index}">`;
+      html += `<td style="padding:5px; border:1px solid #ccc; text-align: center; color:#888;">${index + 1}</td>`;
+      html += `<td style="padding:5px; border:1px solid #ccc;">${urlCellInner}</td>`;
+      html += `<td style="padding:5px; border:1px solid #ccc;">${jsonCellInner}</td>`;
+      html += `<td style="padding:5px; border:1px solid #ccc; color:#aaa; font-style:italic;" id="old-dates-${index}">-</td>`;
+      html += `<td style="padding:5px; border:1px solid #ccc;">${rowStatusHtml}</td>`;
+      html += `</tr>`;
+    });
+
+    html += '</table>';
+    batchPreviewContainer.innerHTML = html;
+
+    if (validCount > 0) {
+      updateStartBtn(false);
+
+      // Calculate Estimate: 12 seconds per room
+      const totalSeconds = validCount * 12;
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+      let statusText = `${validCount} / ${lines.length} valid rows. (≈ ${timeStr} to process)`;
+
+      const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
+      const isHighMemory = ((limitVal === 0) && (validCount > 100)) || ((limitVal > 0) && (limitVal > 100));
+
+      if (isHighMemory) {
+        statusText += ' <span style="color:orange; font-weight:bold;">⚠️ High memory usage warning!</span>';
+      }
+
+      batchStatus.innerHTML = statusText;
+    } else {
+      updateStartBtn(true);
+      batchStatus.textContent = lines.length > 0 ? 'No valid rows.' : '';
+    }
+  });
 
   async function processBatchLoop() {
     const text = batchInput.value;
@@ -475,8 +949,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // handled by startBatch calling updateBatchUI
 
     let processedCount = 0;
-
-    let tabsSinceResume = 0;
     isStopRequested = false; // Reset flag
 
     // Capture current tab to refocus later
@@ -493,7 +965,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(resolve => { resumeResolve = resolve; });
         // Re-check Stop after resume
         if (isStopRequested) break;
-        tabsSinceResume = 0;
       }
 
       const line = lines[i];
@@ -545,13 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
 
-      let statusText = `Processing row ${i + 1} / ${lines.length}...`;
-      const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
-      if (limitVal > 0) {
-        const remaining = Math.max(0, limitVal - tabsSinceResume);
-        statusText += ` (Autostop will be in ${remaining} row-tabs)`;
-      }
-      batchStatus.textContent = statusText;
+      batchStatus.textContent = `Processing row ${i + 1} / ${lines.length}...`;
 
       try {
         // Open Tab
@@ -629,12 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Artificial delay between tabs
       await new Promise(r => setTimeout(r, 1000));
-
-      tabsSinceResume++;
-      const currentLimit = parseInt(autoPauseLimitEl.value, 10) || 0;
-      if (currentLimit > 0 && tabsSinceResume >= currentLimit) {
-        pauseBatch('auto');
-      }
     }
 
     batchStatus.textContent = isStopRequested
@@ -650,450 +1109,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'ELH_BATCH_FORCE_STOP') {
-      console.log('[ELH-helper] Force stop requested.');
-      stopBatch();
-    }
-    if (message.action === 'ELH_BATCH_PAUSE') {
-      pauseBatch('content');
-    }
-    if (message.action === 'ELH_BATCH_RESUME') {
-      resumeBatch();
-    }
-  });
-
-  if (batchInput) {
-    // Delegated listener for buttons in the table
-    batchPreviewContainer.addEventListener('click', (e) => {
-      if (e.target.closest('.batch-copy-btn')) {
-        const btn = e.target.closest('.batch-copy-btn');
-        const content = btn.getAttribute('data-content');
-        if (content) {
-          navigator.clipboard.writeText(content).then(() => {
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = originalText, 1000);
-          });
-        }
-      } else if (e.target.closest('.batch-open-btn')) {
-        const btn = e.target.closest('.batch-open-btn');
-        const url = btn.getAttribute('data-url');
-        if (url) {
-          window.open(url, '_blank');
-        }
-      }
-    });
-
-    batchInput.addEventListener('input', () => {
-      const updateStartBtn = (disabled) => {
-        // Only update if we are in IDLE state where the button exists and is relevant
-        if (batchState === 'IDLE') {
-          const btn = document.getElementById('batchProcessBtn');
-          if (btn) {
-            btn.disabled = disabled;
-            // Always keep it green (primary) as per user request
-            btn.classList.add('primary');
-          }
-        }
-      };
-
-      const text = batchInput.value;
-      if (!text.trim()) {
-        batchPreviewContainer.innerHTML = '<p style="color: #888; font-style: italic;">Preview will appear here...</p>';
-        updateStartBtn(true);
-        batchStatus.textContent = '';
-        return;
-      }
-
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-      if (lines.length === 0) {
-        batchPreviewContainer.innerHTML = '<p style="color: #888; font-style: italic;">Preview will appear here...</p>';
-        updateStartBtn(true);
-        batchStatus.textContent = '';
-        return;
-      }
-
-      let html = '<table style="width:100%; border-collapse: collapse; font-size: 11px;">';
-      html += '<tr style="background:#eee; text-align:left;">';
-      html += '<th style="padding:5px; border:1px solid #ccc; width: 30px; color: #666;">Row</th>';
-      html += '<th style="padding:5px; border:1px solid #ccc;">URL</th>';
-      html += '<th style="padding:5px; border:1px solid #ccc;">u-JSON</th>';
-      html += '<th style="padding:5px; border:1px solid #ccc;">Old Dates</th>';
-      html += '<th style="padding:5px; border:1px solid #ccc;">Status</th>';
-      html += '</tr>';
-
-      let validCount = 0;
-
-      lines.forEach((line, index) => {
-        let url = '';
-        let jsonStr = '';
-
-        // 1. Try Markdown Table Format: | col1 | col2 |
-        const pipeMatch = line.trim().match(/^\|(.*)\|(.*)\|$/);
-        if (pipeMatch) {
-          let rawUrlCol = pipeMatch[1].trim();
-          let rawJsonCol = pipeMatch[2].trim();
-
-          // Extract URL from Markdown link: [text](href) -> take text or href? 
-          // User example: [clean_url](google_redirect) -> take clean_url
-          const mdLinkMatch = rawUrlCol.match(/\[([^\]]+)\]\(([^)]+)\)/);
-          if (mdLinkMatch) {
-            url = mdLinkMatch[1].trim();
-          } else {
-            url = rawUrlCol;
-          }
-
-          // Clean JSON from backticks: `json` -> json
-          if (rawJsonCol.startsWith('`') && rawJsonCol.endsWith('`')) {
-            jsonStr = rawJsonCol.slice(1, -1).trim();
-          } else {
-            jsonStr = rawJsonCol;
-          }
-        } else {
-          // 2. Fallback to TSV/Simple: Url \t Json
-          const partIndex = line.indexOf('\t');
-          if (partIndex !== -1) {
-            url = line.substring(0, partIndex).trim();
-            jsonStr = line.substring(partIndex + 1).trim();
-          } else {
-            url = line.trim();
-          }
-        }
-
-        // Skip header row if it looks like "URL | JSON"
-        if (url.toLowerCase() === 'url' || url.includes('---')) return;
-
-        let urlOk = false;
-        let jsonOk = false;
-        let errorMsg = '';
-
-        // Check URL
-        if (url.startsWith('http') && url.includes('erasmuslifehousing.com')) {
-          urlOk = true;
-        } else if (!url.startsWith('http')) {
-          errorMsg = 'Bad URL';
-        } else {
-          errorMsg = 'Wrong Domain'; // Valid http but not erasmuslifehousing
-        }
-
-        // Check JSON
-        let cleanJson = jsonStr;
-        if (!jsonStr) {
-          if (!errorMsg) errorMsg = 'No JSON';
-        } else {
-          // Handle escaping
-          if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
-            try {
-              const unescaped = jsonStr.slice(1, -1).replace(/""/g, '"');
-              JSON.parse(unescaped);
-              cleanJson = unescaped;
-              jsonOk = true;
-            } catch (e) { /* ignored, try regular parse next */ }
-          }
-
-          if (!jsonOk) {
-            try {
-              JSON.parse(jsonStr);
-              jsonOk = true;
-              cleanJson = jsonStr;
-            } catch (e) {
-              if (!errorMsg) errorMsg = 'Bad JSON';
-            }
-          }
-        }
-
-        // Final Row Status
-        let rowStatusHtml = '';
-        if (urlOk && jsonOk) {
-          rowStatusHtml = '<span style="color:green;">Ready</span>';
-          validCount++;
-        } else {
-          rowStatusHtml = '<span style="color:red;">Ignoring</span>';
-        }
-
-        // Prepare Cells
-        const encodedUrl = url.replace(/"/g, '&quot;');
-        const encodedJson = cleanJson ? cleanJson.replace(/"/g, '&quot;') : '';
-        const safeRawUrl = url.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-        // URL Cell
-        let urlCellInner = '';
-        if (urlOk) {
-          // Extract IDs
-          // URL format: .../listings/{listingID}/rooms/form/{roomID}
-          // Fix regex to be less greedy or direct
-          const idMatch = url.match(/\/listings\/([^/]+)\/rooms\/form\/([^/]+)/);
-          let idsHtml = '';
-
-          if (idMatch) {
-            idsHtml = `<div style="font-size:10px; color:black; line-height:1.2;">
-                    listing: <b><code>${idMatch[1]}</code></b>, room: <b><code>${idMatch[2]}</code></b>
-                </div>`;
-          } else {
-            idsHtml = `<div style="font-size:10px; color:black;">${safeRawUrl.substring(0, 30)}...</div>`;
-          }
-
-          urlCellInner = `
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <div style="text-align:left;">
-                        ${idsHtml}
-                    </div>
-                    <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
-                        <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; font-size:10px;">open</button>
-                        <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer; font-size:10px;">copy</button>
-                    </div>
-                </div>
-            `;
-        } else {
-          // Red error type, black text
-          urlCellInner = `<span style="color:red; font-weight:bold;">${errorMsg}</span> <span style="color:black; font-size:10px;">"${safeRawUrl.substring(0, 30)}${safeRawUrl.length > 30 ? '...' : ''}"</span>`;
-        }
-
-        // JSON Cell
-        let jsonCellInner = '';
-        if (jsonOk) {
-          let datesHtml = '';
-          try {
-            const parsed = JSON.parse(cleanJson);
-            // Check for blocked dates structure
-            const dates = parsed?.room_data?.BlockedDatesStep?.blocked_dates;
-            if (Array.isArray(dates) && dates.length > 0) {
-              datesHtml = dates.map(d => `<div style="font-size:10px; white-space: nowrap;"><b><code>${d.start}</code></b> - <b><code>${d.end}</code></b></div>`).join('');
-            } else {
-              datesHtml = '<span style="font-size:10px; color:#888;">No dates found</span>';
-            }
-          } catch (e) {
-            datesHtml = '<span style="font-size:10px; color:red;">Parse check failed</span>';
-          }
-
-          jsonCellInner = `
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <div style="text-align:left; line-height:1.2;">
-                         ${datesHtml}
-                    </div>
-                    <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
-                        <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px;">Copy</button>
-                    </div>
-                </div>
-            `;
-        } else {
-          // If json was empty, just show 'Missing JSON'
-          if (!jsonStr) {
-            jsonCellInner = '<span style="color:red; font-weight:bold;">Missing JSON</span>';
-          } else {
-            jsonCellInner = `<span style="color:red; font-weight:bold;">Invalid JSON</span> <span style="color:black; font-size:10px;">"..."</span>`;
-          }
-        }
-
-        html += `<tr data-original-index="${index}">`;
-        html += `<td style="padding:5px; border:1px solid #ccc; text-align: center; color:#888;">${index + 1}</td>`;
-        html += `<td style="padding:5px; border:1px solid #ccc;">${urlCellInner}</td>`;
-        html += `<td style="padding:5px; border:1px solid #ccc;">${jsonCellInner}</td>`;
-        html += `<td style="padding:5px; border:1px solid #ccc; color:#aaa; font-style:italic;" id="old-dates-${index}">-</td>`;
-        html += `<td style="padding:5px; border:1px solid #ccc;">${rowStatusHtml}</td>`;
-        html += `</tr>`;
-      });
-
-      html += '</table>';
-      batchPreviewContainer.innerHTML = html;
-
-      if (validCount > 0) {
-        updateStartBtn(false);
-
-        // Calculate Estimate: 12 seconds per room
-        const totalSeconds = validCount * 12;
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-        const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-
-        let statusText = `${validCount} / ${lines.length} valid rows. (≈ ${timeStr} to process)`;
-
-        if (validCount > 100) {
-          statusText += ' <span style="color:orange; font-weight:bold;">⚠️ High memory usage warning!</span>';
-        }
-
-        batchStatus.innerHTML = statusText;
-      } else {
-        updateStartBtn(true);
-        batchStatus.textContent = lines.length > 0 ? 'No valid rows.' : '';
-      }
-    });
-
-    async function processBatchLoop() {
-      const text = batchInput.value;
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-
-      // Ensure button reflects running state immediately
-      // handled by startBatch calling updateBatchUI
-
-      let processedCount = 0;
-      isStopRequested = false; // Reset flag
-
-      // Capture current tab to refocus later
-      const currentTab = await new Promise(resolve => chrome.tabs.getCurrent(resolve));
-
-      for (let i = 0; i < lines.length; i++) {
-        // 1. Check Stop
-        if (isStopRequested) {
-          break;
-        }
-
-        // 2. Check Pause
-        if (batchState === 'PAUSED') {
-          await new Promise(resolve => { resumeResolve = resolve; });
-          // Re-check Stop after resume
-          if (isStopRequested) break;
-        }
-
-        const line = lines[i];
-        let url = '';
-        let jsonStr = '';
-
-        // 1. Try Markdown Table Format
-        const pipeMatch = line.trim().match(/^\|(.*)\|(.*)\|$/);
-        if (pipeMatch) {
-          let rawUrlCol = pipeMatch[1].trim();
-          let rawJsonCol = pipeMatch[2].trim();
-          const mdLinkMatch = rawUrlCol.match(/\[([^\]]+)\]\(([^)]+)\)/);
-          if (mdLinkMatch) url = mdLinkMatch[1].trim();
-          else url = rawUrlCol;
-
-          if (rawJsonCol.startsWith('`') && rawJsonCol.endsWith('`')) {
-            jsonStr = rawJsonCol.slice(1, -1).trim();
-          } else {
-            jsonStr = rawJsonCol;
-          }
-        } else {
-          // 2. TSV Fallback
-          const partIndex = line.indexOf('\t');
-          if (partIndex !== -1) {
-            url = line.substring(0, partIndex).trim();
-            jsonStr = line.substring(partIndex + 1).trim();
-          } else {
-            continue;
-          }
-        }
-
-        if (url.toLowerCase() === 'url' || url.includes('---')) continue;
-        if (!url.startsWith('http')) continue;
-
-        // Handle Google Sheets escaping again for the actual data
-        if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
-          try {
-            const unescaped = jsonStr.slice(1, -1).replace(/""/g, '"');
-            JSON.parse(unescaped);
-            jsonStr = unescaped;
-          } catch (e) { }
-        }
-
-        let jsonData;
-        try {
-          jsonData = JSON.parse(jsonStr);
-        } catch (e) {
-          console.error('Skipping invalid JSON at row ' + (i + 1));
-          continue;
-        }
-
-        batchStatus.textContent = `Processing row ${i + 1} / ${lines.length}...`;
-
-        try {
-          // Open Tab
-          const tab = await chrome.tabs.create({ url: url, active: true });
-
-          // Wait for it to load
-          await new Promise((resolve) => {
-            const listener = (tabId, changeInfo) => {
-              if (tabId === tab.id && changeInfo.status === 'complete') {
-                chrome.tabs.onUpdated.removeListener(listener);
-                resolve();
-              }
-            };
-            chrome.tabs.onUpdated.addListener(listener);
-          });
-
-          // Wait a bit more for scripts to init
-          await new Promise(r => setTimeout(r, 2000));
-
-          // Send Message and wait for response
-          const response = await chrome.tabs.sendMessage(tab.id, {
-            action: 'ELH_BATCH_RUN_STEP',
-            data: jsonData,
-            progress: { current: i + 1, total: lines.length }
-          });
-
-          processedCount++;
-
-          // Update Status Cell logic
-          const targetRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
-          if (targetRow) {
-            const oldDatesCell = targetRow.children[3]; // 4th column (Old Dates)
-            const statusCell = targetRow.children[4];   // 5th column (Status)
-
-            if (response && response.stats) {
-              const s = response.stats;
-
-              // Populate Old Dates
-              if (s.old_dates && s.old_dates.length > 0) {
-                oldDatesCell.innerHTML = s.old_dates.map(d => `<div style="font-size:10px; line-height:1.2;"><b><code>${d}</code></b></div>`).join('');
-                oldDatesCell.style.color = '#333';
-                oldDatesCell.style.fontStyle = 'normal';
-              } else {
-                oldDatesCell.textContent = 'None';
-              }
-
-              const details = [];
-              if (s.matched > 0) details.push(`<span style="color:gray" title="Already on site">${s.matched} same</span>`);
-              if (s.deleted > 0) details.push(`<span style="color:red; font-weight:bold;" title="Old dates removed">-${s.deleted}</span>`);
-              if (s.added > 0) details.push(`<span style="color:green; font-weight:bold;" title="New dates added">+${s.added}</span>`);
-              if (s.ignored > 0) details.push(`<span style="color:orange;" title="Past dates ignored">Ign:${s.ignored}</span>`);
-
-              if (details.length === 0) details.push('No changes');
-
-              statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column;">
-                    <span style="font-weight:bold;">✓</span>
-                    <span>${details.join(', ')}</span>
-                 </div>`;
-            } else {
-              statusCell.innerHTML = '<span style="font-weight:bold;">✓</span>';
-            }
-          }
-
-        } catch (err) {
-          console.error(`Error processing row ${i + 1}:`, err);
-          batchStatus.textContent = `Error at row ${i + 1}: ${err.message}`;
-
-          // Update table row with error
-          const errorRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
-          if (errorRow) {
-            const statusCell = errorRow.children[4]; // Status is 5th column now
-            statusCell.innerHTML = `<span style="color:red; font-weight:bold;">Error</span>`;
-          }
-        }
-
-        // Artificial delay between tabs
-        await new Promise(r => setTimeout(r, 1000));
-      }
-
-      batchStatus.textContent = isStopRequested
-        ? `Stopped by user. Processed ${processedCount} rows.`
-        : `Done! Processed ${processedCount} rows.`;
-
-      batchState = 'IDLE';
-      updateBatchUI();
-
-      // Refocus Options Page
-      if (currentTab) {
-        chrome.tabs.update(currentTab.id, { active: true });
-      }
-    }
-
-    // Initial UI Initialize (replaces the HTML hardcoded button with our dynamic one)
-    updateBatchUI();
+  // Initial UI Initialize (replaces the HTML hardcoded button with our dynamic one)
+  updateBatchUI();
 
 
 
-  } // end if batchInput
-});
+} // end if batchInput

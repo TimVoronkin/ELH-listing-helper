@@ -154,9 +154,9 @@ function showProgressOverlay(progress) {
         return b;
     };
 
-    const pauseBtn = createBtn('❚❚ Pause', '#eab308'); // Yellow/Amber
-    const resumeBtn = createBtn('▶︎ Resume', '#22c55e'); // Green
-    const stopBtn = createBtn('■ Stop', '#ef4444'); // Red
+    const pauseBtn = createBtn('❚❚ Pause', '#f59e0b'); // Warning/Amber
+    const resumeBtn = createBtn('▶︎ Resume', '#16a34a'); // Primary/Green
+    const stopBtn = createBtn('■ Stop', '#dc2626'); // Danger/Red
 
     // Initial State: Running -> Show Pause
     resumeBtn.style.display = 'none';

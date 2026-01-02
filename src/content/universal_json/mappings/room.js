@@ -108,19 +108,23 @@ export const RoomMapper = {
 
         // Filter past dates (end < today)
         const activeSites = existingBlocks.filter(b => {
-            if (!b.endVal) return false;
+            if (b.isInvalid || !b.endVal) return false;
+            // Also filter past
             const endDate = new Date(b.endVal);
             return endDate >= today;
         });
 
-        const pastSites = existingBlocks.filter(b => {
-            if (!b.endVal) return true;  // Invalid = ignore
-            const endDate = new Date(b.endVal);
-            return endDate < today;
-        });
+        const pastSites = existingBlocks.filter(b => b.isPast && !b.isInvalid);
+        const invalidSites = existingBlocks.filter(b => b.isInvalid);
 
         // Track which Sites have been processed
         const processedSites = new Set();
+
+        // Invalid sites are always deleted
+        invalidSites.forEach(s => {
+            result.toDelete.push(s);
+            processedSites.add(s); // Mark as processed so we don't double add
+        });
 
         // Past dates are always kept (but marked as ignored)
         pastSites.forEach(s => {
@@ -342,12 +346,15 @@ export const RoomMapper = {
             }
         }
 
-        // --- 3. FILTER "The Past" ---
+        // --- 3. FILTER "The Past" & "Invalid/Incomplete" ---
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         existingBlocks.forEach(block => {
-            if (this.isDateInPast(block.endVal)) {
+            if (!block.endVal) {
+                block.isInvalid = true; // Mark incomplete/missing end date
+                highlightElement(block.rowElement, 'red'); // Visual feedback before deletion
+            } else if (this.isDateInPast(block.endVal)) {
                 block.isPast = true;
                 highlightElement(block.rowElement, 'gray'); // Mark as ignored/ghost
             }

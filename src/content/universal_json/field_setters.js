@@ -305,18 +305,48 @@ export async function selectDateInCalendar(dateString) {
     // User DOM: data-day="12/10/2025"
     const usDate = `${targetMonth}/${targetDay}/${targetYear}`;
 
-    // Selector strategy:
-    // 1. Button with exact data-day (US format or ISO)
-    // 2. Gridcell (TD) with data-day (ISO), then find button inside.
+    // Also try without leading zeros for safe measure if needed (e.g. 1/1/2025)
 
-    let dayBtn = calendarContainer.querySelector(`button[data-day="${usDate}"]`) ||
-        calendarContainer.querySelector(`button[data-day="${isoDate}"]`);
+    let dayBtn = null;
+    let findAttempts = 0;
 
-    if (!dayBtn) {
-        // Try finding via parent TD
-        const dayCell = calendarContainer.querySelector(`td[data-day="${isoDate}"]`);
-        if (dayCell) {
-            dayBtn = dayCell.querySelector('button');
+    while (!dayBtn && findAttempts < 3) {
+        // Selector strategy:
+        // 1. Button with exact data-day (US format or ISO)
+        dayBtn = calendarContainer.querySelector(`button[data-day="${usDate}"]`) ||
+            calendarContainer.querySelector(`button[data-day="${isoDate}"]`);
+
+        // 2. Gridcell (TD) with data-day (ISO), then find button inside.
+        if (!dayBtn) {
+            const dayCell = calendarContainer.querySelector(`td[data-day="${isoDate}"]`);
+            if (dayCell) {
+                dayBtn = dayCell.querySelector('button');
+            }
+        }
+
+        // 3. Fallback: Search by Text Content + aria-label verification
+        // (Only if we are sure we are in the right month, which we are)
+        if (!dayBtn) {
+            const allButtons = Array.from(calendarContainer.querySelectorAll('.rdp-day_button'));
+            dayBtn = allButtons.find(b => {
+                // Check text content matches 'Day' (e.g. "1", "30")
+                if (b.textContent.trim() === String(targetDay)) {
+                    // Verify aria-label contains the month/year to be sure (optional but safer)
+                    // Aria label usually: "Monday, December 1st, 2025"
+                    // We check if it includes our target Year.
+                    if (b.getAttribute('aria-label')?.includes(String(targetYear))) {
+                        return true;
+                    }
+                    // Or just trust the view if we navigated correctly
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        if (!dayBtn) {
+            await wait(200); // Wait for potential re-render
+            findAttempts++;
         }
     }
 
@@ -333,7 +363,7 @@ export async function selectDateInCalendar(dateString) {
         await wait(300); // Wait for modal to potentially close or update
         return true;
     } else {
-        console.warn(`[ELH-Universal] Day button for ${dateString} not found.`);
+        console.warn(`[ELH-Universal] Day button for ${dateString} not found (searched ISO: ${isoDate}, US: ${usDate}).`);
         return false;
     }
 }

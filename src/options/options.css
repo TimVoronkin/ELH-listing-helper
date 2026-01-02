@@ -192,6 +192,24 @@ button.primary:disabled {
     cursor: not-allowed;
 }
 
+button.warning {
+    background-color: #f59e0b;
+    color: white;
+    border: 1px solid transparent;
+}
+button.warning:hover {
+    background-color: #d97706;
+}
+
+button.danger {
+    background-color: #dc2626;
+    color: white;
+    border: 1px solid transparent;
+}
+button.danger:hover {
+    background-color: #b91c1c;
+}
+
 /* Utility classes */
 .muted {
     color: var(--text-secondary);
