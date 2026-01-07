@@ -352,15 +352,25 @@ export async function selectDateInCalendar(dateString) {
 
     if (dayBtn) {
         // Check if disabled
-        if (dayBtn.hasAttribute('disabled')) {
-            console.warn(`[ELH-Universal] Target date ${dateString} is disabled.`);
+        if (dayBtn.hasAttribute('disabled') || dayBtn.disabled || dayBtn.getAttribute('aria-disabled') === 'true') {
+            console.warn(`[ELH-Universal] Target date ${dateString} found but is DISABLED.`);
+            highlightElement(dayBtn, 'red');
             return false;
         }
 
         console.log(`[ELH-Universal] Clicking day ${dateString}`);
+
+        // Full Event Sequence for robust clicking (React/Radix)
+        // Radix UI often relies on Pointer Events
+        const opts = { bubbles: true, cancelable: true, view: window };
+        dayBtn.dispatchEvent(new PointerEvent('pointerdown', opts));
+        dayBtn.dispatchEvent(new MouseEvent('mousedown', opts));
+        dayBtn.dispatchEvent(new PointerEvent('pointerup', opts));
+        dayBtn.dispatchEvent(new MouseEvent('mouseup', opts));
         dayBtn.click();
+
         highlightElement(dayBtn, 'green'); // Visual feedback
-        await wait(300); // Wait for modal to potentially close or update
+        await wait(500); // Increased wait for reliability
         return true;
     } else {
         console.warn(`[ELH-Universal] Day button for ${dateString} not found (searched ISO: ${isoDate}, US: ${usDate}).`);

@@ -159,6 +159,24 @@
                             <span id="batchStatus" class="status" style="margin: 0; font-weight: normal;">Ready</span>
                         </div>
                     </div>
+
+                    <!-- Tab Management Section -->
+                    <div id="tabManagementSection"
+                        style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; display: none;">
+                        <h3 style="font-size: 14px; margin-bottom: 8px; color: #333;">Opened Tabs Management</h3>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <button id="closeAllTabsBtn" class="danger"
+                                style="font-size: 11px; padding: 5px 10px;">Close All Tabs...</button>
+                            <button id="closeUnchangedTabsBtn" class="danger"
+                                style="font-size: 11px; padding: 5px 10px;">Close Unchanged Tabs...</button>
+                            <button id="saveAndCloseAllTabsBtn" class="danger"
+                                style="font-size: 11px; padding: 5px 10px;">Save & Close All Tabs...</button>
+                            <button id="saveAndCloseModifiedTabsBtn" class="danger"
+                                style="font-size: 11px; padding: 5px 10px;">Save & Close Changed Tabs...</button>
+                            <span id="openTabsStatus" style="font-size: 11px; margin-left: auto; color: #666;">
+                                <b>0 tabs opened</b></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

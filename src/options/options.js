@@ -378,6 +378,7 @@ autoPauseLimitEl.addEventListener('change', () => {
 let batchState = 'IDLE'; // IDLE, RUNNING, PAUSED
 let resumeResolve = null; // Function to resolve the pause promise
 let isStopRequested = false;
+let batchOpenedTabs = []; // Store: { tabId: number, rowId: number, changeCount: number }
 
 function updateBatchUI() {
   batchControls.innerHTML = ''; // Clear container
@@ -562,8 +563,11 @@ async function processBatchLoop() {
     let statusText = `Processing row ${i + 1} / ${lines.length}...`;
     const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
     if (limitVal > 0) {
-      const remaining = Math.max(0, limitVal - tabsSinceResume);
-      statusText += ` (Auto-pause in ${remaining} tabs)`;
+      const remainingAutoPause = Math.max(0, limitVal - tabsSinceResume);
+      const remainingRows = lines.length - (i + 1);
+      if (remainingAutoPause > 0 && remainingRows >= remainingAutoPause) {
+        statusText += ` (Auto-pause in ${remainingAutoPause} tabs)`;
+      }
     }
     batchStatus.textContent = statusText;
 
@@ -602,6 +606,8 @@ async function processBatchLoop() {
         const oldDatesCell = targetRow.children[3]; // 4th column (Old Dates)
         const statusCell = targetRow.children[4];   // 5th column (Status)
 
+        let changeCount = 0;
+
         if (response && response.stats) {
           const s = response.stats;
 
@@ -616,19 +622,36 @@ async function processBatchLoop() {
 
           const details = [];
           if (s.matched > 0) details.push(`<span style="color:gray" title="Already on site">${s.matched} same</span>`);
-          if (s.deleted > 0) details.push(`<span style="color:red; font-weight:bold;" title="Old dates removed">-${s.deleted}</span>`);
-          if (s.added > 0) details.push(`<span style="color:green; font-weight:bold;" title="New dates added">+${s.added}</span>`);
+          if (s.deleted > 0) {
+            details.push(`<span style="color:red; font-weight:bold;" title="Old dates removed">-${s.deleted}</span>`);
+            changeCount += s.deleted;
+          }
+          if (s.added > 0) {
+            details.push(`<span style="color:green; font-weight:bold;" title="New dates added">+${s.added}</span>`);
+            changeCount += s.added;
+          }
           if (s.ignored > 0) details.push(`<span style="color:orange;" title="Past dates ignored">Ign:${s.ignored}</span>`);
 
           if (details.length === 0) details.push('No changes');
 
-          statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column;">
-                    <span style="font-weight:bold;">✓</span>
-                    <span>${details.join(', ')}</span>
+          statusCell.innerHTML = `<div style="font-size:10px; display:flex; flex-direction:column; gap: 4px;">
+                    <div style="display:flex; gap: 4px;">
+                        <span style="font-weight:bold;">✓</span>
+                        <span>${details.join(', ')}</span>
+                    </div>
+                    <button class="goto-tab-btn" data-tab-id="${tab.id}">go to tab ➚</button>
                  </div>`;
         } else {
-          statusCell.innerHTML = '<span style="font-weight:bold;">✓</span>';
+          statusCell.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-weight:bold;">✓</span>
+                <button class="goto-tab-btn" data-tab-id="${tab.id}">go to tab ➚</button>
+            </div>`;
         }
+
+        // Track for bulk closing
+        batchOpenedTabs.push({ tabId: tab.id, rowId: i, changeCount: changeCount });
+        updateTabManagementUI();
       }
 
     } catch (err) {
@@ -639,6 +662,11 @@ async function processBatchLoop() {
       const errorRow = batchPreviewContainer.querySelector(`tr[data-original-index="${i}"]`);
       if (errorRow) {
         const statusCell = errorRow.children[4]; // Status is 5th column now
+        // Assuming tab exists if we reached here? Tab might be created but connection failed.
+        // If tab was created, we should track it too.
+        // We don't have 'tab' variable scope easily if it failed before assignment?
+        // Actually tab is assigned inside try.
+        // If error happens before tab creation, we can't track.
         statusCell.innerHTML = `<span style="color:red; font-weight:bold;">Error</span>`;
       }
     }
@@ -680,8 +708,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 if (batchInput) {
-  // Delegated listener for buttons in the table
   batchPreviewContainer.addEventListener('click', (e) => {
+    // Copy
     if (e.target.closest('.batch-copy-btn')) {
       const btn = e.target.closest('.batch-copy-btn');
       const content = btn.getAttribute('data-content');
@@ -692,14 +720,305 @@ if (batchInput) {
           setTimeout(() => btn.textContent = originalText, 1000);
         });
       }
-    } else if (e.target.closest('.batch-open-btn')) {
+    }
+    // Open URL
+    else if (e.target.closest('.batch-open-btn')) {
       const btn = e.target.closest('.batch-open-btn');
       const url = btn.getAttribute('data-url');
       if (url) {
         window.open(url, '_blank');
       }
     }
+    // Go to Tab
+    else if (e.target.closest('.goto-tab-btn')) {
+      const btn = e.target.closest('.goto-tab-btn');
+      const tabId = parseInt(btn.getAttribute('data-tab-id'), 10);
+      if (tabId) {
+        chrome.tabs.get(tabId, (tab) => {
+          if (chrome.runtime.lastError || !tab) {
+            btn.textContent = 'tab closed';
+            btn.disabled = true;
+            return;
+          }
+          chrome.windows.update(tab.windowId, { focused: true }, () => {
+            chrome.tabs.update(tabId, { active: true });
+          });
+        });
+      }
+    }
   });
+
+
+  // --- TAB MANAGEMENT LOGIC ---
+
+  const tabManagementSection = document.getElementById('tabManagementSection');
+  const closeAllTabsBtn = document.getElementById('closeAllTabsBtn');
+  const closeUnchangedTabsBtn = document.getElementById('closeUnchangedTabsBtn');
+  const openTabsStatus = document.getElementById('openTabsStatus');
+  const saveAndCloseAllTabsBtn = document.getElementById('saveAndCloseAllTabsBtn');
+  const saveAndCloseModifiedTabsBtn = document.getElementById('saveAndCloseModifiedTabsBtn');
+
+  // Track tabs that represent a "Save" operation in progress
+  const tabsPendingSave = new Set();
+
+  // State for bulk operations (to lock UI)
+  let currentTabOperation = null; // { type: 'save'|'close', button: HTMLElement, originalText: string, total: number, remaining: number }
+
+  function startTabOperation(type, button, tabsCount) {
+    if (currentTabOperation) return; // Already running
+    currentTabOperation = {
+      type: type,
+      button: button,
+      originalText: button ? button.textContent : '',
+      total: tabsCount,
+      remaining: tabsCount
+    };
+
+    // Disable all management buttons
+    if (closeAllTabsBtn) closeAllTabsBtn.disabled = true;
+    if (closeUnchangedTabsBtn) closeUnchangedTabsBtn.disabled = true;
+    if (saveAndCloseAllTabsBtn) saveAndCloseAllTabsBtn.disabled = true;
+    if (saveAndCloseModifiedTabsBtn) saveAndCloseModifiedTabsBtn.disabled = true;
+
+    // Update Text
+    if (button) {
+      if (type === 'save') {
+        button.textContent = `saving and closing ${tabsCount} tabs`;
+      } else {
+        button.textContent = `closing ${tabsCount} tabs...`;
+      }
+    }
+  }
+
+  function endTabOperation() {
+    if (!currentTabOperation) return;
+
+    const { button, originalText } = currentTabOperation;
+    if (button) {
+      button.textContent = originalText;
+    }
+    currentTabOperation = null;
+    updateTabManagementUI(); // Will re-enable based on current count
+  }
+
+  function updateTabOperationProgress(tabIdClosed) {
+    if (!currentTabOperation) return;
+
+    currentTabOperation.remaining--;
+
+    if (currentTabOperation.remaining <= 0) {
+      endTabOperation();
+      return;
+    }
+
+    // Update Text
+    const { type, button, remaining } = currentTabOperation;
+    if (button) {
+      if (type === 'save') {
+        button.textContent = `saving and closing ${remaining} tabs`;
+      } else {
+        button.textContent = `closing ${remaining} tabs...`;
+      }
+    }
+  }
+
+  // Listener to auto-close tabs upon successful redirection
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (tabsPendingSave.has(tabId)) {
+      // user requested: "as soon as page redirected to /dashboard/admin/listings"
+      // Check url (in changeInfo or tab object)
+      const url = changeInfo.url || tab.url;
+      if (url && url.includes('/dashboard/admin/listings')) {
+        console.log(`[ELH-helper] Tab ${tabId} redirected to listings. Closing...`);
+        chrome.tabs.remove(tabId, () => {
+          if (chrome.runtime.lastError) { /* ignore */ }
+          tabsPendingSave.delete(tabId);
+          // Clean up tracking
+          batchOpenedTabs = batchOpenedTabs.filter(t => t.tabId !== tabId);
+
+          // Update specific button UI to "Saved" (Not needed if we close, but kept for logic consistency or if close fails?)
+          // actually tabs.remove callback implies it's gone.
+
+          updateTabOperationProgress(tabId);
+        });
+      }
+    }
+  });
+
+  // Listener for Manual Closure (or errors)
+  chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+    // If we are tracking this tab for save, clean it up
+    if (tabsPendingSave.has(tabId)) {
+      tabsPendingSave.delete(tabId);
+    }
+    // Also update batch tracking
+    const wasTracked = batchOpenedTabs.find(t => t.tabId === tabId);
+    if (wasTracked) {
+      batchOpenedTabs = batchOpenedTabs.filter(t => t.tabId !== tabId);
+      // If we had an operation running that involved these tabs (likely), update progress
+      if (currentTabOperation) {
+        updateTabOperationProgress(tabId);
+      }
+      else {
+        // Just refresh UI if no op running
+        setTimeout(updateTabManagementUI, 500);
+      }
+    }
+  });
+
+
+  function updateTabManagementUI() {
+    if (!tabManagementSection) return;
+    if (currentTabOperation) return; // Do not touch UI if operation is in progress
+
+    // Check which tabs are still alive
+    const aliveTabsPromise = Promise.all(batchOpenedTabs.map(t => new Promise(resolve => {
+      chrome.tabs.get(t.tabId, (tab) => {
+        if (chrome.runtime.lastError || !tab) resolve(null);
+        else resolve(t);
+      });
+    })));
+
+    aliveTabsPromise.then(results => {
+      const aliveCount = results.filter(r => r !== null).length;
+      if (aliveCount > 0) {
+        tabManagementSection.style.display = 'block';
+        openTabsStatus.textContent = `${aliveCount} tabs active`;
+        if (closeAllTabsBtn) closeAllTabsBtn.disabled = false;
+        if (closeUnchangedTabsBtn) closeUnchangedTabsBtn.disabled = false;
+        if (saveAndCloseAllTabsBtn) saveAndCloseAllTabsBtn.disabled = false;
+        if (saveAndCloseModifiedTabsBtn) saveAndCloseModifiedTabsBtn.disabled = false;
+      } else {
+        openTabsStatus.textContent = `0 tabs active`;
+        if (closeAllTabsBtn) closeAllTabsBtn.disabled = true;
+        if (closeUnchangedTabsBtn) closeUnchangedTabsBtn.disabled = true;
+        if (saveAndCloseAllTabsBtn) saveAndCloseAllTabsBtn.disabled = true;
+        if (saveAndCloseModifiedTabsBtn) saveAndCloseModifiedTabsBtn.disabled = true;
+      }
+    });
+  }
+
+  // --- Button Listeners ---
+
+  // 1. Close All Tabs
+  closeAllTabsBtn.addEventListener('click', () => {
+    const count = batchOpenedTabs.length;
+    if (count === 0) return;
+    if (!confirm(`This will close ALL ${count} tab(s) without saving.\n\nAre you sure you want to continue?`)) return;
+
+    const idsToClose = batchOpenedTabs.map(t => t.tabId);
+
+    startTabOperation('close', closeAllTabsBtn, idsToClose.length);
+
+    chrome.tabs.remove(idsToClose, () => {
+      // Mark buttons as closed immediately for visual feedback
+      idsToClose.forEach(closedId => {
+        const btn = document.querySelector(`.goto-tab-btn[data-tab-id="${closedId}"]`);
+        if (btn) {
+          btn.textContent = 'tab closed';
+          btn.disabled = true;
+          btn.classList.add('disabled-tab-btn');
+        }
+      });
+      batchOpenedTabs = [];
+
+      // Force end operation (restore UI)
+      endTabOperation();
+    });
+  });
+
+  // 2. Close Unchanged Tabs
+  closeUnchangedTabsBtn.addEventListener('click', () => {
+    const unchangedTabs = batchOpenedTabs.filter(t => t.changeCount === 0);
+    const count = unchangedTabs.length;
+
+    if (count === 0) {
+      alert('No unchanged tabs found to close.');
+      return;
+    }
+    if (!confirm(`This will close ${count} unchanged tab(s).\n\nAre you sure you want to continue?`)) return;
+
+    const idsToClose = unchangedTabs.map(t => t.tabId);
+
+    startTabOperation('close', closeUnchangedTabsBtn, idsToClose.length);
+
+    chrome.tabs.remove(idsToClose, () => {
+      idsToClose.forEach(closedId => {
+        const btn = document.querySelector(`.goto-tab-btn[data-tab-id="${closedId}"]`);
+        if (btn) {
+          btn.textContent = 'tab closed';
+          btn.disabled = true;
+        }
+      });
+      batchOpenedTabs = batchOpenedTabs.filter(t => !idsToClose.includes(t.tabId));
+
+      endTabOperation();
+    });
+  });
+
+  async function triggerSaveAndClose(tabsToSave, validate) {
+    if (tabsToSave.length === 0) return;
+
+    let sentCount = 0;
+    for (const t of tabsToSave) {
+      // Add to tracking BEFORE sending message
+      tabsPendingSave.add(t.tabId);
+
+      chrome.tabs.get(t.tabId, (tab) => {
+        if (!chrome.runtime.lastError && tab) {
+          chrome.tabs.sendMessage(t.tabId, { action: 'SAVE_AND_CLOSE', validate: validate });
+
+          const btn = document.querySelector(`.goto-tab-btn[data-tab-id="${t.tabId}"]`);
+          if (btn) {
+            btn.textContent = 'saving...';
+            btn.disabled = true;
+          }
+        } else {
+          // If tab dead locally, remove from pending
+          tabsPendingSave.delete(t.tabId);
+        }
+      });
+      sentCount++;
+    }
+    console.log(`[ELH-helper] Sent SAVE_AND_CLOSE to ${sentCount} tabs (Validate=${validate})`);
+  }
+
+  // 3. Save & Close All
+  if (saveAndCloseAllTabsBtn) {
+    saveAndCloseAllTabsBtn.addEventListener('click', () => {
+      const count = batchOpenedTabs.length;
+      if (count === 0) return;
+
+      if (!confirm(`This will attempt to Save & Close ALL ${count} active tab(s).\n\nThey will be validated (if applicable), updated, and closed upon success.\n\nContinue?`)) return;
+
+      startTabOperation('save', saveAndCloseAllTabsBtn, count);
+      triggerSaveAndClose(batchOpenedTabs, false);
+    });
+  }
+
+  // 4. Save & Close Modified
+  if (saveAndCloseModifiedTabsBtn) {
+    saveAndCloseModifiedTabsBtn.addEventListener('click', () => {
+      const modifiedTabs = batchOpenedTabs.filter(t => t.changeCount > 0);
+      const count = modifiedTabs.length;
+
+      if (count === 0) {
+        alert('No modified tabs found to save.');
+        return;
+      }
+
+      if (!confirm(`This will attempt to Save & Close ONLY the ${count} Modified tab(s).\n\nThey will be explicitly validated for date consistency.\n\nContinue?`)) return;
+
+      startTabOperation('save', saveAndCloseModifiedTabsBtn, count);
+      triggerSaveAndClose(modifiedTabs, true);
+    });
+  }
+
+  // Expose for usage
+  window.updateTabManagementUI = updateTabManagementUI;
+
+  // Update the batch loop to tracking
+
 
   batchInput.addEventListener('input', () => {
     const updateStartBtn = (disabled) => {
@@ -857,8 +1176,8 @@ if (batchInput) {
                     </div>
                     <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
                         <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; font-size:10px;">open</button>
-                        <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer; font-size:10px;">copy</button>
+                        <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; font-size:10px;">open URL</button>
+                        <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer; font-size:10px;">copy URL</button>
                     </div>
                 </div>
             `;
@@ -891,7 +1210,7 @@ if (batchInput) {
                     </div>
                     <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
                         <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px;">Copy</button>
+                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px;">copy u-JSON</button>
                     </div>
                 </div>
             `;

@@ -107,12 +107,15 @@ export const RoomMapper = {
         };
 
         // Filter past dates (end < today)
-        const activeSites = existingBlocks.filter(b => {
+        let activeSites = existingBlocks.filter(b => {
             if (b.isInvalid || !b.endVal) return false;
             // Also filter past
             const endDate = new Date(b.endVal);
             return endDate >= today;
         });
+
+        // Ensure chronological order for proper processing
+        activeSites.sort((a, b) => a.startVal.localeCompare(b.startVal));
 
         const pastSites = existingBlocks.filter(b => b.isPast && !b.isInvalid);
         const invalidSites = existingBlocks.filter(b => b.isInvalid);
@@ -232,6 +235,26 @@ export const RoomMapper = {
         for (const site of activeSites) {
             if (!processedSites.has(site)) {
                 result.toDelete.push(site);
+            }
+        }
+
+        // OPTIMIZATION: Check if we are Deleting X and Adding X (identical start/end).
+        // If so, just Keep X. This handles cases where logic decided to "Replace" but content is same.
+        // We iterate backwards to allow safe removal
+        for (let i = result.toDelete.length - 1; i >= 0; i--) {
+            const delItem = result.toDelete[i];
+            const addIndex = result.toAdd.findIndex(a => a.start === delItem.startVal && a.end === delItem.endVal);
+
+            if (addIndex !== -1) {
+                // Found a match!
+                // 1. Remove from toAdd
+                result.toAdd.splice(addIndex, 1);
+                // 2. Remove from toDelete
+                result.toDelete.splice(i, 1);
+                // 3. Add to toKeep (and mark matched)
+                result.toKeep.push(delItem);
+                result.matched++;
+                // console.log(`[ELH-Corrector] Optimized Delete+Add to Keep for ${delItem.startVal} - ${delItem.endVal}`);
             }
         }
 
@@ -371,7 +394,11 @@ export const RoomMapper = {
         // If empty JSON → treat as "delete all" (user confirmed always delete unmatched)
         const decisions = this.decideDateActions(existingBlocks, jsonRanges);
 
-        console.log('[ELH-Universal] Decisions:', decisions);
+        if (jsonRanges.length === 0 && existingBlocks.length > 0) {
+            console.warn('[ELH-Universal] "blocked_dates" is empty in JSON. Deleting all existing future blocks!');
+        }
+
+        console.log('[ELH-Universal] Decisions:', JSON.stringify(decisions, null, 2));
 
         let stats = {
             added: 0,
@@ -412,24 +439,18 @@ export const RoomMapper = {
             const lastStart = startLabelsAll[startLabelsAll.length - 1];
             const lastEnd = endLabelsAll[endLabelsAll.length - 1];
 
-            const sTrigger = lastStart.nextElementSibling?.querySelector('button') || lastStart.nextElementSibling;
-            const eTrigger = lastEnd.nextElementSibling?.querySelector('button') || lastEnd.nextElementSibling;
-
             // Use normalized dates (already expanded and 'now' → TODAY)
             const startToUse = jsonItem.start;  // Already normalized
             const endToUse = jsonItem.end;      // Already normalized
 
             // Start Date
-            if (sTrigger) {
-                sTrigger.click();
-                await wait(300);
-                if (await selectDateInCalendar(startToUse)) highlightElement(sTrigger, 'green');
+            if (lastStart) {
+                await this.setAndVerifyDate(lastStart, startToUse, selectDateInCalendar, highlightElement);
+                await wait(500); // Wait for Start Date to settle (validations, etc)
             }
             // End Date
-            if (eTrigger) {
-                eTrigger.click();
-                await wait(300);
-                if (await selectDateInCalendar(endToUse)) highlightElement(eTrigger, 'green');
+            if (lastEnd) {
+                await this.setAndVerifyDate(lastEnd, endToUse, selectDateInCalendar, highlightElement);
             }
 
             stats.added++;
@@ -443,6 +464,82 @@ export const RoomMapper = {
             ignored: stats.ignored,
             old_dates: collectedOldDates
         };
+    },
+
+    // --- Helper: Set Date, Verify, Retry ---
+    async setAndVerifyDate(labelElement, targetDate, selectDateFn, highlightFn) {
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            // 0a. Cleanup: Close any rogue open calendars from previous steps
+            const existingPopover = document.querySelector('[data-radix-popper-content-wrapper]');
+            if (existingPopover) {
+                // Try to click escape or click body?
+                // Clicking the trigger usually toggles it. 
+                // Let's just log and hope the click below toggles it correctly, 
+                // OR explicitly click it to close if we can identify the trigger.
+                // Safest: Click document body to dismiss (if click-outside is supported)
+                document.body.click();
+                await wait(200);
+            }
+
+            // 0b. Re-resolve trigger button (React element replacement protection)
+            const triggerBtn = labelElement.nextElementSibling?.querySelector('button') || labelElement.nextElementSibling;
+
+            if (!triggerBtn) {
+                console.warn(`[ELH-Corrector] Trigger button not found for label '${labelElement.textContent}'`);
+                return false;
+            }
+
+            // 1. Open Calendar
+            triggerBtn.click();
+            await wait(400); // Wait for popover
+
+            // 2. Attempt Selection
+            await selectDateFn(targetDate);
+
+            // 3. Verify with POLLING (Robustness for background tabs)
+            const PollMaxTime = 2500;
+            const PollInterval = 250;
+            let elapsed = 0;
+            let currentVal = null;
+            let text = '';
+
+            while (elapsed < PollMaxTime) {
+                // Re-query (React might swap the button element on update)
+                const freshBtn = labelElement.nextElementSibling?.querySelector('button') || labelElement.nextElementSibling;
+                text = freshBtn ? freshBtn.textContent.trim() : '';
+                currentVal = this.parseDateText(text);
+
+                if (currentVal === targetDate) {
+                    if (highlightFn && freshBtn) highlightFn(freshBtn, 'green');
+                    return true; // Success!
+                }
+
+                // Extra check: If text is "Select date" but we expect a date, maybe just not updated yet.
+                // If text is A date but WRONG date, that's a mismatch.
+
+                await wait(PollInterval);
+                elapsed += PollInterval;
+            }
+
+            // 4. Failure after Polling
+            console.warn(`[ELH-Corrector] Date mismatch on attempt ${attempt}. Target: ${targetDate}, Got parsed: ${currentVal}, Raw text: "${text}". Retrying...`);
+
+            // 5. Cleanup for next attempt
+            // If verification failed, the calendar might still be open (if click failed) or closed (if click worked but value didn't update).
+            // We'll rely on the loop start cleanup (0a) or the below explicit close attempt.
+            const isOpen = document.querySelector('[data-radix-popper-content-wrapper]');
+            if (isOpen) {
+                if (triggerBtn) triggerBtn.click(); // Toggle
+                await wait(300);
+            }
+        }
+        console.error(`[ELH-Universal] Failed to set date ${targetDate} after 3 attempts.`);
+
+        // Try to highlight red on failure
+        const finalBtn = labelElement.nextElementSibling?.querySelector('button') || labelElement.nextElementSibling;
+        if (highlightFn && finalBtn) highlightFn(finalBtn, 'red');
+
+        return false;
     },
 
     // --- Helpers for Date Parsing ---

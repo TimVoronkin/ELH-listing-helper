@@ -50,7 +50,7 @@
     const btn = document.createElement('button');
     btn.id = 'elh-paste-room-json-btn';
     btn.type = 'button';
-    btn.textContent = 'paste json data into room fields';
+    btn.textContent = 'paste old json';
     btn.className = 'elh-btn elh-paste-btn';
     btn.addEventListener('click', handleClick);
     container.appendChild(btn);
@@ -75,7 +75,7 @@
       const _replace = history.replaceState;
       history.replaceState = function () { _replace.apply(this, arguments); dispatchLocationChange(); };
       window.addEventListener('popstate', dispatchLocationChange);
-      window.addEventListener('locationchange', () => { try { createButton(); } catch (e) {} });
+      window.addEventListener('locationchange', () => { try { createButton(); } catch (e) { } });
     } catch (e) {
       console.warn('[ELH-helper] [pasteRoomJsonFields] location watcher failed', e);
     }
@@ -143,8 +143,8 @@
     } catch (e) {
       try { el.value = value; } catch (_) { el.textContent = value; }
     }
-    try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
-    try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+    try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { }
+    try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) { }
   }
 
   // Find a radio button inside a radiogroup that belongs to a group label (loose match)
@@ -244,7 +244,7 @@
   function findTotalAreaInput() {
     const container = document.querySelector('div[data-sentry-component="FeaturesSteps"]') || document;
     // find label that contains 'Total area' or 'Total area (m²)'
-    const label = Array.from(container.querySelectorAll('label')).find(l => (l.textContent||'').toLowerCase().includes('total area'));
+    const label = Array.from(container.querySelectorAll('label')).find(l => (l.textContent || '').toLowerCase().includes('total area'));
     if (label) {
       if (label.htmlFor) {
         const el = document.getElementById(label.htmlFor);
@@ -326,7 +326,7 @@
         if (!isChecked) {
           try { btn.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click Second Bed', e); }
         }
-        try { btn.style.border = '2px solid #28a745'; btn.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ btn.style.border=''; btn.style.boxShadow=''; },1500);}catch(e){}
+        try { btn.style.border = '2px solid #28a745'; btn.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(() => { btn.style.border = ''; btn.style.boxShadow = ''; }, 1500); } catch (e) { }
         console.log('[ELH-helper] [pasteRoomJsonFields] Second Bed set ->', desiredBed, '(bedCount=', bedCount, ')');
       }
 
@@ -350,7 +350,7 @@
           if (!checked) {
             try { rb.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click', siteLabel, e); }
           }
-          try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ rb.style.border=''; rb.style.boxShadow=''; },1200);}catch(e){}
+          try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(() => { rb.style.border = ''; rb.style.boxShadow = ''; }, 1200); } catch (e) { }
           console.log('[ELH-helper] [pasteRoomJsonFields] set', siteLabel, '->', want, '(found=', present, ')');
         } catch (e) {
           console.warn('[ELH-helper] [pasteRoomJsonFields] mapping handling failed for', siteLabel, e);
@@ -368,7 +368,7 @@
             const areaInput = findTotalAreaInput();
             if (areaInput) {
               setInputValue(areaInput, areaVal);
-              try { areaInput.style.border = '2px solid #28a745'; areaInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ areaInput.style.border=''; areaInput.style.boxShadow=''; },1500);}catch(e){}
+              try { areaInput.style.border = '2px solid #28a745'; areaInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(() => { areaInput.style.border = ''; areaInput.style.boxShadow = ''; }, 1500); } catch (e) { }
               console.log('[ELH-helper] [pasteRoomJsonFields] Total area set to', areaVal);
             } else {
               console.warn('[ELH-helper] [pasteRoomJsonFields] Total area input not found');
@@ -436,13 +436,13 @@
         input.style.border = '';
         input.style.boxShadow = '';
       }, 2500);
-    } catch (e) {}
+    } catch (e) { }
     console.log('[ELH-helper] [pasteRoomJsonFields] Monthly rent set to', rentStr);
     // --- Extra Person handling ---
     try {
       // JSON keys: 'Extra per tenant' (boolean) and 'Extra per tenant value' (number)
       const extraPerTenant = jsonData.rental_conditions && (jsonData.rental_conditions['Extra per tenant'] ?? jsonData['Extra per tenant']);
-      const extraPerTenantValue = jsonData.rental_conditions && (jsonData.rental_conditions['Extra per tenant value'] ?? jsonData['Extra per tenant value'] ?? jsonData['Extra per tenant value (€)'] ?? jsonData['extra_per_tenant_value']) ;
+      const extraPerTenantValue = jsonData.rental_conditions && (jsonData.rental_conditions['Extra per tenant value'] ?? jsonData['Extra per tenant value'] ?? jsonData['Extra per tenant value (€)'] ?? jsonData['extra_per_tenant_value']);
       // find Extra Person radiogroup and set yes/no
       if (typeof extraPerTenant !== 'undefined') {
         const want = extraPerTenant ? 'Yes' : 'No';
@@ -453,7 +453,7 @@
           if (!checked) {
             try { rb.click(); } catch (e) { console.warn('[ELH-helper] [pasteRoomJsonFields] failed to click Extra Person', e); }
           }
-          try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ rb.style.border=''; rb.style.boxShadow=''; },1200);}catch(e){}
+          try { rb.style.border = '2px solid #28a745'; rb.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(() => { rb.style.border = ''; rb.style.boxShadow = ''; }, 1200); } catch (e) { }
           console.log('[ELH-helper] [pasteRoomJsonFields] Extra Person set ->', want);
         } else {
           // sometimes PaymentSteps uses the same radiogroup structure but outside FeaturesSteps
@@ -474,7 +474,7 @@
           // ensure numeric only
           const cleaned = val.replace(',', '.').replace(/[^0-9.\-]/g, '');
           setInputValue(extraInput, cleaned);
-          try { extraInput.style.border = '2px solid #28a745'; extraInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(()=>{ extraInput.style.border=''; extraInput.style.boxShadow=''; },1500);}catch(e){}
+          try { extraInput.style.border = '2px solid #28a745'; extraInput.style.boxShadow = '0 0 0 4px rgba(40,167,69,0.12)'; setTimeout(() => { extraInput.style.border = ''; extraInput.style.boxShadow = ''; }, 1500); } catch (e) { }
           console.log('[ELH-helper] [pasteRoomJsonFields] Extra person value set to', cleaned);
         } else {
           console.warn('[ELH-helper] [pasteRoomJsonFields] Extra person value input not found');

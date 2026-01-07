@@ -3,19 +3,19 @@ console.log('[ELH-helper] [universal_run/batch_runner.js] Loaded.');
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'ELH_BATCH_RUN_STEP') {
         console.log('[ELH-helper] [universal_run/batch_runner.js] Received batch step:', message);
-        if (message.action === 'ELH_BATCH_RUN_STEP') {
-            console.log('[ELH-helper] [universal_run/batch_runner.js] Received batch step:', message);
-            handleBatchStep(message.data, message.progress)
-                .then((result) => {
-                    markOverlayAsComplete(message.progress, result); // Pass result stats
-                    sendResponse({ success: true, stats: result });
-                })
-                .catch(err => {
-                    console.error('[ELH-helper] [universal_run/batch_runner.js] Error:', err);
-                    sendResponse({ success: false, error: err.message });
-                });
-            return true; // Keep channel open
-        }
+        handleBatchStep(message.data, message.progress)
+            .then((result) => {
+                markOverlayAsComplete(message.progress, result, message.data); // Pass result stats AND jsonData
+                sendResponse({ success: true, stats: result });
+            })
+            .catch(err => {
+                console.error('[ELH-helper] [universal_run/batch_runner.js] Error:', err);
+                sendResponse({ success: false, error: err.message });
+            });
+        return true; // Keep channel open
+    }
+    if (message.action === 'SAVE_AND_CLOSE') {
+        handleSaveAndClose(message.validate);
     }
 });
 
@@ -194,7 +194,7 @@ function showProgressOverlay(progress) {
     overlay.appendChild(container);
 }
 
-function markOverlayAsComplete(progress, stats) {
+function markOverlayAsComplete(progress, stats, jsonData) {
     const overlay = document.getElementById('elh-batch-overlay');
     if (!overlay) return;
 
@@ -208,18 +208,158 @@ function markOverlayAsComplete(progress, stats) {
         <div style="margin-top:4px;">Room <b>${current}</b> of <b>${total}</b> is done.</div>
     `;
 
-    // Show Old Dates
-    if (stats && stats.old_dates && stats.old_dates.length > 0) {
-        let datesHtml = stats.old_dates.map(d => `<div style="font-size:10px; color:#aaa; margin-top:2px;">${d}</div>`).join('');
-        overlay.innerHTML += `<div style="margin-top:8px; padding-top:4px; border-top:1px solid #444;">Previous dates: ${datesHtml}</div>`;
+    // Add Copy JSON Button
+    if (jsonData) {
+        const jsonString = JSON.stringify(jsonData);
+        // We'll add a button that we attach a listener to below
+        const btnId = 'elh-overlay-copy-json-' + Date.now();
+        overlay.innerHTML += `
+            <div style="margin-top:8px;">
+                <button id="${btnId}" style="
+                    background: #333; 
+                    color: white; 
+                    border: 1px solid #555; 
+                    border-radius: 4px; 
+                    padding: 2px 6px; 
+                    font-size: 10px; 
+                    cursor: pointer;
+                    pointer-events: auto;
+                ">copy u-JSON</button>
+            </div>
+        `;
+
+        // Use timeout to ensure DOM update (fast/sync usually works but safer)
+        setTimeout(() => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(jsonString).then(() => {
+                        const original = btn.textContent;
+                        btn.textContent = 'Copied!';
+                        btn.style.borderColor = '#4ade80';
+                        setTimeout(() => {
+                            btn.textContent = original;
+                            btn.style.borderColor = '#555';
+                        }, 1000);
+                    });
+                };
+            }
+        }, 50);
     }
 
-    // Remove background opacity or change it to be less intrusive?
-    // User requested: "changes design... disappears warning... disappears stop button"
-    // The innerHTML replacement handles disappearing Stop/Warning.
-    // Let's make it fade out after a few seconds?
-    // Maybe not requested, but good UX.
-    // User requested: "changes design... disappears warning... disappears stop button"
-    // The innerHTML replacement handles disappearing Stop/Warning.
-    // Opacity change removed as per user request.
+    // Show Old Dates
+    let datesHtml = 'none';
+    if (stats && stats.old_dates && stats.old_dates.length > 0) {
+        datesHtml = stats.old_dates.map(d => `<div style="font-size:10px; color:#aaa; margin-top:2px;">${d}</div>`).join('');
+    } else {
+        datesHtml = `<div style="font-size:10px; color:#aaa; margin-top:2px;">none</div>`;
+    }
+
+    overlay.innerHTML += `<div style="margin-top:8px; padding-top:4px; border-top:1px solid #444;">Previous dates: ${datesHtml}</div>`;
+}
+
+// --- Save & Close Logic ---
+
+async function handleSaveAndClose(validate) {
+    console.log('[ELH-helper] [batch_runner] Starting Save & Close sequence. Validate:', validate);
+
+    // 1. Validation (Optional)
+    if (validate) {
+        // User requested to KEEP the existing overlay content (which shows old dates).
+        // So we DO NOT call showProgressOverlay here, as it clears the innerHTML.
+        // showProgressOverlay({ current: 'Validating', total: 'Dates' });
+
+        const blockedTab = findButtonByText('Blocked Dates');
+        if (blockedTab) {
+            blockedTab.click();
+            await new Promise(r => setTimeout(r, 1000));
+
+            // Check for empty inputs in the Blocked Dates section
+            // Look for row containers.
+            // We assume if a start date exists, an end date must exist.
+            const startLabels = Array.from(document.querySelectorAll('label')).filter(l => l.textContent.trim() === 'Start Date');
+            let invalid = false;
+
+            for (const sLabel of startLabels) {
+                // Find Start Input/Button
+                const sBtn = sLabel.nextElementSibling?.querySelector('button') || sLabel.nextElementSibling;
+                // Find End Input/Button
+                const rowContainer = sLabel.closest('.flex.items-center.gap-4'); // Reuse known selector
+                if (!rowContainer) continue;
+
+                const eLabel = Array.from(rowContainer.querySelectorAll('label')).find(l => l.textContent.trim() === 'End Date');
+                const eBtn = eLabel?.nextElementSibling?.querySelector('button') || eLabel?.nextElementSibling;
+
+                const sVal = sBtn ? sBtn.textContent.trim() : '';
+                const eVal = eBtn ? eBtn.textContent.trim() : '';
+
+                // If Start is set (not "Select date") but End is "Select date" or empty -> Invalid
+                // Actually button text is "Select date" if empty.
+                const sSet = sVal && sVal !== 'Select date';
+                const eSet = eVal && eVal !== 'Select date';
+
+                if (sSet && !eSet) {
+                    console.warn('[ELH-helper] Validation Failed: Start date set without End date.');
+                    invalid = true;
+                    // Highlight?
+                    if (eBtn) eBtn.style.border = '2px solid red';
+                }
+                if (!sSet && eSet) {
+                    console.warn('[ELH-helper] Validation Failed: End date set without Start date.');
+                    invalid = true;
+                    if (sBtn) sBtn.style.border = '2px solid red';
+                }
+            }
+
+            if (invalid) {
+                alert('ELH Validation Failed: Incomplete Blocked Dates found. Please fix and try again.');
+                // User requested NOT to change the overlay text.
+                // markOverlayAsComplete({ current: 'Error', total: 'Validation' });
+                return; // Abort
+            }
+
+        } else {
+            console.warn('[ELH-helper] "Blocked Dates" tab not found for validation. Skipping check.');
+        }
+    }
+
+    // 2. Go to Revision Step
+    // showProgressOverlay({ current: 'Saving', total: '...' });
+
+    // User HTML: <button ...>Revision and publication...
+    // We look for button containing specific text structure if possible, or just "Revision and publication"
+    // Using findButtonByText might match sub-buttons?
+    // Let's look specifically for the step button.
+    const steps = Array.from(document.querySelectorAll('button'));
+    const revisionBtn = steps.find(b => b.textContent.includes('Revision and publication'));
+
+    if (!revisionBtn) {
+        console.error('[ELH-helper] "Revision and publication" button not found.');
+        alert('ELH Error: Could not find Revision step.');
+        return;
+    }
+
+    revisionBtn.click();
+    await new Promise(r => setTimeout(r, 1500));
+
+    // 3. Click Update
+    // Look for button with text "update" (lowercase in user HTML span, but check textContent)
+    // User HTML: <span>update<svg...
+    // textContent might be "update" (whitespace trimmed).
+    const updateBtns = Array.from(document.querySelectorAll('button'));
+    // Filter for buttons that exactly match "update" or contain it + arrow?
+    // The Update button usually is "Update" or "update".
+    const updateBtn = updateBtns.find(b => b.textContent.trim().toLowerCase() === 'update');
+
+    if (!updateBtn) {
+        console.error('[ELH-helper] "update" button not found.');
+        alert('ELH Error: Could not find Update button.');
+        return;
+    }
+
+    updateBtn.click();
+    console.log('[ELH-helper] Update button clicked. Waiting for redirection (handled by options.js)...');
+
+    // We do NOT close the window here. options.js monitors the tab URL for success.
+    // If we closed it here immediately, the update might not submit.
 }

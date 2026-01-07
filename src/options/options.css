@@ -197,6 +197,7 @@ button.warning {
     color: white;
     border: 1px solid transparent;
 }
+
 button.warning:hover {
     background-color: #d97706;
 }
@@ -206,6 +207,7 @@ button.danger {
     color: white;
     border: 1px solid transparent;
 }
+
 button.danger:hover {
     background-color: #b91c1c;
 }
@@ -278,4 +280,33 @@ button.danger:hover {
     .container {
         padding: 16px;
     }
+}
+
+/* Go-to-Tab Button Styles */
+.goto-tab-btn {
+    font-size: 9px;
+    padding: 2px 6px;
+    cursor: pointer;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    border-radius: 4px;
+    color: #374151;
+    transition: all 0.2s;
+    height: auto;
+    /* override default button height */
+    line-height: normal;
+}
+
+.goto-tab-btn:hover:not(:disabled) {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.goto-tab-btn:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    cursor: default;
+    opacity: 0.8;
 }
