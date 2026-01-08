@@ -19,73 +19,102 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+// Button Name Mapping (from User)
+const STEP_BUTTON_MAP = {
+    'FeaturesSteps': 'Room Features',       // or "Features"
+    'PaymentSteps': 'Payment',              // or "Rental conditions"
+    'BlockedDatesStep': 'Blocked dates',
+    'PhotosStep': 'Photos and description'  // or "Media"
+};
+
+// Valid steps in order of execution preference
+const ORDERED_STEPS = ['FeaturesSteps', 'PaymentSteps', 'BlockedDatesStep', 'PhotosStep'];
+
 async function handleBatchStep(jsonData, progress) {
     if (progress) {
         showProgressOverlay(progress);
     }
     if (!jsonData) throw new Error('No JSON data provided.');
 
-    // 1. Check if we need to go to "Blocked Dates"
-    // The user specifically asked for this flow: Open URL -> Click Blocked Dates -> Paste
-    // We assume the URL opened by the background/options page lands us on the Listing or Room page.
+    const roomData = jsonData.room_data || {};
 
-    // Attempt to find the "Blocked Dates" button.
-    // Selector strategy: find a button that contains a span with "Blocked Dates"
-    const blockedDatesBtn = findButtonByText('Blocked Dates');
+    // Check which steps are present in JSON
+    const stepsToRun = ORDERED_STEPS.filter(stepKey =>
+        Object.prototype.hasOwnProperty.call(roomData, stepKey) &&
+        // Ensure not empty object? 
+        roomData[stepKey]
+    );
 
-    if (blockedDatesBtn) {
-        console.log('[ELH-helper] [universal_run/batch_runner.js] Found "Blocked Dates" button. Clicking...');
-        blockedDatesBtn.click();
+    console.log('[ELH-helper] [universal_run/batch_runner.js] Steps to run:', stepsToRun);
 
-        // 2. Wait for navigation/update
-        // We can wait a fixed time or wait for a specific element (like the calendar).
-        // Let's wait 1.5 seconds for safe measure + element check
-        await new Promise(r => setTimeout(r, 1500));
-    } else {
-        console.warn('[ELH-helper] [universal_run/batch_runner.js] "Blocked Dates" button not found. Assuming we are already there or it is not needed.');
-    }
+    // Import RoomMapper once
+    console.log('[ELH-helper] [universal_run/batch_runner.js] Importing RoomMapper...');
+    const module = await import(chrome.runtime.getURL('src/content/universal_json/mappings/room.js'));
+    const RoomMapper = module.RoomMapper;
+    if (!RoomMapper) throw new Error('RoomMapper not found in module.');
 
-    // 3. Paste JSON
-    // We need to use the existing RoomMapper.
-    // Since we are in a module content script, we can try to import it.
-    // Path relative to this file: ../universal_json/mappings/room.js
+    // Results aggregator
+    const aggregatedResults = {
+        matched: 0,
+        added: 0,
+        deleted: 0,
+        ignored: 0,
+        old_dates: []
+    };
 
-    try {
-        console.log('[ELH-helper] [universal_run/batch_runner.js] Importing RoomMapper...');
-        const module = await import(chrome.runtime.getURL('src/content/universal_json/mappings/room.js'));
-        const RoomMapper = module.RoomMapper;
-
-        if (!RoomMapper) throw new Error('RoomMapper not found in module.');
-
-        // The step name for blocked dates in RoomMapper might be 'BlockedDatesStep' or similar.
-        // We can inspect the JSON to see what keys it has, OR just run the mapper generally.
-        // RoomMapper.handle usually takes (stepName, data, contextElement).
-        // If we are on the page, contextElement might be document body or a specific container.
-
-        // Let's assume RoomMapper can handle "auto" detection or we simply pass the step we expect.
-        // However, RoomMapper.handle signature in button_injector was: handle(step, jsonData, element)
-
-        // We'll try to detect the step or just pass 'BlockedDatesStep' if that's what we are targeting.
-        // Inspecting the JSON:
-        let step = 'unknown';
-        if (jsonData.room_data && jsonData.room_data.BlockedDatesStep) {
-            step = 'BlockedDatesStep';
+    // Execute each step
+    for (const stepKey of stepsToRun) {
+        const btnText = STEP_BUTTON_MAP[stepKey];
+        if (!btnText) {
+            console.warn(`[ELH-helper] No button text mapped for step ${stepKey}. Skipping.`);
+            continue;
         }
 
-        console.log(`[ELH-helper] [universal_run/batch_runner.js] Executing RoomMapper for step: ${step}`);
-        const result = await RoomMapper.handle(step, jsonData, document.body);
-        console.log('[ELH-helper] [universal_run/batch_runner.js] Paste complete. Result:', result);
-        return result;
+        const btn = findButtonByText(btnText);
+        if (btn) {
+            console.log(`[ELH-helper] Clicking "${btnText}" for step ${stepKey}...`);
+            btn.click();
 
-    } catch (e) {
-        console.error('[ELH-helper] [universal_run/batch_runner.js] Failed to run mapper:', e);
-        throw e;
+            // Wait for navigation
+            await new Promise(r => setTimeout(r, 1500));
+
+            // Validate we are on the step? (Optional but good)
+
+            // Run Mapper
+            try {
+                console.log(`[ELH-helper] executing RoomMapper for ${stepKey}`);
+                const result = await RoomMapper.handle(stepKey, jsonData, document.body);
+
+                // Aggregate Stats
+                if (result) {
+                    if (result.matched) aggregatedResults.matched += result.matched;
+                    if (result.added) aggregatedResults.added += result.added;
+                    if (result.deleted) aggregatedResults.deleted += result.deleted;
+                    if (result.ignored) aggregatedResults.ignored += result.ignored;
+                    if (result.old_dates) aggregatedResults.old_dates.push(...result.old_dates);
+                }
+            } catch (err) {
+                console.error(`[ELH-helper] Error in step ${stepKey}:`, err);
+                // Continue to next step? or Fail?
+                // Let's log and continue
+            }
+
+            // Artificial delay between steps
+            await new Promise(r => setTimeout(r, 500));
+
+        } else {
+            console.warn(`[ELH-helper] Button "${btnText}" not found. Skipping step ${stepKey}.`);
+        }
     }
+
+    console.log('[ELH-helper] [universal_run/batch_runner.js] All steps complete. Result:', aggregatedResults);
+    return aggregatedResults;
 }
 
 function findButtonByText(text) {
     const buttons = Array.from(document.querySelectorAll('button'));
-    return buttons.find(btn => btn.textContent.includes(text));
+    const lowerText = text.toLowerCase();
+    return buttons.find(btn => btn.textContent.toLowerCase().includes(lowerText));
 }
 
 function showProgressOverlay(progress) {
@@ -224,7 +253,7 @@ function markOverlayAsComplete(progress, stats, jsonData) {
                     font-size: 10px; 
                     cursor: pointer;
                     pointer-events: auto;
-                ">copy u-JSON</button>
+                ">📋<br>u-JSON</button>
             </div>
         `;
 

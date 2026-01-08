@@ -1020,6 +1020,46 @@ if (batchInput) {
   // Update the batch loop to tracking
 
 
+  // --- JSON Summary Helper ---
+  function formatJsonSummary(obj, prefix = '') {
+    const paths = [];
+    for (const key in obj) {
+      if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+
+      const val = obj[key];
+      const newPrefix = prefix ? `${prefix} → ${key}` : key;
+
+      if (val === null || val === undefined) {
+        paths.push(`${newPrefix}=${val}`);
+      } else if (Array.isArray(val)) {
+        // Special handling for blocked_dates to format as "start - end"
+        if (key === 'blocked_dates') {
+          val.forEach((item, index) => {
+            if (item && item.start) { // formatting check
+              paths.push(`${newPrefix}[${index}]= <b>${item.start}</b> - <b>${item.end || '?'}</b>`);
+            } else {
+              paths.push(`${newPrefix}[${index}]= ${JSON.stringify(item)}`);
+            }
+          });
+        } else {
+          // Generic Array
+          val.forEach((item, index) => {
+            if (typeof item === 'object') {
+              paths.push(...formatJsonSummary(item, `${newPrefix}[${index}]`));
+            } else {
+              paths.push(`${newPrefix}[${index}]=${item}`);
+            }
+          });
+        }
+      } else if (typeof val === 'object') {
+        paths.push(...formatJsonSummary(val, newPrefix));
+      } else {
+        paths.push(`${newPrefix}= <b>${val}</b>`);
+      }
+    }
+    return paths;
+  }
+
   batchInput.addEventListener('input', () => {
     const updateStartBtn = (disabled) => {
       // Only update if we are in IDLE state where the button exists and is relevant
@@ -1051,9 +1091,9 @@ if (batchInput) {
 
     let html = '<table style="width:100%; border-collapse: collapse; font-size: 11px;">';
     html += '<tr style="background:#eee; text-align:left;">';
-    html += '<th style="padding:5px; border:1px solid #ccc; width: 30px; color: #666;">Row</th>';
-    html += '<th style="padding:5px; border:1px solid #ccc;">URL</th>';
-    html += '<th style="padding:5px; border:1px solid #ccc;">u-JSON</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc; width: 20px; color: #666;">Row</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc; width: 180px;">URL to edit room</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc; width: 450px;">actions from u-JSON</th>'; // Wider column
     html += '<th style="padding:5px; border:1px solid #ccc;">Old Dates</th>';
     html += '<th style="padding:5px; border:1px solid #ccc;">Status</th>';
     html += '</tr>';
@@ -1163,7 +1203,7 @@ if (batchInput) {
 
         if (idMatch) {
           idsHtml = `<div style="font-size:10px; color:black; line-height:1.2;">
-                    listing: <b><code>${idMatch[1]}</code></b>, room: <b><code>${idMatch[2]}</code></b>
+                    listing: <b><code>${idMatch[1]}</code></b><br>room: <b><code>${idMatch[2]}</code></b>
                 </div>`;
         } else {
           idsHtml = `<div style="font-size:10px; color:black;">${safeRawUrl.substring(0, 30)}...</div>`;
@@ -1176,8 +1216,10 @@ if (batchInput) {
                     </div>
                     <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
                         <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; font-size:10px;">open URL</button>
-                        <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer; font-size:10px;">copy URL</button>
+                        <div style="display:flex; gap:5px; flex-direction:column;">
+                            <button class="batch-open-btn" data-url="${encodedUrl}" style="cursor:pointer; height: 5px; padding: 8px 0 8px; width: 50px; font-size: 10px;">👉URL</button>
+                            <button class="batch-copy-btn" data-content="${encodedUrl}" style="cursor:pointer;height: 5px; padding: 8px 0 8px; width: 50px; font-size: 10px;">📋URL</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1186,31 +1228,40 @@ if (batchInput) {
         urlCellInner = `<span style="color:red; font-weight:bold;">${errorMsg}</span> <span style="color:black; font-size:10px;">"${safeRawUrl.substring(0, 30)}${safeRawUrl.length > 30 ? '...' : ''}"</span>`;
       }
 
-      // JSON Cell
+      // JSON Cell with SUMMARY
       let jsonCellInner = '';
       if (jsonOk) {
-        let datesHtml = '';
+        let summaryHtml = '';
         try {
           const parsed = JSON.parse(cleanJson);
-          // Check for blocked dates structure
-          const dates = parsed?.room_data?.BlockedDatesStep?.blocked_dates;
-          if (Array.isArray(dates) && dates.length > 0) {
-            datesHtml = dates.map(d => `<div style="font-size:10px; white-space: nowrap;"><b><code>${d.start}</code></b> - <b><code>${d.end}</code></b></div>`).join('');
+
+          // Generate Summary
+          let summaryLines = [];
+          if (parsed.room_data) {
+            // We focus on room_data as per request
+            summaryLines = formatJsonSummary({ room_data: parsed.room_data }); // Wrap to keep room_data root prefix
           } else {
-            datesHtml = '<span style="font-size:10px; color:#888;">No dates found</span>';
+            // Fallback if structure is different
+            summaryLines = formatJsonSummary(parsed);
           }
+
+          if (summaryLines.length > 0) {
+            summaryHtml = summaryLines.map(line => `<div style="white-space: nowrap;">${line}</div>`).join('');
+          } else {
+            summaryHtml = '<span style="color:#888;">Empty Object</span>';
+          }
+
         } catch (e) {
-          datesHtml = '<span style="font-size:10px; color:red;">Parse check failed</span>';
+          summaryHtml = '<span style="color:red;">Parse check failed</span>';
         }
 
         jsonCellInner = `
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <div style="text-align:left; line-height:1.2;">
-                         ${datesHtml}
+                <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="text-align:left; line-height:1.3; font-family: monospace; font-size: 10px; max-height: 120px; overflow-y: auto; width: 100%;">
+                         ${summaryHtml}
                     </div>
                     <div style="display:flex; gap:5px; align-items:center; margin-left:10px;">
-                        <span style="color:green; font-weight:bold;">OK</span>
-                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px;">copy u-JSON</button>
+                        <button class="batch-copy-btn" data-content="${encodedJson}" style="cursor:pointer; font-size:10px; padding: 8px 0 8px; width: 50px;">📋<br>u-JSON</button>
                     </div>
                 </div>
             `;
@@ -1226,7 +1277,7 @@ if (batchInput) {
       html += `<tr data-original-index="${index}">`;
       html += `<td style="padding:5px; border:1px solid #ccc; text-align: center; color:#888;">${index + 1}</td>`;
       html += `<td style="padding:5px; border:1px solid #ccc;">${urlCellInner}</td>`;
-      html += `<td style="padding:5px; border:1px solid #ccc;">${jsonCellInner}</td>`;
+      html += `<td style="padding:5px; border:1px solid #ccc; width: 400px; max-width: 400px;">${jsonCellInner}</td>`; // Fixed width
       html += `<td style="padding:5px; border:1px solid #ccc; color:#aaa; font-style:italic;" id="old-dates-${index}">-</td>`;
       html += `<td style="padding:5px; border:1px solid #ccc;">${rowStatusHtml}</td>`;
       html += `</tr>`;
@@ -1238,8 +1289,8 @@ if (batchInput) {
     if (validCount > 0) {
       updateStartBtn(false);
 
-      // Calculate Estimate: 12 seconds per room
-      const totalSeconds = validCount * 12;
+      // Calculate Estimate: 15 seconds per room (slightly increased for safety)
+      const totalSeconds = validCount * 15;
       const mins = Math.floor(totalSeconds / 60);
       const secs = totalSeconds % 60;
       const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
