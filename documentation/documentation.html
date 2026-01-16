@@ -14,6 +14,10 @@
         rel="stylesheet">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         html {
             scroll-behavior: smooth;
         }
@@ -26,6 +30,7 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
+            overflow-wrap: break-word;
         }
 
         h1,
@@ -45,6 +50,7 @@
             padding-bottom: 15px;
             margin-top: 0;
             margin-bottom: 2em;
+            flex-wrap: wrap;
         }
 
         .doc-header img {
@@ -392,6 +398,8 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            display: block;
+            overflow-x: auto;
         }
 
         th,
@@ -408,6 +416,33 @@
 
         tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .doc-header h1 {
+                font-size: 1.8em;
+            }
+
+            .doc-header img {
+                height: 40px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3,
+            h4 {
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
