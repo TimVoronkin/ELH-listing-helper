@@ -1,0 +1,1212 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - ELH Tim's Helper</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../icon/icon.png">
+    <!-- Figtree Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Figtree', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+        }
+
+        /* Header Styling */
+        .doc-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 2em;
+        }
+
+        .doc-header img {
+            height: 60px;
+            /* Adjust based on image aspect ratio */
+            width: auto;
+            border: none;
+            /* Override default img border */
+            margin: 0;
+        }
+
+        .doc-header h1 {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin: 0;
+            font-size: 2.5em;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 2em;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 5px;
+        }
+
+        h3,
+        h4 {
+            font-size: 1.5em;
+            color: #34495e;
+        }
+
+        h5 {
+            font-size: 1.2em;
+            color: #34495e;
+        }
+
+        .no-margin-top {
+            margin-top: 0;
+        }
+
+        .border-bottom {
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 5px;
+        }
+
+        .mb-40 {
+            margin-bottom: 40px;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .align-self-end {
+            align-self: self-end;
+        }
+
+        .text-green {
+            color: #28a745;
+        }
+
+        .text-grey-green {
+            color: #80a889;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Navigation - Tree Structure */
+        .toc {
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .toc ul ul {
+            padding-left: 30px;
+            position: relative;
+        }
+
+        /* The vertical lines */
+        .toc ul ul::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 10px;
+            width: 2px;
+            background: #bdc3c7;
+        }
+
+        .toc ul li {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        /* The horizontal lines */
+        .toc ul ul li::before {
+            content: "";
+            position: absolute;
+            left: -20px;
+            top: 12px;
+            width: 15px;
+            height: 2px;
+            background: #bdc3c7;
+        }
+
+        .toc a {
+            text-decoration: none;
+            color: #7094DB;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: #3366CC;
+        }
+
+        .anchor-link {
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            color: #bdc3c7;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        h1:hover .anchor-link,
+        h2:hover .anchor-link,
+        h3:hover .anchor-link,
+        h4:hover .anchor-link {
+            opacity: 1;
+        }
+
+        /* Generic Link Styling */
+        a {
+            color: #7094DB;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: #3366CC;
+        }
+
+        .ext-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 4px;
+            vertical-align: middle;
+            opacity: 0.7;
+            display: inline;
+            border: none;
+
+        }
+
+        a:hover .ext-icon {
+            opacity: 1;
+        }
+
+
+        /* Content Styling */
+        code {
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #e74c3c;
+        }
+
+        /* Dark Theme JSON Block */
+        pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid #333;
+            white-space: pre;
+        }
+
+        /* Syntax Highlighting Classes */
+        .string {
+            color: #ce9178;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+
+        .boolean {
+            color: #569cd6;
+        }
+
+        .null {
+            color: #569cd6;
+        }
+
+        .key {
+            color: #9cdcfe;
+        }
+
+        .btn-style {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin: 3px;
+        }
+
+        .btn-green {
+            background-color: #39923E;
+        }
+
+        .btn-blue {
+            background-color: #7094DB;
+        }
+
+        .btn-orange {
+            background-color: #e67e22;
+        }
+
+
+
+        .media-container {
+            margin: 25px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            column-gap: 15px;
+            justify-content: center;
+        }
+
+        .media-container img,
+        .media-container .video-box,
+        .media-container .doc-video {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+            width: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .media-container img:hover,
+        .media-container .video-box:hover,
+        .media-container .doc-video:hover {
+            transform: scale(1.01);
+            border: 2px solid #7094DB;
+        }
+
+        .media-caption {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .video-box {
+            background: #eef2f7;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #7094DB;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .video-box a {
+            font-weight: bold;
+            color: #3366CC;
+        }
+
+        .doc-video {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #7094DB;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .media-container img {
+            cursor: pointer;
+        }
+
+        .note {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .story {
+            background-color: #e8f6f3;
+            border-left: 5px solid #1abc9c;
+            padding: 20px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .disclaimer {
+            background-color: #fee2e2;
+            border-left: 5px solid #ef4444;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: block;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="container">
+        <div class="doc-header">
+            <img src="../icon/header.png">
+            <h1 class="align-self-end">Documentation</h1>
+        </div>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <!-- Auto-generated by script -->
+        </div>
+    </div>
+
+    <!-- Background -->
+    <div class="container">
+        <h2 id="background" class="no-margin-top">0. Background</h2>
+
+        <h3 id="author" class="border-bottom">About the Author & Story</h3>
+        <div class="story">
+            <p>Hi, I am <strong>Tim Voronkin</strong>, a Ukrainian student studying "Web Development" at the
+                <strong>University of Pardubice</strong> (Czech Republic). I arrived in Lisbon in September 2025 for
+                an Erasmus internship at this wonderful company, <strong>Erasmus Life Housing</strong>.
+            </p>
+            <p><strong>Follow me on social networks:</strong> <a href="https://linktr.ee/Tim_Voronkin"
+                    target="_blank">linktr.ee/Tim_Voronkin <img src="../icon/external-link.svg" class="ext-icon"></a>
+            </p>
+            <p>When I started learning about my duties and tasks, I increasingly realized that the workflow felt
+                wrong,
+                clumsy, and in desperate need of optimization. However, I only managed to get access to the
+                website's
+                original source code in January (at the very end of my internship, so it wasn't very useful), and I
+                was
+                never given access to view or modify the database.</p>
+            <p>So, I had no choice but to invent this "crutch" in the form of a browser extension. It simply
+                simulates
+                clicks or replaces text in fields within the existing ELH interface. I started with small functions
+                -
+                like helping to open multiple tabs at once - and ended up building complex tools like the Rooms
+                Batch
+                Runner.
+            </p>
+        </div>
+
+        <hr>
+
+        <h3 id="elh-logic" class="border-bottom">About Erasmus Life Housing &
+            Platform Logic
+        </h3>
+        <div class="mb-40">
+            <p><strong>Erasmus Life Housing</strong> (shortly ELH) is a specialized platform dedicated to helping
+                students find
+                accommodation. We partner with numerous landlords who offer various apartments and houses for rent.
+                While for some landlords ELH is the exclusive booking platform, others list their properties in
+                multiple
+                places. Therefore, one of our primary tasks is to maintain accurate and synchronized data across the
+                site.</p>
+
+            <h4>Core Entities</h4>
+            <p>The system's logic revolves around three key concepts:</p>
+            <ul>
+                <li><strong>Room</strong>: A single unit of personal space (usually a bedroom) where a student
+                    stays.
+                    This is the most granular level, where pricing and booking dates are managed.</li>
+                <li><strong>Listing</strong>: A collective term for a unit that groups several rooms together. It
+                    represents shared areas (kitchen, bathroom, corridors) and can be referred to as an apartment,
+                    house, or condo.</li>
+                <li><strong>Landlord</strong> (shortly LL): The individual or company owner to whom each Listing is
+                    attached.
+                </li>
+            </ul>
+
+            <h4>URL Structure & Navigation</h4>
+            <p>The platform uses unique IDs for each entity to manage links. Understanding these patterns is helpful
+                for
+                manual navigation or troubleshooting.</p>
+
+            <h5 id="url-landlord">Landlord</h5>
+            <ul>
+                <li><strong>Create</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/users/create</code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/users/create" target="_blank">example
+                        <img src="../icon/external-link.svg" class="ext-icon"></a>
+                </li>
+                <li><strong>Edit</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/users/<strong><u>{landlord-ID}</u></strong>/edit</code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/users/6n7KeDx4/edit"
+                        target="_blank">example <img src="../icon/external-link.svg" class="ext-icon"></a>
+                </li>
+            </ul>
+
+            <h5 id="url-listing">Listing</h5>
+            <ul>
+                <li><strong>Create</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/houses/form</code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/houses/form" target="_blank">example
+                        <img src="../icon/external-link.svg" class="ext-icon"></a>
+                </li>
+                <li><strong>Edit</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/houses/form/<strong><u>{listing-ID}</u></strong></code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/houses/form/Y5W0Kw"
+                        target="_blank">example <img src="../icon/external-link.svg" class="ext-icon"></a>
+                    <br>
+                    <small><em>
+                            If the end of the link contains anything other than the existing listing-ID, it will be
+                            truncated and a new listing will be created with a new listing-ID.
+                        </em></small>
+                </li>
+            </ul>
+
+            <h5 id="url-room">Room</h5>
+            <ul>
+                <li><strong>Create</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/listings/<strong><u>{listing-ID}</u></strong>/rooms/form</code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/listings/Y5W0Kw/rooms/form"
+                        target="_blank">example <img src="../icon/external-link.svg" class="ext-icon"></a>
+                    <br>
+                </li>
+                <li><strong>Edit</strong>:
+                    <code>erasmuslifehousing.com/dashboard/admin/listings/<strong><u>{listing-ID}</u></strong>/rooms/form/<strong><u>{room-ID}</u></strong></code>
+                    - <a href="https://www.erasmuslifehousing.com/dashboard/admin/listings/Y5W0Kw/rooms/form/mZrPq96M"
+                        target="_blank">example <img src="../icon/external-link.svg" class="ext-icon"></a>
+                    <br>
+                    <small><em>If the end of the link contains anything other than the existing room-ID, it will be
+                            truncated and a new room will be created with a new room-ID in this listing.
+                            <br>
+                            Rooms cannot exist without a listing. Even though room-IDs are unique, you need the
+                            listing-ID to build the edit URL.</em></small>
+                </li>
+            </ul>
+
+            <h5 id="url-public-view">Public View (User Perspective)</h5>
+            <ul>
+                <li><strong>Room Page</strong>:
+                    <code>https://www.erasmuslifehousing.com/room/na/na-<strong><u>{room-ID}</u></strong></code>
+                    - <a href="https://www.erasmuslifehousing.com/room/na/na-mZrPq96M" target="_blank">example <img
+                            src="../icon/external-link.svg" class="ext-icon"></a>
+                    <br>
+                    <small><em>This page combines data from the Listing and the specific Room to show the user
+                            exactly
+                            what they are booking.</em></small>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Introduction -->
+    <div class="container">
+        <h2 id="introduction" class="no-margin-top">1. Introduction to the Extension</h2>
+        <p>This extension is designed to supercharge your workflow on the <a
+                href="https://www.erasmuslifehousing.com/dashboard/admin" target="_blank">Erasmus Life Housing<img
+                    src="../icon/external-link.svg" class="ext-icon"></a> platform. Its core
+            philosophy is to automate repetitive data entry tasks using a standardized data format called
+            <strong><a href="#u-json">u-JSON</a></strong>.
+        </p>
+        <p><strong>Note:</strong> Almost all buttons injected by this extension onto the website have a unified
+            <strong><span style="color:#39923E; font-weight:bold;">green</span></strong> style, so you can easily
+            distinguish them from the native interface.
+        </p>
+        <div id="disclaimer" class="disclaimer">
+            <h3 style="margin-top: 0;">Disclaimer</h3>
+            <p>Due to very limited time constraints and the fact that I am still a student,
+                this extension was developed with significant assistance from AI tools (initially VSCode + GitHub
+                Copilot, and later Google Antigravity - which performed much better).</p>
+            <p>Because of this, and because many functions were written "on the fly" to solve immediate specific
+                tasks
+                from ELH, the code contains holes and potential issues. Often, once a specific task was done, the
+                function might not have been polished to perfection.</p>
+            <p><strong>PLEASE BE CAREFUL.</strong> Do not trust the extension for 100%. Always verify what it is
+                doing.
+            </p>
+            <p><strong>I, Tim Voronkin, disclaim any responsibility for damages or errors that may be caused by
+                    future
+                    colleagues using this extension.</strong> Use it at your own risk.</p>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="container">
+        <h2 id="extension-features" class="no-margin-top">2. Extension Features by Button</h2>
+
+        <!-- Paste Universal JSON -->
+        <div>
+            <h3 id="btn-paste-u-json">Button to paste Universal JSON</h3>
+            <p><span class="btn-style btn-green">Paste Universal JSON</span></p>
+            <p>This is the most powerful button on the page. It intelligently inserts <a href="#u-json">u-JSON</a> data
+                from your clipboard to the relevant fields on whichever step of the room or listing edit page you are
+                currently on.
+            </p>
+            <p><strong>Steps to use:</strong></p>
+            <ol>
+                <li>Copy a valid <a href="#u-json">u-JSON</a> object (usually from AI or Spreadsheet).</li>
+                <li>Go to any <a href="#url-listing">Listing</a> or <a href="#url-room">Room edit or
+                        creating page</a>.</li>
+                <li>Go to any page step (e.g. General Info, Features, Location).</li>
+                <li>Click the <span class="btn-style btn-green">Paste Universal JSON</span> button on the bottom-right.
+                </li>
+                <li>The extension will fill out all matching fields at once of the current step page.</li>
+                <li>All filled fields will be highlighted with <strong class="text-green">green outline</strong>.
+                    If a field is already filled with the same value, it will be highlighted with
+                    <strong class="text-grey-green">grey-green outline</strong>.
+                </li>
+            </ol>
+            <div class="media-container">
+                <img src="images/image16.png">
+                <span class="media-caption">Example of the floating "Paste Universal JSON" button injected into the
+                    landlord
+                    edit page and highlighted fields after pasting the u-JSON.</span>
+            </div>
+        </div>
+
+        <!-- Open Tabs -->
+        <div>
+            <h3 id="btn-open-tabs">Buttons to open tabs</h3>
+            <p>Steps to use:</p>
+            <ol>
+                <li>Go to the <a href="https://www.erasmuslifehousing.com/dashboard/admin/houses"
+                        target="_blank">Listings
+                        Page
+                        on admin dashboard<img src="../icon/external-link.svg" class="ext-icon"></a></li>
+                <li>Use the search bar to filter the listings.</li>
+                <li>Click to one of the buttons:</li>
+                <ul>
+                    <li><span class="btn-style btn-green">open all listings (X tabs)</span> to open the "Edit Listing"
+                        page
+                        for
+                        every listing visible in your current search results.</li>
+                    <li><span class="btn-style btn-green">open all rooms (X tabs)</span> to open the "Edit Room" page
+                        for
+                        <strong>every room</strong> in <strong>every listing</strong> visible in your current search
+                        results.
+                    </li>
+                    <li><span class="btn-style btn-green">open X tabs</span> to open the "Edit Room" page for
+                        <strong>every room</strong> in this specific listing.
+                        <br>
+                        <small><em>This button visible even without any search.</em></small>
+                    </li>
+                </ul>
+            </ol>
+            <p>in <a href="#option-page">Options</a> you can set with checkboxes:</p>
+            <ul>
+                <li>Stay in same page after opening all tabs</li>
+                <li>Open all tabs in the same tab group</li>
+            </ul>
+            <div class="media-container">
+                <img src="images/listings_tabs.png">
+                <span class="media-caption">Example of these buttons injected into the listing search page.</span>
+            </div>
+        </div>
+
+        <!-- AI Buttons -->
+        <div>
+            <h3 id="btn-ai">Buttons to generate new Room Name or Description</h3>
+            <p><strong>Steps to use:</strong></p>
+            <ol>
+                <li>Go to <a href="#url-room">Room Creating or Editing page</a>.</li>
+                <li>Go to "Photos and description" step.</li>
+                <li>Fill required fields.</li>
+                <li>Click one of the AI buttons:</li>
+                <ul>
+                    <li><span class="btn-style btn-green">⚄ Randomize Name</span> to paste a random string from list as
+                        a
+                        room
+                        name. </li>
+                    <li><span class="btn-style btn-green">✦︎ Generate Name via description</span> to generate a room
+                        name
+                        based on the description with Gemini AI.
+                    </li>
+                    <li><span class="btn-style btn-green">✦︎ Generate Name via description+img1</span> to generate a
+                        room
+                        name based on the description and the first image with Gemini AI.
+                    </li>
+                    <li><span class="btn-style btn-green">✦︎ Generate Description via name+img1</span> to generate a
+                        room
+                        description based on the room name and the first image with Gemini AI.
+                    </li>
+                </ul>
+                </li>
+                <li>Click one of the AI buttons and wait for the text to appear.</li>
+            </ol>
+            <div class="note">
+                <strong>Important:</strong> Buttons with "✦︎" symbol require a Gemini API Key to be filled in <a
+                    href="#option-page">Options</a>.
+                <br>
+                Also for each ✦︎ button, should be filled prompts in <a href="#option-page">Options</a>.
+                <br>
+                And AI buttons that use images not working yet..
+                <br>
+                Button with "⚄" symbol require "Randomized Room Names" to be filled in <a
+                    href="#option-page">Options</a>.
+            </div>
+        </div>
+
+        <!-- Fix Address Button -->
+        <div>
+            <h3 id="btn-address">Button to fix address</h3>
+            <span class="btn-style btn-green">✦ fix adress</span>
+            <p><strong>Steps to use:</strong></p>
+            <ol>
+                <li>Go to <a href="#url-room">Room Creating or Editing page</a>.</li>
+                <li>Go to the <strong>Location</strong> step.</li>
+                <li>Paste the full, raw address in any format into the "<strong>Street address</strong>" field.</li>
+                <li>Click the <span class="btn-style btn-green">✦ fix adress</span> button.</li>
+                <li>The AI will automatically fill: Street, Door Number, Floor, City, and Zip Code.</li>
+            </ol>
+            <div class="note">
+                <strong>Important:</strong> Require a Gemini API Key to be filled in <a href="#option-page">Options</a>
+                as well as prompts.
+            </div>
+        </div>
+
+        <!-- Copy Image Button -->
+        <div>
+            <h3 id="btn-copy-image">Button to copy image to clipboard</h3>
+            <p><strong>Steps to use:</strong></p>
+            <ol>
+                <li>Go to <a href="#url-listing">Listing</a> or <a href="#url-room">Room edit page</a>.</li>
+                <li>Go to "Photos & Description" page step.</li>
+                <li>Click the small <span class="btn-style btn-green">copy img</span> button underneath any uploaded
+                    image.
+                </li>
+                <li>The image will be copied to your clipboard.</li>
+            </ol>
+            <small>Useful for pasting in any AI assistant or social media chat.</small>
+        </div>
+
+    </div>
+
+    <!-- Universal JSON -->
+    <div class="container">
+        <h2 id="u-json" class="no-margin-top">3. Universal JSON</h2>
+        <p><strong>Universal JavaScript Object Notation</strong> or just <strong>u-JSON</strong>.<br>
+            It is a special JSON structure designed by Tim, to store all data of all possible fields of ELH's landlord,
+            listing and room forms at once.</p>
+
+        <h3 id="u-json-structure">Structure Breakdown</h3>
+
+        <ul>
+            <li><code>json_meta</code>: Can contains any metadata or comments of this JSON.
+                <div class="note">
+                    <strong>Important:</strong> The field <code>"json_type": "ELH_u-JSON_by_Tim_v1"</code> is
+                    <strong>mandatory</strong>. The extension uses this specific key and value to verify that the pasted
+                    data is indeed intended for it and not just some random text.
+                </div>
+            </li>
+            <li><code>room_data</code>: Can contains any fields specific to the <strong>Room</strong> forms.</li>
+            <li><code>listing_data</code>: Can contains any fields for the <strong>Listing/House</strong> forms.</li>
+            <li><code>landlord_data</code>: Can contains any fields for the <strong>Landlord</strong> form.</li>
+        </ul>
+
+        <hr>
+
+        <h3 id="u-json-example">Maximum u-JSON Example</h3>
+        <p>Below is a complete example showing almost every possible field. You do not need to include all fields;
+            only
+            include the ones you want to update.</p>
+
+        <pre><code id="max-json-example">Loading example from file...</code></pre>
+    </div>
+
+    <!-- Rooms Batch Runner -->
+    <div class="container">
+        <h2 id="batch-runner" class="no-margin-top">4. Rooms Batch Runner</h2>
+        <p>The <strong>Rooms Batch Runner</strong> is the flagship feature. It allows you to update multiple rooms
+            across different listings in one go.</p>
+
+        <h3 id="batch-workflow">The Workflow</h3>
+        <p>To update multiple rooms, follow these steps. For a visual demonstration, see the screenshots below.</p>
+
+        <ol>
+            <li>Prepare the data. You should have copied to the clipboard a spreadsheet where each row contains
+                two columns:<br><a href="url-room">a direct link to edit the room</a> and <a href="u-json">u-JSON</a>
+                with the information you want to change.
+                <br>To obtain this, carefully read the <a href="#google-sheets">Google
+                    Sheets Mapping</a> section.
+            </li>
+            <li><a href="option-page">Open Options</a> and scroll down.</li>
+            <li>
+                Paste the data into the "Rooms Batch Runner" text area.
+                The extension will generate a preview table showing the URL status and <a href="#u-json">u-JSON</a>
+                validity.
+                <div class="media-container">
+                    <img src="images/image10.png">
+                    <span class="media-caption">Batch Runner Interface in Options</span>
+                </div>
+            </li>
+
+            <li>
+                <strong>To run, click <span class="btn-style btn-green">▶︎ Start Batch Process</span>.</strong>
+                <div class="media-container">
+                    <video controls class="doc-video">
+                        <source src="images/batch-runner-main showcase.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <span class="media-caption">Batch Runner Main Showcase Video</span>
+                </div>
+            </li>
+        </ol>
+
+
+        <h3 id="batch-options">Batch Runner Settings</h3>
+        <div class="mb-40">
+            <h5><span class="btn-style btn-green">▶︎ Start Batch Process</span></h4>
+                <p>Starts opening tabs and applying data. Be careful with large batches!</p>
+
+                <h5>Auto-pause</h5>
+                <p>To prevent your browser from freezing (or crashing), you can set an <strong>Auto-pause limit</strong>
+                    (e.g., "Auto-pause after 10 tabs"). The script will stop opening new tabs after the limit is
+                    reached,
+                    allowing you to save/close the opened ones before resuming.</p>
+
+                <h5>Do it in background</h5>
+                <p>If checked, the extension will attempt to perform actions with less focus stealing. <br><em>Note:
+                        Browser
+                        limitations may apply. For example, the script often cannot correctly interact with the
+                        "Blocked
+                        Dates" calendar picker when running in the background.</em></p>
+
+                <h5>Tab Management</h5>
+                <p>Once tabs are opened and processed, a new section appears to help you manage them:</p>
+                <ul>
+                    <li><strong>Close All Tabs...</strong>: Closes all tabs opened by the batch runner.</li>
+                    <li><strong>Close Unchanged Tabs...</strong>: Closes tabs where no changes were needed.</li>
+                    <li><strong>Save & Close All Tabs...</strong>: Clicks the "Save" button on each tab and then closes
+                        it.
+                    </li>
+                </ul>
+                <div class="media-container">
+                    <video controls class="doc-video">
+                        <source src="images/batch-runner-saving showcase.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <span class="media-caption">Batch Runner Saving Showcase Video</span>
+                </div>
+        </div>
+
+        <div class="disclaimer">
+            <h3 style="margin-top: 0;">Be really careful with that feature!</h3>
+            <p>Keep in mind, that it can change a lot of rooms at once, and if instructions will have mistakes or just
+                something will go wrong,
+                then it won't be easy for ELH, or especially for you, to restore everything to how it was.</p>
+        </div>
+    </div>
+
+    <!-- Google Sheets -->
+    <div class="container">
+        <h2 id="google-sheets">5. Google Sheets Mapping</h2>
+        <p>Most Batch Runner workflows start from a <strong>Google Sheet</strong>.
+        <h3>
+            Main idea
+        </h3>
+        <p>Most landlords keep their apartment data in separate spreadsheets.
+            <br>For example:
+            <br><a href="https://docs.google.com/spreadsheets/d/1yPdcSFWlUU6uFQltRAXjpGt7vCpMzc_GFBoPsmOtLwU"
+                target="_blank">Quarto e Quartos (shortly QQ) Google Sheet <img src="../icon/external-link.svg"
+                    class="ext-icon"></a>
+            <br><a href="https://docs.google.com/spreadsheets/d/11K9AoekwAcbo8GGtvLO19kN03MUk5VzlatYBvALLeGU"
+                target="_blank"> Place to Stay (shortly P2S) Google Sheet<img src="../icon/external-link.svg"
+                    class="ext-icon"></a>
+        </p>
+
+
+        ELH once tried to combine all landlords into a single large sheet called <a
+            href="https://docs.google.com/spreadsheets/d/1adUrR0KdH4W2sv_NRHfhN01Q70-mXmd5SxB7II2tYtc"
+            target=" _blank">"Global Map 2018"<img src="../icon/external-link.svg" class="ext-icon"></a>,
+        <br>
+        but keeping it updated turned out to be chaotic and unreliable.
+        <br>
+        <div class="note">
+            <strong>Important:</strong> To all the mentioned tables, special access rights are required. Ask your mentor
+            colleagues. Either they will give you access or they will provide an ELH account with this access.
+        </div>
+        <br>
+        So, I created a new spreadsheet, <a
+            href="https://docs.google.com/spreadsheets/d/1RSuktwzjaPU8xll9WDQcvaBoBZXdR61NmuSl7FHDMRU"
+            target=" _blank">"ELH IT - LL's sheets to u-JSON"<img src="../icon/external-link.svg"
+                class="ext-icon"></a>,<br>
+        Its main purpose is to map which row in a landlord's sheet corresponds to a room ID and listing ID in
+        the
+        ELH platform so we can operate on them programmatically.
+        <p>What this sheet do:</p>
+        <ul>
+            <li>using `=IMPORTRANGE` it imports the landlord's original table (stripping formatting) and allows us to
+                edit freely.</li>
+            <li>To the left of the imported table the listing ID and room ID are entered manually.</li>
+            <li>Based on those two columns, a simple formula builds a direct link to the room/listing edit/view page.
+            </li>
+            <li>Each landlord has a separate tab.</li>
+        </ul>
+
+        <div class="media-container">
+            <img src="images/image11.png">
+            <span class="media-caption">Structure of the spreadsheet.</span>
+        </div>
+
+        <p>Now the most interesting part - converting messy landlord data into a structured <a
+                href="#u-json">u-JSON</a>.
+            <br>Bassicly we have three ways to obtain the
+            two-column table required by the <a href="#batch-runner">Batch Runner</a>:
+        </p>
+
+        <ol>
+            <li><strong>Write it manually.</strong>
+                <br>👍Pros: It is possible.
+                <br>👎Cons: Obviously, nobody will do this.
+            </li>
+            <li><strong>Create a spreadsheet function.</strong>
+                <br>👍Pros: Once configured, it works automatically for any number of rooms.
+                <br>👎Cons: Each landlord's sheet is different, so custom formulas may be required and can break if
+                the source sheet changes.
+            </li>
+            <li><strong>Let AI figure it out.</strong>
+                <br>👍Pros: It’s universal. You can tell the AI what data you need, and you usually don't even have to
+                explain the LL's logic.
+                <br>👎Cons: AI still can make errors. Also, if the dataset is huge, it may take a long time to think and
+                then even can screw you over.
+            </li>
+        </ol>
+
+        <h4>Examples:</h4>
+        <ul>
+            <li><strong>Method 2</strong>
+                <br>
+                I managed to create one such function for updating blocked dates for the QQ table.
+                So you just need to copy these two columns.
+                <div class="media-container">
+                    <img src="images/image15.png">
+                </div>
+            </li>
+            <li><strong>Method 3</strong>
+                <br>
+                Copy the column with the edit-room link and the other useful columns, paste them to the <a
+                    href="#ai-assistant">AI bot</a>, explain what you want and how to interpret the landlord's data,
+                then copy the table that AI returns.
+                <div class="media-container">
+                    <img src="images/image3.png">
+                    <img src="images/gemini-data-to-table-for-batch-runner.jpg">
+                </div>
+            </li>
+            <li><strong>Method 1+3</strong>
+                <br>
+                In this case, I combined two methods.<br>
+                First, I manually looked through and found which link of this LL corresponds to which ELH's room...<br>
+                Then I went through all the links and copied the first available month and rent from the pages into
+                separate columns (because this needed to be updated).<br>
+                Then I copied these columns together with "edit room" and pasted them into my AI bot.<br>
+                In the end, as usual, I got a table with a URL to edit room column and u-JSON column.<br>
+                <div class="media-container">
+                    <img src="images/image1.png">
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+    <!-- Gemini Gem -->
+    <div class="container">
+        <h2 id="ai-assistant" class="no-margin-top">6. Make u-JSON with AI </h2>
+        <p>To make creating <a href="#u-json">u-JSON</a> easier, you can use AI assistant specialized for this
+            extension.</p>
+
+        <div class="mb-40">
+            <p>Access the Gemini Gem that I made: <a
+                    href="https://gemini.google.com/gem/1WOGJxrfdnw_q68rQPP98CnkyIlAC6SKu?usp=sharing"
+                    target="_blank">ELH Tim's Helper Gem <img src="../icon/external-link.svg" class="ext-icon"></a></p>
+
+            <div class="media-container">
+                <img src="images/image7.png">
+            </div>
+            <p> but if link doesn't work, you can create your own Gem :</p>
+            <ul>
+                <li>Go to <a href="https://gemini.google.com/gems/view" target="_blank">Gemini → Gem Manager → New
+                        Gem<img src="../icon/external-link.svg" class="ext-icon"></a></li>
+                <li>Give a name and description as you prefer.</li>
+                <li>Write the instructions like this:
+                    <pre><code>
+You are a bot that helps create universal JSON used for inserting and updating data on the platform.
+This JSON must always have a clear hierarchy and all keys must be named exactly as in my example.
+
+If I ask you to create JSON for a room, the root must contain only json_meta and room_data.
+If I ask to create JSON for a listing/house/address, the root must contain only json_meta and listing_data.
+If I ask to create JSON for a landlord/person/company, the root must contain only json_meta and landlord_data.
+In json_meta there must be exactly: "json_type": "ELH_U-JSON_by_Tim_v1".
+The JSON should include only keys for which there is data.
+Fill values based on all data I provide, including photo analysis where applicable.
+After you send the complete JSON, briefly explain which values you chose and why, and list any uncertain guesses so I can confirm or reject them.
+Ask me if any critical data is missing.
+Your explanations should be in English, but if I address you in Ukrainian, reply in Ukrainian.
+Keep answers concise and without unnecessary introduction.
+Messages I send for analysis are usually in English or Portuguese.
+
+Sometimes I may ask you to create a table for the Batch Runner; in that case reply with a table with two columns:
+1. `url edit room` - link to edit a specific room, like: https://www.erasmuslifehousing.com/dashboard/admin/listings/{listingsID}/rooms/form/{roomID}
+2. `u-JSON` in the same format as above, but in a single line without line breaks.
+
+Here is an example of a full JSON with all possible keys:
+                    </code></pre>
+                    And in the end also add <a href="#u-json-example">full example of u-JSON</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Option Page -->
+    <div class="container">
+        <h2 id="option-page" class="no-margin-top">7. Options Page</h2>
+        <p>Options page is a special extension page where you can configure some settings of the extension. For example,
+            API key and prompts for <a href="#btn-ai">AI buttons</a>, <a href="#btn-open-tabs">opening tabs</a>
+            settings or <a href="#batch-runner">Room Batch Runner</a>.
+            <br>
+            To open it you need to click on the
+            extention icon in the browser toolbar and select "Options" from the context menu.
+        </p>
+        <div class="media-container">
+            <img src="images/how-to-find-option-page.png">
+            <span class="media-caption">How to open option page</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <p>Psss.. hey! Have u read full documentation? Good job!</p>
+
+            <p>If you are IT intern in beginning of 2026, you can have one <strong>extra day-off</strong>!</p>
+
+        
+    To get this, go back to the example of full u-json and find the end date of the second blocked date.
+        <br>What is celebrated on this day?
+        <br>Give Anderson the answer to that question, and then he will approve your extra day off.
+        <br>Enjoy your time! 😊
+    </div>
+
+
+
+
+
+
+    <!-- Simple JSON Syntax Highlighter -->
+    <script>
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 4);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch and inject Maximum u-JSON Example
+            const maxJsonCode = document.getElementById('max-json-example');
+            if (maxJsonCode) {
+                fetch('examples/example_of_maximum_u.json')
+                    .then(response => response.text())
+                    .then(data => {
+                        maxJsonCode.innerHTML = syntaxHighlight(data);
+                    })
+                    .catch(error => {
+                        console.error('Error loading JSON example:', error);
+                        maxJsonCode.textContent = 'Error loading example. Please ensure you are viewing this via a local server or browser that allows relative file access.';
+                    });
+            }
+
+            const pres = document.querySelectorAll('pre code:not(#max-json-example)');
+            pres.forEach(el => {
+                try {
+                    const raw = el.innerText;
+                    const obj = JSON.parse(raw);
+                    el.innerHTML = syntaxHighlight(JSON.stringify(obj, null, 4));
+                } catch (e) {
+                    el.innerHTML = syntaxHighlight(el.innerText);
+                }
+            });
+
+            // Make images clickable
+            const imgs = document.querySelectorAll('.media-container img:not(.ext-icon)');
+            imgs.forEach(img => {
+                img.addEventListener('click', () => {
+                    window.open(img.src, '_blank');
+                });
+            });
+        });
+    </script>
+    <!-- Header Anchors Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const headers = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id]");
+
+            headers.forEach(header => {
+                const anchor = document.createElement("a");
+                anchor.className = "anchor-link";
+                anchor.href = "#" + header.id;
+                anchor.textContent = "#";
+                header.appendChild(anchor);
+
+                header.style.cursor = "pointer";
+
+                header.addEventListener("click", (e) => {
+                    // Update URL and copy to clipboard
+                    const url = window.location.origin + window.location.pathname + "#" + header.id;
+                    history.pushState(null, null, "#" + header.id);
+                    navigator.clipboard.writeText(url);
+
+                    // If clicked on header text (not the anchor link itself), scroll to it manually
+                    if (e.target !== anchor) {
+                        header.scrollIntoView({ behavior: "smooth" });
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Auto TOC Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tocContainer = document.querySelector('.toc');
+            if (!tocContainer) return;
+
+            const existingList = tocContainer.querySelector('ul');
+            if (existingList) existingList.remove();
+
+            const tocList = document.createElement('ul');
+            const headers = document.querySelectorAll('.container h2, .container h3, .container h4');
+
+            let currentH2Li = null;
+            let currentH2Ul = null;
+            let currentH3Li = null;
+            let currentH3Ul = null;
+
+            headers.forEach(header => {
+                // Ignore headers inside the TOC itself or invisible ones
+                if (header.closest('.toc')) return;
+
+                // Ensure header has ID
+                if (!header.id) {
+                    header.id = header.innerText.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+                }
+
+                // Get text without the anchor
+                let headerText = header.innerText;
+                const anchorLink = header.querySelector('.anchor-link');
+                if (anchorLink) {
+                    // Clone node to safely remove child without affecting DOM
+                    const clone = header.cloneNode(true);
+                    const cloneAnchor = clone.querySelector('.anchor-link');
+                    if (cloneAnchor) cloneAnchor.remove();
+                    headerText = clone.innerText;
+                }
+
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#' + header.id;
+                a.textContent = headerText;
+                li.appendChild(a);
+
+                const tagName = header.tagName.toLowerCase();
+
+                if (tagName === 'h2') {
+                    tocList.appendChild(li);
+                    currentH2Li = li;
+                    currentH2Ul = null;
+                    currentH3Li = null;
+                    currentH3Ul = null;
+                } else if (tagName === 'h3' && currentH2Li) {
+                    if (!currentH2Ul) {
+                        currentH2Ul = document.createElement('ul');
+                        currentH2Li.appendChild(currentH2Ul);
+                    }
+                    currentH2Ul.appendChild(li);
+                    currentH3Li = li;
+                    currentH3Ul = null;
+                } else if (tagName === 'h4' && currentH3Li) {
+                    if (!currentH3Ul) {
+                        currentH3Ul = document.createElement('ul');
+                        currentH3Li.appendChild(currentH3Ul);
+                    }
+                    currentH3Ul.appendChild(li);
+                }
+            });
+
+            tocContainer.appendChild(tocList);
+        });
+    </script>
+</body>
+
+</html>
