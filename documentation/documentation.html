@@ -200,7 +200,8 @@
         h1:hover .anchor-link,
         h2:hover .anchor-link,
         h3:hover .anchor-link,
-        h4:hover .anchor-link {
+        h4:hover .anchor-link,
+        h5:hover .anchor-link {
             opacity: 1;
         }
 
@@ -218,7 +219,7 @@
         .ext-icon {
             width: 14px;
             height: 14px;
-            margin-left: 4px;
+            margin: 0 0 0 4px;
             vertical-align: middle;
             opacity: 0.7;
             display: inline;
@@ -451,9 +452,14 @@
 
     <!-- Header -->
     <div class="container">
-        <div class="doc-header">
-            <img src="../icon/header.png">
-            <h1 class="align-self-end">Documentation</h1>
+        <div id="top">
+            <div class="doc-header">
+
+                <img src="../icon/header.png">
+
+                <h1 class="align-self-end">Documentation</h1>
+
+            </div>
         </div>
 
         <div class="toc">
@@ -466,7 +472,7 @@
     <div class="container">
         <h2 id="background" class="no-margin-top">0. Background</h2>
 
-        <h3 id="author" class="border-bottom">About the Author & Story</h3>
+        <h3 id="author">About the Author & Story</h3>
         <div class="story">
             <p>Hi, I am <strong>Tim Voronkin</strong>, a Ukrainian student studying "Web Development" at the
                 <strong>University of Pardubice</strong> (Czech Republic). I arrived in Lisbon in September 2025 for
@@ -499,7 +505,6 @@
             </p>
         </div>
 
-        <hr>
 
         <h3 id="elh-logic" class="border-bottom">About Erasmus Life Housing &
             Platform Logic
@@ -513,7 +518,7 @@
                 places. Therefore, one of our primary tasks is to maintain accurate and synchronized data across the
                 site.</p>
 
-            <h4>Core Entities</h4>
+            <h4 id="core-entities">Core Entities</h4>
             <p>The system's logic revolves around three key concepts:</p>
             <ul>
                 <li><strong>Room</strong>: A single unit of personal space (usually a bedroom) where a student
@@ -527,7 +532,7 @@
                 </li>
             </ul>
 
-            <h4>URL Structure & Navigation</h4>
+            <h4 id="url-structure">URL Structure & Navigation</h4>
             <p>The platform uses unique IDs for each entity to manage links. Understanding these patterns is helpful
                 for
                 manual navigation or troubleshooting.</p>
@@ -586,7 +591,7 @@
                 </li>
             </ul>
 
-            <h5 id="url-public-view">Public View (User Perspective)</h5>
+            <h5 id="url-public">Public View</h5>
             <ul>
                 <li><strong>Room Page</strong>:
                     <code>https://www.erasmuslifehousing.com/room/na/na-<strong><u>{room-ID}</u></strong></code>
@@ -614,10 +619,19 @@
             <strong><span style="color:#39923E; font-weight:bold;">green</span></strong> style, so you can easily
             distinguish them from the native interface.
         </p>
-        <p>Source code is available on <a href="https://github.com/TimVoronkin/ELH-listing-helper"
-                target="_blank">GitHub<img src="../icon/external-link.svg" class="ext-icon"></a>.</p>
-        <div id="disclaimer" class="disclaimer">
-            <h3 style="margin-top: 0;">Disclaimer</h3>
+        <h3 id="installation">Installation</h3>
+        <ol>
+            <li>Download or clone the <a href="https://github.com/TimVoronkin/ELH-listing-helper" target="_blank">GitHub
+                    repository<img src="../icon/external-link.svg" class="ext-icon"></a></li>
+            <li>Open your browser (Chrome recommended) and navigate to <code>chrome://extensions</code>.</li>
+            <li>Enable <strong>Developer mode</strong> in the top right corner.</li>
+            <li>Click <strong>Load unpacked</strong> and select the downloaded extension folder.</li>
+            <li><strong>ELH Tim's helper</strong> should now be visible in the list of extensions.</li>
+        </ol>
+
+
+        <div class="disclaimer">
+            <h3 id="disclaimer" style="margin-top: 0;">Disclaimer</h3>
             <p>Due to very limited time constraints and the fact that I am still a student,
                 this extension was developed with significant assistance from AI tools (initially VSCode + GitHub
                 Copilot, and later Google Antigravity - which performed much better).</p>
@@ -640,7 +654,7 @@
 
         <!-- Paste Universal JSON -->
         <div>
-            <h3 id="btn-paste-u-json">Button to paste Universal JSON</h3>
+            <h3 id="btn-paste-u-json">Button to Paste u-JSON</h3>
             <p><span class="btn-style btn-green">Paste Universal JSON</span></p>
             <p>This is the most powerful button on the page. It intelligently inserts <a href="#u-json">u-JSON</a> data
                 from your clipboard to the relevant fields on whichever step of the room or listing edit page you are
@@ -670,7 +684,7 @@
 
         <!-- Open Tabs -->
         <div>
-            <h3 id="btn-open-tabs">Buttons to open tabs</h3>
+            <h3 id="btn-open-tabs">Buttons to Open Tabs</h3>
             <p>Steps to use:</p>
             <ol>
                 <li>Go to the <a href="https://www.erasmuslifehousing.com/dashboard/admin/houses"
@@ -709,7 +723,7 @@
 
         <!-- AI Buttons -->
         <div>
-            <h3 id="btn-ai">Buttons to generate new Room Name or Description</h3>
+            <h3 id="btn-ai">Buttons to Generate Room Name or Description</h3>
             <p><strong>Steps to use:</strong></p>
             <ol>
                 <li>Go to <a href="#url-room">Room Creating or Editing page</a>.</li>
@@ -752,7 +766,7 @@
 
         <!-- Fix Address Button -->
         <div>
-            <h3 id="btn-address">Button to fix address</h3>
+            <h3 id="btn-address">Button to Fix Address</h3>
             <span class="btn-style btn-green">✦ fix adress</span>
             <p><strong>Steps to use:</strong></p>
             <ol>
@@ -770,7 +784,7 @@
 
         <!-- Copy Image Button -->
         <div>
-            <h3 id="btn-copy-image">Button to copy image to clipboard</h3>
+            <h3 id="btn-copy-image">Button to Copy Image to Clipboard</h3>
             <p><strong>Steps to use:</strong></p>
             <ol>
                 <li>Go to <a href="#url-listing">Listing</a> or <a href="#url-room">Room edit page</a>.</li>
@@ -787,12 +801,12 @@
 
     <!-- Universal JSON -->
     <div class="container">
-        <h2 id="u-json" class="no-margin-top">3. Universal JSON</h2>
+        <h2 id="u-json" class="no-margin-top">3. u-JSON</h2>
         <p><strong>Universal JavaScript Object Notation</strong> or just <strong>u-JSON</strong>.<br>
             It is a special JSON structure designed by Tim, to store all data of all possible fields of ELH's landlord,
             listing and room forms at once.</p>
 
-        <h3 id="u-json-structure">Structure Breakdown</h3>
+        <h3 id="u-json-structure">Structure & Rules</h3>
 
         <ul>
             <li><code>json_meta</code>: Can contains any metadata or comments of this JSON.
@@ -809,7 +823,7 @@
 
         <hr>
 
-        <h3 id="u-json-example">Maximum u-JSON Example</h3>
+        <h3 id="u-json-example">Full u-JSON Example</h3>
         <p>Below is a complete example showing almost every possible field. You do not need to include all fields;
             only
             include the ones you want to update.</p>
@@ -857,10 +871,10 @@
         </ol>
 
 
-        <h3 id="batch-options">Batch Runner Settings</h3>
+        <h3 id="batch-options">Batch Runner Options</h3>
         <div class="mb-40">
             <h5><span class="btn-style btn-green">▶︎ Start Batch Process</span></h4>
-                <p>Starts opening tabs and applying data. Be careful with large batches!</p>
+                <p>Starts opening tabs and applying data.</p>
 
                 <h5>Auto-pause</h5>
                 <p>To prevent your browser from freezing (or crashing), you can set an <strong>Auto-pause limit</strong>
@@ -894,7 +908,7 @@
         </div>
 
         <div class="disclaimer">
-            <h3 style="margin-top: 0;">Be really careful with that feature!</h3>
+            <h3 class="no-toc" style="margin-top: 0;">Be really careful with that feature!</h3>
             <p>Keep in mind, that it can change a lot of rooms at once, and if instructions will have mistakes or just
                 something will go wrong,
                 then it won't be easy for ELH, or especially for you, to restore everything to how it was.</p>
@@ -976,7 +990,7 @@
             </li>
         </ol>
 
-        <h4>Examples:</h4>
+        <h4>Examples</h4>
         <ul>
             <li><strong>Method 2</strong>
                 <br>
@@ -1076,6 +1090,7 @@ Here is an example of a full JSON with all possible keys:
         </div>
     </div>
 
+    <!-- Easter Egg -->
     <div class="container">
         <p>Psss.. hey! Have u read full documentation? Good job!</p>
 
@@ -1152,10 +1167,11 @@ Here is an example of a full JSON with all possible keys:
             });
         });
     </script>
+
     <!-- Header Anchors Script -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const headers = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id]");
+            const headers = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], div[id=top]");
 
             headers.forEach(header => {
                 const anchor = document.createElement("a");
@@ -1200,6 +1216,7 @@ Here is an example of a full JSON with all possible keys:
             headers.forEach(header => {
                 // Ignore headers inside the TOC itself or invisible ones
                 if (header.closest('.toc')) return;
+                if (header.classList.contains('no-toc')) return;
 
                 // Ensure header has ID
                 if (!header.id) {

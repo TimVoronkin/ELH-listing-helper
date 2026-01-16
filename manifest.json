@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ELH Tim's helper",
-  "version": "0.9",
+  "version": "0.10",
   "description": "Adds some buttons to help working with Erasmus Life Housing platform",
   "permissions": [
     "activeTab",
