@@ -1025,6 +1025,7 @@ if (batchInput) {
     const paths = [];
     for (const key in obj) {
       if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+      if (key === 'json_meta') continue;
 
       const val = obj[key];
       const newPrefix = prefix ? `${prefix} → ${key}` : key;
@@ -1092,7 +1093,7 @@ if (batchInput) {
     let html = '<table style="width:100%; border-collapse: collapse; font-size: 11px;">';
     html += '<tr style="background:#eee; text-align:left;">';
     html += '<th style="padding:5px; border:1px solid #ccc; width: 20px; color: #666;">Row</th>';
-    html += '<th style="padding:5px; border:1px solid #ccc; width: 180px;">URL to edit room</th>';
+    html += '<th style="padding:5px; border:1px solid #ccc; width: 180px;">room/listing URL</th>';
     html += '<th style="padding:5px; border:1px solid #ccc; width: 450px;">actions from u-JSON</th>'; // Wider column
     html += '<th style="padding:5px; border:1px solid #ccc;">Old Dates</th>';
     html += '<th style="padding:5px; border:1px solid #ccc;">Status</th>';
@@ -1196,14 +1197,22 @@ if (batchInput) {
       let urlCellInner = '';
       if (urlOk) {
         // Extract IDs
-        // URL format: .../listings/{listingID}/rooms/form/{roomID}
-        // Fix regex to be less greedy or direct
-        const idMatch = url.match(/\/listings\/([^/]+)\/rooms\/form\/([^/]+)/);
+        // URL format: 
+        // Room: .../listings/{listingID}/rooms/form/{roomID}
+        // Listing: .../dashboard/admin/houses/form/{listingID}
+
+        const roomMatch = url.match(/\/listings\/([^/]+)\/rooms\/form\/([^/]+)/);
+        const listingMatch = url.match(/\/dashboard\/admin\/houses\/form\/([^/]+)/);
+
         let idsHtml = '';
 
-        if (idMatch) {
+        if (roomMatch) {
           idsHtml = `<div style="font-size:10px; color:black; line-height:1.2;">
-                    listing: <b><code>${idMatch[1]}</code></b><br>room: <b><code>${idMatch[2]}</code></b>
+                    listing: <b><code>${roomMatch[1]}</code></b><br>room: <b><code>${roomMatch[2]}</code></b>
+                </div>`;
+        } else if (listingMatch) {
+          idsHtml = `<div style="font-size:10px; color:black; line-height:1.2;">
+                    listing: <b><code>${listingMatch[1]}</code></b>
                 </div>`;
         } else {
           idsHtml = `<div style="font-size:10px; color:black;">${safeRawUrl.substring(0, 30)}...</div>`;

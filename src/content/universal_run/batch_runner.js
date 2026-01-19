@@ -24,11 +24,19 @@ const STEP_BUTTON_MAP = {
     'FeaturesSteps': 'Room Features',       // or "Features"
     'PaymentSteps': 'Payment',              // or "Rental conditions"
     'BlockedDatesStep': 'Blocked dates',
-    'PhotosStep': 'Photos and description'  // or "Media"
+    'PhotosStep': 'Photos and description', // or "Media"
+    'StepLocation': 'Location',
+    'StepType': 'Type of Accommodation',
+    'StepComodation': 'Amenities',
+    'StepRules': 'Rules',
+    'StepImages': 'Photos & Description'
 };
 
 // Valid steps in order of execution preference
-const ORDERED_STEPS = ['FeaturesSteps', 'PaymentSteps', 'BlockedDatesStep', 'PhotosStep'];
+const ORDERED_STEPS = [
+    'FeaturesSteps', 'PaymentSteps', 'BlockedDatesStep', 'PhotosStep',
+    'StepLocation', 'StepType', 'StepComodation', 'StepRules', 'StepImages'
+];
 
 async function handleBatchStep(jsonData, progress) {
     if (progress) {
@@ -36,22 +44,60 @@ async function handleBatchStep(jsonData, progress) {
     }
     if (!jsonData) throw new Error('No JSON data provided.');
 
-    const roomData = jsonData.room_data || {};
+    // Detect Context (Listing vs Room)
+    const urlIsListing = window.location.href.includes('/houses/form/');
+    console.log('[ELH-helper] [batch_runner] URL check for listing:', urlIsListing, 'Href:', window.location.href);
+    try { console.log('[ELH-helper] [batch_runner] Available JSON keys:', Object.keys(jsonData)); } catch (e) { }
+
+    let isListing = false;
+    let dataRoot = null;
+
+    // Logic: 
+    // 1. If we have explicit listing_data/property_data, and NO room_data, we must be in Listing mode (or invalid).
+    // 2. If we have room_data, and NO listing_data, we are in Room mode.
+    // 3. If we have both (rare?), fallback to URL check.
+
+    if ((jsonData.listing_data || jsonData.property_data) && !jsonData.room_data) {
+        isListing = true;
+        dataRoot = jsonData.listing_data || jsonData.property_data;
+    } else if (jsonData.room_data && !jsonData.listing_data && !jsonData.property_data) {
+        isListing = false;
+        dataRoot = jsonData.room_data;
+    } else {
+        // Ambiguous or Both or None -> Use URL
+        isListing = urlIsListing;
+        dataRoot = isListing
+            ? (jsonData.listing_data || jsonData.property_data || jsonData.room_data)
+            : jsonData.room_data;
+    }
+
+    if (!dataRoot) {
+        console.error('[ELH-helper] [batch_runner] No valid data root found. jsonData keys:', Object.keys(jsonData));
+        throw new Error('No JSON data found (expected room_data, listing_data, or property_data).');
+    }
 
     // Check which steps are present in JSON
     const stepsToRun = ORDERED_STEPS.filter(stepKey =>
-        Object.prototype.hasOwnProperty.call(roomData, stepKey) &&
-        // Ensure not empty object? 
-        roomData[stepKey]
+        Object.prototype.hasOwnProperty.call(dataRoot, stepKey) &&
+        dataRoot[stepKey]
     );
 
+    console.log('[ELH-helper] [universal_run/batch_runner.js] Context:', isListing ? 'Listing' : 'Room');
     console.log('[ELH-helper] [universal_run/batch_runner.js] Steps to run:', stepsToRun);
 
-    // Import RoomMapper once
-    console.log('[ELH-helper] [universal_run/batch_runner.js] Importing RoomMapper...');
-    const module = await import(chrome.runtime.getURL('src/content/universal_json/mappings/room.js'));
-    const RoomMapper = module.RoomMapper;
-    if (!RoomMapper) throw new Error('RoomMapper not found in module.');
+    // Import Mapper based on context
+    let Mapper = null;
+    if (isListing) {
+        console.log('[ELH-helper] [universal_run/batch_runner.js] Importing ListingMapper...');
+        const module = await import(chrome.runtime.getURL('src/content/universal_json/mappings/listing.js'));
+        Mapper = module.ListingMapper;
+    } else {
+        console.log('[ELH-helper] [universal_run/batch_runner.js] Importing RoomMapper...');
+        const module = await import(chrome.runtime.getURL('src/content/universal_json/mappings/room.js'));
+        Mapper = module.RoomMapper;
+    }
+
+    if (!Mapper) throw new Error('Mapper not found in module.');
 
     // Results aggregator
     const aggregatedResults = {
@@ -82,8 +128,8 @@ async function handleBatchStep(jsonData, progress) {
 
             // Run Mapper
             try {
-                console.log(`[ELH-helper] executing RoomMapper for ${stepKey}`);
-                const result = await RoomMapper.handle(stepKey, jsonData, document.body);
+                console.log(`[ELH-helper] executing Mapper for ${stepKey}`);
+                const result = await Mapper.handle(stepKey, jsonData, document.body);
 
                 // Aggregate Stats
                 if (result) {
