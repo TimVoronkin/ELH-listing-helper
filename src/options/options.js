@@ -541,7 +541,8 @@ async function processBatchLoop() {
     }
 
     if (url.toLowerCase() === 'url' || url.includes('---')) continue;
-    if (!url.startsWith('http')) continue;
+    // Skip URLs that don't contain erasmuslifehousing.com at all
+    if (!url.includes('erasmuslifehousing.com')) continue;
 
     // Handle Google Sheets escaping again for the actual data
     if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
@@ -572,10 +573,14 @@ async function processBatchLoop() {
     batchStatus.textContent = statusText;
 
     try {
-      // Open Tab
+      // Open Tab - ensure URL has protocol
+      let finalUrl = url;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        finalUrl = 'https://' + url;
+      }
       const bgCheck = document.getElementById('batchProcessInBackground');
       const isBg = bgCheck ? bgCheck.checked : false;
-      const tab = await chrome.tabs.create({ url: url, active: !isBg });
+      const tab = await chrome.tabs.create({ url: finalUrl, active: !isBg });
 
       // Wait for it to load
       await new Promise((resolve) => {
@@ -1144,13 +1149,16 @@ if (batchInput) {
       let jsonOk = false;
       let errorMsg = '';
 
-      // Check URL
-      if (url.startsWith('http') && url.includes('erasmuslifehousing.com')) {
+      // Check URL - allow both full URLs and short format without protocol
+      if ((url.startsWith('http') && url.includes('erasmuslifehousing.com')) ||
+        (url.includes('erasmuslifehousing.com') && (url.startsWith('erasmuslifehousing.com') || url.startsWith('www.erasmuslifehousing.com')))) {
         urlOk = true;
-      } else if (!url.startsWith('http')) {
+      } else if (!url.startsWith('http') && !url.includes('erasmuslifehousing.com')) {
         errorMsg = 'Bad URL';
-      } else {
+      } else if (url.startsWith('http') && !url.includes('erasmuslifehousing.com')) {
         errorMsg = 'Wrong Domain'; // Valid http but not erasmuslifehousing
+      } else {
+        errorMsg = 'Bad URL';
       }
 
       // Check JSON
@@ -1307,7 +1315,7 @@ if (batchInput) {
       let statusText = `${validCount} / ${lines.length} valid rows. (≈ ${timeStr} to process)`;
 
       const limitVal = parseInt(autoPauseLimitEl.value, 10) || 0;
-      const isHighMemory = ((limitVal === 0) && (validCount > 100)) || ((limitVal > 0) && (limitVal > 100));
+      const isHighMemory = (validCount > 100) || (limitVal > 100 && validCount > limitVal);
 
       if (isHighMemory) {
         statusText += ' <span style="color:orange; font-weight:bold;">⚠️ High memory usage warning!</span>';

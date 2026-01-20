@@ -1,0 +1,1 @@
+It would be very cool to make it so that this u-json also allows for the necessary IDs in the root, so that the batch runner could insert not only a table, but simply json via transfer, which would be easier.

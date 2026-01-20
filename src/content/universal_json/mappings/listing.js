@@ -149,6 +149,11 @@ export const ListingMapper = {
                 console.error(`[ELH-Universal] Error setting ${field.label}`, err);
             }
         }
+
+        // --- Post-processing for StepLocation ---
+        if (stepName === 'StepLocation') {
+            await this.ClickComputeGeoLocation(container);
+        }
     },
 
     findInputAfterLabel(container, textPart) {
@@ -302,5 +307,31 @@ export const ListingMapper = {
 
             await wait(200);
         }
+    },
+
+    async ClickComputeGeoLocation(container) {
+        const { highlightElement } = await import('../field_setters.js');
+
+        // Give React time to update DOM after all field changes
+        await wait(800);
+
+        // Find and click the "Compute Geo-location" button
+        const buttons = Array.from(container.querySelectorAll('button'));
+        const geoBtn = buttons.find(b =>
+            b.textContent.trim().includes('Compute Geo-location')
+        );
+
+        if (geoBtn && !geoBtn.disabled) {
+            console.log('[ELH-Universal] [StepLocation] Auto-clicking Compute Geo-location...');
+            geoBtn.click();
+            highlightElement(geoBtn, 'green');
+            await wait(1500); // Allow time for geocoding to complete
+
+            console.log('[ELH-Universal] [StepLocation] Geo-location computed.');
+            return true;
+        }
+
+        console.warn('[ELH-Universal] [StepLocation] Compute Geo-location button not found or disabled.');
+        return false;
     }
 };
